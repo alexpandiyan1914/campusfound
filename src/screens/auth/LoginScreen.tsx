@@ -7,12 +7,14 @@ import {
     Image,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-
+import { Alert } from "react-native";
 import ScreenContainer from "../../components/common/ScreenContainer";
 import CustomInput from "../../components/inputs/CustomInput";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
 import AuthHeader from "../../components/common/AuthHeader";
 import AuthLayout from "../../components/common/AuthLayout";
+import authService from "../../services/authService";
+import useAuth from "../../hooks/useAuth";
 
 import {
     Colors,
@@ -30,14 +32,68 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
 const LoginScreen = ({ navigation }: Props) => {
+    const { login } = useAuth();
+
     const [email, setEmail] = useState("");
+
     const [password, setPassword] = useState("");
 
-    const handleLogin = () => {
-        console.log({
-            email,
-            password,
-        });
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async () => {
+
+        if (!email || !password) {
+
+            Alert.alert(
+                "Validation",
+                "Please fill in all fields."
+            );
+
+            return;
+
+        }
+
+        try {
+
+            setLoading(true);
+
+            const response = await authService.login({
+
+                email,
+
+                password,
+
+            });
+
+            await login(response.token);
+
+            Alert.alert(
+                "Success",
+                response.message
+            );
+
+            console.log(response.message);
+
+            // navigation.replace("Home");
+
+        } catch (error: any) {
+
+            Alert.alert(
+
+                "Login Failed",
+
+                error?.response?.data?.error ??
+
+                "Unable to login."
+
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
     };
 
     return (
@@ -81,6 +137,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
                     <PrimaryButton
                         title="Login"
+                        loading={loading}
                         onPress={handleLogin}
                     />
 

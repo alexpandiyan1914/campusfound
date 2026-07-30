@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -18,6 +19,8 @@ import {
   Spacing,
 } from "../../theme";
 
+import authService from "../../services/authService";
+
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -32,18 +35,78 @@ const RegisterScreen = ({ navigation }: Props) => {
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [registerNumber, setRegisterNumber] = useState("");
+  const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState("");
+  const [year, setYear] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
-    console.log({
-      fullName,
-      email,
-      registerNumber,
-      password,
-      confirmPassword,
-    });
+  const handleRegister = async () => {
+
+    if (
+      !fullName ||
+      !email ||
+      !phone ||
+      !department ||
+      !year ||
+      !password ||
+      !confirmPassword
+    ) {
+      Alert.alert(
+        "Validation",
+        "Please fill in all fields."
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert(
+        "Validation",
+        "Passwords do not match."
+      );
+      return;
+    }
+
+    try {
+
+      setLoading(true);
+
+      const response = await authService.register({
+
+        fullName,
+        email,
+        password,
+        phone,
+        department,
+        year: Number(year),
+
+      });
+
+      Alert.alert(
+        "Success",
+        response.message
+      );
+
+      navigation.navigate("Login");
+
+    } catch (error: any) {
+
+      Alert.alert(
+
+        "Registration Failed",
+
+        error?.response?.data?.error ??
+        "Unable to register."
+
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   };
 
   return (
@@ -72,15 +135,31 @@ const RegisterScreen = ({ navigation }: Props) => {
       />
 
       <CustomInput
-        label="Register Number"
-        placeholder="Enter your register number"
-        value={registerNumber}
-        onChangeText={setRegisterNumber}
+        label="Phone Number"
+        placeholder="Enter your phone number"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
+      />
+
+      <CustomInput
+        label="Department"
+        placeholder="CSE / IT / ECE"
+        value={department}
+        onChangeText={setDepartment}
+      />
+
+      <CustomInput
+        label="Year"
+        placeholder="1 - 4"
+        keyboardType="numeric"
+        value={year}
+        onChangeText={setYear}
       />
 
       <CustomInput
         label="Password"
-        placeholder="Create a password"
+        placeholder="Create password"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -96,6 +175,7 @@ const RegisterScreen = ({ navigation }: Props) => {
 
       <PrimaryButton
         title="Create Account"
+        loading={loading}
         onPress={handleRegister}
       />
 
@@ -118,6 +198,7 @@ const RegisterScreen = ({ navigation }: Props) => {
     </AuthLayout>
 
   );
+
 };
 
 export default RegisterScreen;
