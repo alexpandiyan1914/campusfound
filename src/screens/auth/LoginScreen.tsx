@@ -58,40 +58,24 @@ const LoginScreen = ({ navigation }: Props) => {
             setLoading(true);
 
             const response = await authService.login({
-
                 email,
-
                 password,
-
             });
 
             await login(response.token);
-
-            Alert.alert(
-                "Success",
-                response.message
-            );
-
-            console.log(response.message);
-
-            // navigation.replace("Home");
-
         } catch (error: any) {
+            console.log("===== LOGIN ERROR =====");
+            console.log(error);
+            console.log("Message:", error.message);
+            console.log("Response:", error.response);
+            console.log("Data:", error.response?.data);
 
             Alert.alert(
-
                 "Login Failed",
-
-                error?.response?.data?.error ??
-
-                "Unable to login."
-
+                error.message || "Unable to login."
             );
-
         } finally {
-
             setLoading(false);
-
         }
 
     };
