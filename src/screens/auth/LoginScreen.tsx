@@ -15,6 +15,7 @@ import AuthHeader from "../../components/common/AuthHeader";
 import AuthLayout from "../../components/common/AuthLayout";
 import authService from "../../services/authService";
 import useAuth from "../../hooks/useAuth";
+import { AuthStackParamList } from "../../types/navigation";
 
 import {
     Colors,
@@ -24,12 +25,8 @@ import {
     Spacing,
 } from "../../theme";
 
-type RootStackParamList = {
-    Login: undefined;
-    Register: undefined;
-};
 
-type Props = NativeStackScreenProps<RootStackParamList, "Login">;
+type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 const LoginScreen = ({ navigation }: Props) => {
     const { login } = useAuth();

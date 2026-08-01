@@ -12,6 +12,7 @@ import AuthLayout from "../../components/common/AuthLayout";
 import AuthHeader from "../../components/common/AuthHeader";
 import CustomInput from "../../components/inputs/CustomInput";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
+import { AuthStackParamList } from "../../types/navigation";
 
 import {
   Colors,
@@ -21,15 +22,7 @@ import {
 
 import authService from "../../services/authService";
 
-type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-};
-
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  "Register"
->;
+type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
 const RegisterScreen = ({ navigation }: Props) => {
 
