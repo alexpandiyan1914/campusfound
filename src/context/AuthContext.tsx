@@ -57,6 +57,8 @@ export const AuthProvider = ({ children }: Props) => {
 
     await storage.saveToken(jwt);
 
+    const saved = await storage.getToken();
+
     setToken(jwt);
 
   };
