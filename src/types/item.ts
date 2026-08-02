@@ -1,25 +1,23 @@
 export interface Item {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  type: "LOST" | "FOUND";
-  status: "OPEN" | "CLAIMED" | "RETURNED";
-  location: string;
-  imageUrl: string | null;
-  reportedBy: string;
-  lostFoundDate: string;
-  createdAt: string;
+    id: number;
+    title: string;
+    description: string;
+    category: string;
+    type: "LOST" | "FOUND";
+    status: string;
+    location: string;
+    imageUrl: string | null;
+    reportedBy: string;
+    lostFoundDate: string;
+    createdAt: string;
 }
 
 export interface ItemPageResponse {
-  content: Item[];
-  empty: boolean;
-  first: boolean;
-  last: boolean;
-  number: number;
-  numberOfElements: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
+    content: Item[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+    size: number;
+    first: boolean;
+    last: boolean;
 }

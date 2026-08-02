@@ -1,11 +1,34 @@
 import api from "./api";
-import { ItemPageResponse } from "../types/item";
 
-const itemService = {
-  getItems: async (page = 0, size = 10): Promise<ItemPageResponse> => {
-    const response = await api.get(`/items?page=${page}&size=${size}`);
-    return response.data;
-  },
-};
+import { Item, ItemPageResponse } from "../types/item";
 
-export default itemService;
+class ItemService {
+
+    async getItems(
+        page = 0,
+        size = 10
+    ): Promise<ItemPageResponse> {
+
+        const response = await api.get<ItemPageResponse>(
+            `/items?page=${page}&size=${size}`
+        );
+
+        return response.data;
+
+    }
+
+    async getItemById(
+        id: number
+    ): Promise<Item> {
+
+        const response = await api.get<Item>(
+            `/items/${id}`
+        );
+
+        return response.data;
+
+    }
+
+}
+
+export default new ItemService();

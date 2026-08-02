@@ -13,6 +13,9 @@ import SearchShortcut from "../../components/home/SearchShortcut";
 import CategoryCard from "../../components/home/CategoryCard";
 import SectionHeader from "../../components/home/SectionHeader";
 import ItemCard from "../../components/home/ItemCard";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { MainStackParamList } from "../../navigation/MainNavigator";
 
 import { categories } from "../../data/categories";
 
@@ -24,7 +27,11 @@ import {
   Spacing,
 } from "../../theme";
 
+type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
+
 const HomeScreen = () => {
+
+  const navigation = useNavigation<NavigationProp>();
 
   const [items, setItems] = useState<Item[]>([]);
 
@@ -75,6 +82,7 @@ const HomeScreen = () => {
 
   }, []);
 
+
   if (loading) {
 
     return (
@@ -107,9 +115,20 @@ const HomeScreen = () => {
         contentContainerStyle={styles.content}
 
         renderItem={({ item }) => (
+          <ItemCard
 
-          <ItemCard item={item} />
+            item={item}
 
+            onPress={() =>
+
+              navigation.navigate(
+                "ItemDetails",
+                { item }
+              )
+
+            }
+
+          />
         )}
 
         refreshControl={
@@ -149,11 +168,8 @@ const HomeScreen = () => {
               renderItem={({ item }) => (
 
                 <CategoryCard
-
                   title={item.title}
-
                   icon={item.icon as any}
-
                 />
 
               )}

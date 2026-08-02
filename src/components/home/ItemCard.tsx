@@ -17,12 +17,19 @@ import { Item } from "../../types/item";
 import { PLACEHOLDER_IMAGE } from "../../constants/images";
 
 interface Props {
-    item: any;
+    item: Item;
+    onPress: () => void;
 }
 
-const ItemCard = ({ item }: Props) => {
+const ItemCard = ({
+    item,
+    onPress,
+}: Props) => {
     return (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity
+            style={styles.card}
+            onPress={onPress}
+        >
 
             <Image
                 source={{
