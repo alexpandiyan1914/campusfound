@@ -7,6 +7,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
 
 import WelcomeHeader from "../../components/home/WelcomeHeader";
 import SearchShortcut from "../../components/home/SearchShortcut";
@@ -39,38 +40,65 @@ const HomeScreen = () => {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadItems = async () => {
+  const [page, setPage] = useState(0);
+
+  const [hasMore, setHasMore] = useState(true);
+
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const loadItems = async (
+    pageNumber = 0,
+    refresh = false
+  ) => {
+
     try {
-      console.log("Fetching items...");
 
-      const response = await itemService.getItems();
+      console.log("Fetching Page:", pageNumber);
 
-      console.log("API Success:", response);
-      console.log("Items:", response.content);
+      const response =
+        await itemService.getItems(pageNumber, 10);
 
-      setItems(response.content);
+      if (refresh) {
+
+        setItems(response.content);
+
+      } else {
+
+        setItems(prev => [
+          ...prev,
+          ...response.content,
+        ]);
+
+      }
+
+      setPage(pageNumber);
+
+      setHasMore(!response.last);
 
     } catch (error: any) {
 
-      console.log("===== ITEM ERROR =====");
       console.log(error);
-      console.log("Message:", error.message);
-      console.log("Status:", error.response?.status);
-      console.log("Data:", error.response?.data);
 
-      Alert.alert("Error", "Failed to load items.");
+      Alert.alert(
+        "Error",
+        "Failed to load items."
+      );
 
     } finally {
 
       setLoading(false);
+
       setRefreshing(false);
 
+      setLoadingMore(false);
+
     }
+
   };
 
   useEffect(() => {
 
-    loadItems();
+    loadItems(0, true);
 
   }, []);
 
@@ -78,9 +106,25 @@ const HomeScreen = () => {
 
     setRefreshing(true);
 
-    loadItems();
+    setPage(0);
+
+    setHasMore(true);
+
+    loadItems(0, true);
 
   }, []);
+
+  const loadMore = () => {
+
+    if (loadingMore) return;
+
+    if (!hasMore) return;
+
+    setLoadingMore(true);
+
+    loadItems(page + 1);
+
+  };
 
 
   if (loading) {
@@ -185,6 +229,24 @@ const HomeScreen = () => {
           </>
 
         }
+
+        ListFooterComponent={
+          loadingMore ? (
+            <View
+              style={{
+                paddingVertical: 20,
+              }}
+            >
+              <ActivityIndicator
+                size="large"
+                color={Colors.primary}
+              />
+            </View>
+          ) : null
+        }
+
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
 
       />
 
