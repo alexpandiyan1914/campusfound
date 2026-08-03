@@ -5,6 +5,7 @@ import {
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 import {
   Colors,
@@ -14,9 +15,13 @@ import {
   Spacing,
 } from "../../theme";
 
+
 const SearchShortcut = () => {
+  const navigation = useNavigation<any>();
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate("Search")}>
       <Ionicons
         name="search"
         size={22}

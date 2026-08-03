@@ -29,6 +29,16 @@ class ItemService {
 
     }
 
+    async searchItems(keyword: string): Promise<Item[]> {
+
+        const response = await api.get<Item[]>(
+            `/items/search?keyword=${encodeURIComponent(keyword)}`
+        );
+
+        return response.data;
+
+    }
+
 }
 
 export default new ItemService();
