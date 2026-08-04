@@ -24,4 +24,14 @@ api.interceptors.request.use(
   error => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+    response => response,
+    async error => {
+        if (error.response?.status === 401) {
+            await storage.removeToken();
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

@@ -39,6 +39,18 @@ class ItemService {
 
     }
 
+    async getItemsByCategory(
+        category: string
+    ): Promise<Item[]> {
+
+        const response = await api.get<Item[]>(
+            `/items/filter?category=${category}`
+        );
+
+        return response.data;
+
+    }
+
 }
 
 export default new ItemService();

@@ -16,21 +16,29 @@ import {
 interface Props {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
+  selected: boolean;
+  onPress: () => void;
 }
 
-const CategoryCard = ({
-  title,
-  icon,
-}: Props) => {
+const CategoryCard = ({ title, icon, selected, onPress }: Props) => {
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity
+      style={[styles.card, selected && styles.selectedContainer]}
+      onPress={onPress}
+    >
+
       <Ionicons
         name={icon}
         size={28}
         color={Colors.primary}
       />
 
-      <Text style={styles.title}>
+      <Text
+        style={[
+          styles.title,
+          selected && styles.selectedTitle,
+        ]}
+      >
         {title}
       </Text>
     </TouchableOpacity>
@@ -63,5 +71,13 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: Fonts.medium,
     fontSize: 13,
+  },
+
+  selectedContainer: {
+    backgroundColor: Colors.primary,
+  },
+
+  selectedTitle: {
+    color: Colors.white,
   },
 });

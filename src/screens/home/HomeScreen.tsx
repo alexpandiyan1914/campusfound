@@ -46,6 +46,8 @@ const HomeScreen = () => {
 
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   const loadItems = async (
     pageNumber = 0,
     refresh = false
@@ -64,10 +66,18 @@ const HomeScreen = () => {
 
       } else {
 
-        setItems(prev => [
-          ...prev,
-          ...response.content,
-        ]);
+        if (pageNumber === 0 || refresh) {
+
+          setItems(response.content);
+
+        } else {
+
+          setItems(prev => [
+            ...prev,
+            ...response.content,
+          ]);
+
+        }
 
       }
 
@@ -79,10 +89,12 @@ const HomeScreen = () => {
 
       console.log(error);
 
-      Alert.alert(
-        "Error",
-        "Failed to load items."
-      );
+      if (error.response?.status !== 401) {
+        Alert.alert(
+          "Error",
+          "Failed to load items."
+        );
+      }
 
     } finally {
 
@@ -106,15 +118,27 @@ const HomeScreen = () => {
 
     setRefreshing(true);
 
-    setPage(0);
+    if (selectedCategory === "All") {
 
-    setHasMore(true);
+      setPage(0);
 
-    loadItems(0, true);
+      setHasMore(true);
 
-  }, []);
+      loadItems(0, true);
+
+    } else {
+
+      filterCategory(selectedCategory);
+
+      setRefreshing(false);
+
+    }
+
+  }, [selectedCategory]);
 
   const loadMore = () => {
+
+    if (selectedCategory !== "All") return;
 
     if (loadingMore) return;
 
@@ -123,6 +147,42 @@ const HomeScreen = () => {
     setLoadingMore(true);
 
     loadItems(page + 1);
+
+  };
+
+  const filterCategory = async (
+    category: string
+  ) => {
+
+    try {
+
+      setSelectedCategory(category);
+
+      if (category === "All") {
+
+        setPage(0);
+
+        setHasMore(true);
+
+        loadItems(0, true);
+
+        return;
+
+      }
+
+      const response =
+        await itemService.getItemsByCategory(category);
+
+      setItems(response);
+
+    } catch {
+
+      Alert.alert(
+        "Error",
+        "Failed to filter items."
+      );
+
+    }
 
   };
 
@@ -214,6 +274,8 @@ const HomeScreen = () => {
                 <CategoryCard
                   title={item.title}
                   icon={item.icon as any}
+                  selected={selectedCategory === item.title}
+                  onPress={() => filterCategory(item.title)}
                 />
 
               )}

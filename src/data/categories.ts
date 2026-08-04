@@ -1,32 +1,45 @@
 export const categories = [
-  {
-    id: "1",
-    title: "Electronics",
-    icon: "phone-portrait-outline",
-  },
-  {
-    id: "2",
-    title: "Bags",
-    icon: "bag-outline",
-  },
-  {
-    id: "3",
-    title: "ID Cards",
-    icon: "card-outline",
-  },
-  {
-    id: "4",
-    title: "Books",
-    icon: "book-outline",
-  },
-  {
-    id: "5",
-    title: "Keys",
-    icon: "key-outline",
-  },
-  {
-    id: "6",
-    title: "Others",
-    icon: "cube-outline",
-  },
+
+    {
+        id: "0",
+        title: "All",
+        icon: "apps",
+    },
+
+    {
+        id: "1",
+        title: "Wallet",
+        icon: "wallet",
+    },
+
+    {
+        id: "2",
+        title: "Laptop",
+        icon: "laptop",
+    },
+
+    {
+        id: "3",
+        title: "Mouse",
+        icon: "hardware-chip",
+    },
+
+    {
+        id: "4",
+        title: "Bottle",
+        icon: "water",
+    },
+
+    {
+        id: "5",
+        title: "ID Card",
+        icon: "card",
+    },
+
+    {
+        id: "6",
+        title: "Keys",
+        icon: "key",
+    },
+
 ];
