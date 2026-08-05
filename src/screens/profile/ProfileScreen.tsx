@@ -17,6 +17,9 @@ import ProfileStatCard from "../../components/profile/ProfileStatCard";
 import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
 import SectionTitle from "../../components/profile/SectionTitle";
 
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { MainStackParamList } from "../../navigation/MainNavigator";
 import { Alert } from "react-native";
 import useAuth from "../../hooks/useAuth";
 import { profileMenu } from "../../constants/ProfileMenu";
@@ -30,6 +33,10 @@ import {
 } from "../../theme";
 
 const ProfileScreen = () => {
+
+    type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
+
+    const navigation = useNavigation<NavigationProp>();
 
     const { logout } = useAuth();
 
@@ -46,37 +53,43 @@ const ProfileScreen = () => {
 
     const handleMenuPress = (title: string) => {
 
-        console.log(title);
+        switch (title) {
 
-        // Navigation will be added later
+            case "About":
+                navigation.navigate("About");
+                break;
+
+            default:
+                break;
+        }
 
     };
 
     const handleLogout = () => {
 
-    Alert.alert(
-        "Logout",
-        "Are you sure you want to logout?",
-        [
-            {
-                text: "Cancel",
-                style: "cancel",
-            },
-            {
-                text: "Logout",
-                style: "destructive",
-                onPress: async () => {
-
-                    await logout();
-
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to logout?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
                 },
-            },
-        ]
-    );
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
 
-};
+                        await logout();
 
-    
+                    },
+                },
+            ]
+        );
+
+    };
+
+
 
     return (
 

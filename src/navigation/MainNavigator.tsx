@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import BottomTabs from "./BottomTabs";
 import ItemDetailsScreen from "../screens/item/ItemDetailsScreen";
+import AboutScreen from "../screens/profile/AboutScreen";
 import { Item } from "../types/item";
 
 export type MainStackParamList = {
@@ -11,6 +12,8 @@ export type MainStackParamList = {
     ItemDetails: {
         item: Item;
     };
+
+    About: undefined;
 
 };
 
@@ -36,6 +39,14 @@ const MainNavigator = () => {
                 component={ItemDetailsScreen}
                 options={{
                     title: "Item Details",
+                }}
+            />
+
+            <Stack.Screen
+                name="About"
+                component={AboutScreen}
+                options={{
+                    title: "About CampusFound",
                 }}
             />
 
