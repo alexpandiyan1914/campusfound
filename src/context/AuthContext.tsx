@@ -7,6 +7,7 @@ import React, {
 } from "react";
 
 import storage from "../utils/storage";
+import { registerLogout } from "../utils/authManager";
 
 interface AuthContextType {
   token: string | null;
@@ -70,6 +71,10 @@ export const AuthProvider = ({ children }: Props) => {
     setToken(null);
 
   };
+
+  useEffect(() => {
+    registerLogout(logout);
+  }, []);
 
   return (
 

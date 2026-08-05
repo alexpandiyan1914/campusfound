@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   FlatList,
@@ -48,6 +48,8 @@ const HomeScreen = () => {
 
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const loadingMoreRef = useRef(false);
+
   const loadItems = async (
     pageNumber = 0,
     refresh = false
@@ -57,8 +59,18 @@ const HomeScreen = () => {
 
       console.log("Fetching Page:", pageNumber);
 
-      const response =
-        await itemService.getItems(pageNumber, 10);
+      const response = await itemService.getItems(pageNumber, 10);
+
+      console.log(
+        "Page",
+        pageNumber,
+        response.content.map(item => item.id)
+      );
+
+      console.log(
+        "Current Items",
+        items.map(item => item.id)
+      );
 
       if (refresh) {
 
@@ -72,10 +84,22 @@ const HomeScreen = () => {
 
         } else {
 
-          setItems(prev => [
-            ...prev,
-            ...response.content,
-          ]);
+          setItems(prev => {
+
+            const existingIds = new Set(
+              prev.map(item => item.id)
+            );
+
+            const newItems = response.content.filter(
+              item => !existingIds.has(item.id)
+            );
+
+            return [
+              ...prev,
+              ...newItems,
+            ];
+
+          });
 
         }
 
@@ -101,6 +125,8 @@ const HomeScreen = () => {
       setLoading(false);
 
       setRefreshing(false);
+
+      loadingMoreRef.current = false;
 
       setLoadingMore(false);
 
@@ -140,9 +166,11 @@ const HomeScreen = () => {
 
     if (selectedCategory !== "All") return;
 
-    if (loadingMore) return;
+    if (loadingMoreRef.current) return;
 
     if (!hasMore) return;
+
+    loadingMoreRef.current = true;
 
     setLoadingMore(true);
 
