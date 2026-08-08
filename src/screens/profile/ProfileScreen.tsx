@@ -1,272 +1,460 @@
-import React from "react";
+import React, {
+  useCallback,
+  useState,
+} from "react";
 
 import {
-    View,
-    Text,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  useFocusEffect,
+  useNavigation,
+} from "@react-navigation/native";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
+
+import {
+  SafeAreaView,
+} from "react-native-safe-area-context";
+
+import {
+  Ionicons,
+} from "@expo/vector-icons";
 
 import ProfileHeader from "../../components/profile/ProfileHeader";
 import ProfileStatCard from "../../components/profile/ProfileStatCard";
 import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
 import SectionTitle from "../../components/profile/SectionTitle";
+import EditProfileScreen from "./EditProfileScreen";
 
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { MainStackParamList } from "../../navigation/MainNavigator";
-import { Alert } from "react-native";
 import useAuth from "../../hooks/useAuth";
 import { profileMenu } from "../../constants/ProfileMenu";
 
+import userService from "../../services/userService";
+import { UserProfile } from "../../types/user";
+
 import {
-    Colors,
-    Fonts,
-    Radius,
-    Shadows,
-    Spacing,
+  Colors,
+  Fonts,
+  Radius,
+  Shadows,
+  Spacing,
 } from "../../theme";
+
+import { MainStackParamList } from "../../navigation/MainNavigator";
+
+type NavigationProp =
+  NativeStackNavigationProp<MainStackParamList>;
 
 const ProfileScreen = () => {
 
-    type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
+  const navigation =
+    useNavigation<NavigationProp>();
 
-    const navigation = useNavigation<NavigationProp>();
+  const { logout } = useAuth();
 
-    const { logout } = useAuth();
+  const [profile, setProfile] =
+    useState<UserProfile | null>(null);
 
-    const profile = {
+  const [loading, setLoading] =
+    useState(true);
 
-        fullName: "Alex Pandiyan",
-        email: "alex@student.tce.edu",
-        role: "STUDENT" as const,
-        lostCount: 12,
-        foundCount: 8,
-        claimCount: 3,
+  const loadProfile = async () => {
 
-    };
+    try {
 
-    const handleMenuPress = (title: string) => {
+      const data =
+        await userService.getCurrentUser();
 
-        switch (title) {
+      setProfile(data);
 
-            case "About":
-                navigation.navigate("About");
-                break;
+    } catch (error: any) {
 
-            default:
-                break;
-        }
+      console.log(
+        "Profile Error:",
+        error.response?.data || error.message
+      );
 
-    };
+      Alert.alert(
+        "Error",
+        "Failed to load profile."
+      );
 
-    const handleLogout = () => {
+    } finally {
 
-        Alert.alert(
-            "Logout",
-            "Are you sure you want to logout?",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel",
-                },
-                {
-                    text: "Logout",
-                    style: "destructive",
-                    onPress: async () => {
+      setLoading(false);
 
-                        await logout();
+    }
+  };
 
-                    },
-                },
-            ]
-        );
+  useFocusEffect(
+    useCallback(() => {
 
-    };
+      loadProfile();
 
+    }, [])
+  );
 
+  const handleLogout = () => {
+
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+
+        {
+          text: "Logout",
+          style: "destructive",
+
+          onPress: async () => {
+
+            await logout();
+
+          },
+        },
+      ]
+    );
+  };
+
+  const handleMenuPress = (
+    title: string
+  ) => {
+
+    if (title === "Edit Profile") {
+
+      navigation.navigate("EditProfile");
+
+      return;
+    }
+
+    if (title === "About") {
+
+      navigation.navigate("About");
+
+      return;
+    }
+
+    console.log(
+      "Menu pressed:",
+      title
+    );
+  };
+
+  if (loading) {
 
     return (
 
-        <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.loadingContainer}
+      >
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.content}
-            >
+        <ActivityIndicator
+          size="large"
+          color={Colors.primary}
+        />
 
-                <ProfileHeader
-                    fullName={profile.fullName}
-                    email={profile.email}
-                    role={profile.role}
-                />
-
-                <View style={styles.statsRow}>
-
-                    <ProfileStatCard
-                        title="Lost"
-                        value={profile.lostCount}
-                    />
-
-                    <View style={styles.space} />
-
-                    <ProfileStatCard
-                        title="Found"
-                        value={profile.foundCount}
-                    />
-
-                    <View style={styles.space} />
-
-                    <ProfileStatCard
-                        title="Claims"
-                        value={profile.claimCount}
-                    />
-
-                </View>
-
-                <SectionTitle title="Account" />
-
-                {
-
-                    profileMenu.map((item) => (
-
-                        <ProfileMenuItem
-
-                            key={item.id}
-
-                            title={item.title}
-
-                            icon={item.icon}
-
-                            onPress={() => handleMenuPress(item.title)}
-
-                        />
-
-                    ))
-
-                }
-
-                <TouchableOpacity
-                    style={styles.logoutButton}
-                    activeOpacity={0.8}
-                    onPress={handleLogout}
-                >
-
-                    <Ionicons
-                        name="log-out-outline"
-                        size={22}
-                        color={Colors.danger}
-                    />
-
-                    <Text style={styles.logoutText}>
-
-                        Logout
-
-                    </Text>
-
-                </TouchableOpacity>
-
-                <Text style={styles.version}>
-
-                    CampusFound v1.0.0
-
-                </Text>
-
-            </ScrollView>
-
-        </SafeAreaView>
-
+      </SafeAreaView>
     );
+  }
 
+  if (!profile) {
+
+    return (
+
+      <SafeAreaView
+        style={styles.loadingContainer}
+      >
+
+        <Text style={styles.errorText}>
+          Unable to load profile.
+        </Text>
+
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={loadProfile}
+        >
+
+          <Text style={styles.retryText}>
+            Try Again
+          </Text>
+
+        </TouchableOpacity>
+
+      </SafeAreaView>
+    );
+  }
+
+  return (
+
+    <SafeAreaView
+      style={styles.container}
+    >
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+
+        <ProfileHeader
+          fullName={profile.fullName}
+          email={profile.email}
+          role={profile.role}
+        />
+
+        <View style={styles.infoCard}>
+
+          <InfoRow
+            icon="school-outline"
+            label="Department"
+            value={
+              profile.department || "Not provided"
+            }
+          />
+
+          <InfoRow
+            icon="calendar-outline"
+            label="Year"
+            value={
+              profile.year
+                ? `Year ${profile.year}`
+                : "Not provided"
+            }
+          />
+
+          <InfoRow
+            icon="call-outline"
+            label="Phone"
+            value={
+              profile.phone || "Not provided"
+            }
+          />
+
+        </View>
+
+        <SectionTitle title="Activity" />
+
+        <View style={styles.statsRow}>
+
+          <ProfileStatCard
+            title="Claims"
+            value={0}
+          />
+
+        </View>
+
+        <SectionTitle title="Account" />
+
+        {
+          profileMenu.map((item) => (
+
+            <ProfileMenuItem
+              key={item.id}
+              title={item.title}
+              icon={item.icon}
+              onPress={() =>
+                handleMenuPress(item.title)
+              }
+            />
+
+          ))
+        }
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          activeOpacity={0.8}
+          onPress={handleLogout}
+        >
+
+          <Ionicons
+            name="log-out-outline"
+            size={22}
+            color={Colors.danger}
+          />
+
+          <Text style={styles.logoutText}>
+            Logout
+          </Text>
+
+        </TouchableOpacity>
+
+        <Text style={styles.version}>
+          CampusFound v1.0.0
+        </Text>
+
+      </ScrollView>
+
+    </SafeAreaView>
+  );
+};
+
+interface InfoRowProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value: string;
+}
+
+const InfoRow = ({
+  icon,
+  label,
+  value,
+}: InfoRowProps) => {
+
+  return (
+
+    <View style={styles.infoRow}>
+
+      <View style={styles.infoIcon}>
+
+        <Ionicons
+          name={icon}
+          size={20}
+          color={Colors.primary}
+        />
+
+      </View>
+
+      <View style={styles.infoContent}>
+
+        <Text style={styles.infoLabel}>
+          {label}
+        </Text>
+
+        <Text style={styles.infoValue}>
+          {value}
+        </Text>
+
+      </View>
+
+    </View>
+  );
 };
 
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
 
-    container: {
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
 
-        flex: 1,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+  },
 
-        backgroundColor: Colors.background,
+  content: {
+    padding: Spacing.lg,
+    paddingBottom: 14,
+  },
 
-    },
+  infoCard: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    ...Shadows.sm,
+  },
 
-    content: {
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+  },
 
-        padding: Spacing.lg,
+  infoIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: Colors.primary + "12",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
 
-        paddingBottom: 120,
+  infoContent: {
+    flex: 1,
+  },
 
-    },
+  infoLabel: {
+    fontFamily: Fonts.regular,
+    fontSize: 12,
+    color: Colors.gray500,
+    marginBottom: 3,
+  },
 
-    statsRow: {
+  infoValue: {
+    fontFamily: Fonts.medium,
+    fontSize: 15,
+    color: Colors.text,
+  },
 
-        flexDirection: "row",
+  statsRow: {
+    flexDirection: "row",
+    marginBottom: Spacing.lg,
+  },
 
-        marginBottom: Spacing.lg,
+  logoutButton: {
+    marginTop: 30,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.lg,
+    paddingVertical: 16,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FFD7D7",
+    ...Shadows.sm,
+  },
 
-    },
+  logoutText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: Colors.danger,
+    fontFamily: Fonts.bold,
+  },
 
-    space: {
+  version: {
+    marginTop: 28,
+    textAlign: "center",
+    color: Colors.gray500,
+    fontFamily: Fonts.regular,
+    fontSize: 13,
+  },
 
-        width: 12,
+  errorText: {
+    fontFamily: Fonts.medium,
+    color: Colors.text,
+    fontSize: 16,
+    marginBottom: 15,
+  },
 
-    },
+  retryButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: Radius.md,
+  },
 
-    logoutButton: {
-
-        marginTop: 30,
-
-        backgroundColor: Colors.white,
-
-        borderRadius: Radius.lg,
-
-        paddingVertical: 16,
-
-        flexDirection: "row",
-
-        justifyContent: "center",
-
-        alignItems: "center",
-
-        borderWidth: 1,
-
-        borderColor: "#FFD7D7",
-
-        ...Shadows.sm,
-
-    },
-
-    logoutText: {
-
-        marginLeft: 10,
-
-        fontSize: 16,
-
-        color: Colors.danger,
-
-        fontFamily: Fonts.bold,
-
-    },
-
-    version: {
-
-        marginTop: 28,
-
-        textAlign: "center",
-
-        color: Colors.gray500,
-
-        fontFamily: Fonts.regular,
-
-        fontSize: 13,
-
-    },
+  retryText: {
+    color: Colors.white,
+    fontFamily: Fonts.bold,
+  },
 
 });

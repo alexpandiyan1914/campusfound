@@ -4,8 +4,11 @@ import BottomTabs from "./BottomTabs";
 import ItemDetailsScreen from "../screens/item/ItemDetailsScreen";
 import AboutScreen from "../screens/profile/AboutScreen";
 import { Item } from "../types/item";
+import EditProfileScreen from "../screens/profile/EditProfileScreen";
 
 export type MainStackParamList = {
+    
+    EditProfile: undefined;
 
     Tabs: undefined;
 
@@ -47,6 +50,14 @@ const MainNavigator = () => {
                 component={AboutScreen}
                 options={{
                     title: "About CampusFound",
+                }}
+            />
+
+            <Stack.Screen
+                name="EditProfile"
+                component={EditProfileScreen}
+                options={{
+                    title: "Edit Profile",
                 }}
             />
 

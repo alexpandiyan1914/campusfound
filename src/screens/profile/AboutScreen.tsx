@@ -123,7 +123,7 @@ const AboutScreen = () => {
                 </Text>
 
                 <Text style={styles.developer}>
-                    Alex Pandiyan
+                    Alexpandiyan A
                 </Text>
 
                 <Text style={styles.college}>
