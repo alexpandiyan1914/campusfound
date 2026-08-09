@@ -3,8 +3,7 @@ export interface Item {
     title: string;
     description: string;
     category: string;
-    type: "LOST" | "FOUND";
-    status: string;
+    status: "ACTIVE" | "CLOSED";
     location: string;
     imageUrl: string | null;
     reportedBy: string;

@@ -57,7 +57,7 @@ const ItemDetailsScreen = ({ route }: Props) => {
                             styles.badge,
                             {
                                 backgroundColor:
-                                    item.type === "FOUND"
+                                    item.status === "ACTIVE"
                                         ? "#DCFCE7"
                                         : "#FEE2E2",
                             },
@@ -68,13 +68,13 @@ const ItemDetailsScreen = ({ route }: Props) => {
                                 styles.badgeText,
                                 {
                                     color:
-                                        item.type === "FOUND"
+                                        item.status === "ACTIVE"
                                             ? Colors.success
                                             : Colors.danger,
                                 },
                             ]}
                         >
-                            {item.type}
+                            {item.status}
                         </Text>
                     </View>
 
