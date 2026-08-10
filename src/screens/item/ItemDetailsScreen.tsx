@@ -25,12 +25,9 @@ import {
     Spacing,
 } from "../../theme";
 
-type Props = NativeStackScreenProps<
-    MainStackParamList,
-    "ItemDetails"
->;
+type Props = NativeStackScreenProps<MainStackParamList, "ItemDetails">;
 
-const ItemDetailsScreen = ({ route }: Props) => {
+const ItemDetailsScreen = ({ route, navigation }: Props) => {
 
     const { item } = route.params;
 
@@ -121,10 +118,19 @@ const ItemDetailsScreen = ({ route }: Props) => {
 
                 </View>
 
-                <PrimaryButton
-                    title="Claim Item"
-                    onPress={() => {}}
-                />
+                {item.status === "ACTIVE" && (
+
+                    <PrimaryButton
+                        title="Claim This Item"
+                        onPress={() =>
+                            navigation.navigate(
+                                "CreateClaim",
+                                { item }
+                            )
+                        }
+                    />
+
+                )}
 
             </View>
 
