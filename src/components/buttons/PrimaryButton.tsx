@@ -19,6 +19,7 @@ interface PrimaryButtonProps {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
+  backgroundColor?: string;
 }
 
 const PrimaryButton = ({
@@ -26,6 +27,7 @@ const PrimaryButton = ({
   onPress,
   loading = false,
   disabled = false,
+  backgroundColor = Colors.primary
 }: PrimaryButtonProps) => {
   return (
     <TouchableOpacity
@@ -33,6 +35,7 @@ const PrimaryButton = ({
       disabled={disabled || loading}
       style={[
         styles.button,
+        { backgroundColor },
         (disabled || loading) && styles.disabled,
       ]}
       onPress={onPress}
