@@ -1,51 +1,50 @@
 import api from "./api";
 
 import {
-    Claim,
-    ClaimPageResponse,
-    CreateClaimRequest,
+  Claim,
+  ClaimPageResponse,
+  CreateClaimRequest,
 } from "../types/claim";
 
 class ClaimService {
 
-    async createClaim(
-        request: CreateClaimRequest
-    ): Promise<Claim> {
+  async createClaim(
+    request: CreateClaimRequest
+  ): Promise<Claim> {
 
-        const response =
-            await api.post<Claim>(
-                "/claims",
-                request
-            );
+    const response =
+      await api.post<Claim>(
+        "/claims",
+        request
+      );
 
-        return response.data;
-    }
+    return response.data;
+  }
 
-    async getMyClaims(
-        page = 0,
-        size = 10
-    ): Promise<ClaimPageResponse> {
+  async getMyClaims(
+    page = 0,
+    size = 10
+  ): Promise<ClaimPageResponse> {
 
-        const response =
-            await api.get<ClaimPageResponse>(
-                `/claims/my?page=${page}&size=${size}&sort=createdAt`
-            );
+    const response =
+      await api.get<ClaimPageResponse>(
+        `/claims/my?page=${page}&size=${size}&sort=createdAt`
+      );
 
-        return response.data;
-    }
+    return response.data;
+  }
 
-    async getClaimById(
-        id: number
-    ): Promise<Claim> {
+  async getClaimById(
+    id: number
+  ): Promise<Claim> {
 
-        const response =
-            await api.get<Claim>(
-                `/claims/${id}`
-            );
+    const response =
+      await api.get<Claim>(
+        `/claims/${id}`
+      );
 
-        return response.data;
-    }
-
+    return response.data;
+  }
 }
 
 export default new ClaimService();

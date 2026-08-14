@@ -15,6 +15,7 @@ import {
 } from "../../theme";
 import { Item } from "../../types/item";
 import { PLACEHOLDER_IMAGE } from "../../constants/images";
+import CachedImage from "../common/ChachedImage";
 
 interface Props {
     item: Item;
@@ -31,10 +32,9 @@ const ItemCard = ({
             onPress={onPress}
         >
 
-            <Image
-                source={{
-                    uri: item.imageUrl || PLACEHOLDER_IMAGE,
-                }}
+            <CachedImage
+                uri={item.imageUrl}
+                placeholder={PLACEHOLDER_IMAGE}
                 style={styles.image}
             />
 

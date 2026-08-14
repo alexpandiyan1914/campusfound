@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   TouchableOpacity,
   Text,
@@ -10,15 +11,19 @@ import {
   Colors,
   Radius,
   Fonts,
-  Spacing,
   Shadows,
 } from "../../theme";
 
 interface PrimaryButtonProps {
+
   title: string;
+
   onPress: () => void;
+
   loading?: boolean;
+
   disabled?: boolean;
+
   backgroundColor?: string;
 }
 
@@ -27,24 +32,40 @@ const PrimaryButton = ({
   onPress,
   loading = false,
   disabled = false,
-  backgroundColor = Colors.primary
+  backgroundColor = Colors.primary,
 }: PrimaryButtonProps) => {
+
   return (
+
     <TouchableOpacity
       activeOpacity={0.8}
       disabled={disabled || loading}
       style={[
         styles.button,
-        { backgroundColor },
-        (disabled || loading) && styles.disabled,
+        {
+          backgroundColor,
+        },
+        (disabled || loading) &&
+        styles.disabled,
       ]}
       onPress={onPress}
     >
+
       {loading ? (
-        <ActivityIndicator color={Colors.white} />
+
+        <ActivityIndicator
+          size="small"
+          color={Colors.white}
+        />
+
       ) : (
-        <Text style={styles.text}>{title}</Text>
+
+        <Text style={styles.text}>
+          {title}
+        </Text>
+
       )}
+
     </TouchableOpacity>
   );
 };
@@ -52,8 +73,8 @@ const PrimaryButton = ({
 export default PrimaryButton;
 
 const styles = StyleSheet.create({
+
   button: {
-    backgroundColor: Colors.primary,
     borderRadius: Radius.md,
     height: 56,
 
@@ -64,7 +85,7 @@ const styles = StyleSheet.create({
   },
 
   disabled: {
-    opacity: 0.7,
+    opacity: 0.85,
   },
 
   text: {
@@ -72,4 +93,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: Fonts.semiBold,
   },
+
 });

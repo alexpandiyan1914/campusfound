@@ -1,7 +1,4 @@
-import React, {
-    useCallback,
-    useState,
-} from "react";
+import React from "react";
 
 import {
     ScrollView,
@@ -9,8 +6,6 @@ import {
     Text,
     Image,
     StyleSheet,
-    ActivityIndicator,
-    Alert,
 } from "react-native";
 
 import {
@@ -18,19 +13,17 @@ import {
 } from "@react-navigation/native-stack";
 
 import {
-    useFocusEffect,
-} from "@react-navigation/native";
-
-import { MainStackParamList } from "../../navigation/MainNavigator";
+    MainStackParamList,
+} from "../../navigation/MainNavigator";
 
 import DetailRow from "../../components/item/DetailRow";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
+import CachedImage from "../../components/common/ChachedImage";
 
 import { PLACEHOLDER_IMAGE } from "../../constants/images";
 import { formatRelativeTime } from "../../utils/date";
 
-import claimService from "../../services/claimService";
-import { ClaimStatus } from "../../types/claim";
+import { useClaims } from "../../context/ClaimContext";
 
 import {
     Colors,
@@ -40,12 +33,11 @@ import {
     Spacing,
 } from "../../theme";
 
-
-type Props = NativeStackScreenProps<
-    MainStackParamList,
-    "ItemDetails"
->;
-
+type Props =
+    NativeStackScreenProps<
+        MainStackParamList,
+        "ItemDetails"
+    >;
 
 const ItemDetailsScreen = ({
     route,
@@ -54,145 +46,70 @@ const ItemDetailsScreen = ({
 
     const { item } = route.params;
 
-    const [claimStatus, setClaimStatus] =
-        useState<ClaimStatus | null>(null);
 
-    const [checkingClaim, setCheckingClaim] =
-        useState(true);
+    const { getClaimForItem } =
+        useClaims();
 
-    const checkExistingClaim = async () => {
-
-        try {
-
-            setCheckingClaim(true);
-
-            const response =
-                await claimService.getMyClaims(0, 100);
-
-            const existingClaim =
-                response.content.find(
-                    claim =>
-                        claim.itemId === item.id
-                );
-
-            if (existingClaim) {
-
-                setClaimStatus(
-                    existingClaim.status
-                );
-
-            } else {
-
-                setClaimStatus(null);
-
-            }
-
-        } catch (error: any) {
-
-            console.log(
-                "Check Claim Error:",
-                error.response?.data ||
-                error.message
-            );
-
-            setClaimStatus(null);
-
-        } finally {
-
-            setCheckingClaim(false);
-
-        }
-
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-
-            checkExistingClaim();
-
-        }, [item.id])
-    );
+    const claim =
+        getClaimForItem(item.id);
 
 
-    const getClaimButton = () => {
+    let buttonTitle = "Claim This Item";
 
-        if (item.status === "CLOSED") {
+    let buttonColor = Colors.primary;
 
-            return {
-                title: "Item Closed",
-                backgroundColor: Colors.gray500,
-                disabled: true,
-            };
+    let buttonDisabled = false;
 
-        }
+    if (claim?.status === "PENDING") {
 
+        buttonTitle = "Claim Pending";
 
-        if (claimStatus === "PENDING") {
+        buttonColor = "#D97706";
 
-            return {
-                title: "Your Claim • Pending",
-                backgroundColor: "#F59E0B",
-                disabled: true,
-            };
+        buttonDisabled = true;
 
-        }
+    } else if (
+        claim?.status === "APPROVED"
+    ) {
 
+        buttonTitle = "Claim Approved";
 
-        if (claimStatus === "APPROVED") {
+        buttonColor = Colors.success;
 
-            return {
-                title: "Your Claim • Approved",
-                backgroundColor: Colors.success,
-                disabled: true,
-            };
+        buttonDisabled = true;
 
-        }
+    } else if (
+        claim?.status === "REJECTED"
+    ) {
 
+        buttonTitle = "Claim Rejected";
 
-        if (claimStatus === "REJECTED") {
+        buttonColor = Colors.danger;
 
-            return {
-                title: "Your Claim • Rejected",
-                backgroundColor: Colors.danger,
-                disabled: true,
-            };
-
-        }
+        buttonDisabled = true;
+    }
 
 
-        return {
-            title: "Claim This Item",
-            backgroundColor: Colors.primary,
-            disabled: false,
-        };
+    if (item.status === "CLOSED") {
 
-    };
+        buttonTitle = "Item Closed";
 
+        buttonColor = Colors.gray500;
 
-    const claimButton = getClaimButton();
-
+        buttonDisabled = true;
+    }
 
     const handleClaimPress = () => {
 
-        if (claimStatus) {
-
-            Alert.alert(
-                "Claim Already Submitted",
-                "You have already submitted a claim for this item."
-            );
-
+        if (buttonDisabled) {
             return;
-
         }
-
 
         navigation.navigate(
             "CreateClaim",
             { item }
         );
-
     };
-
 
     return (
 
@@ -201,19 +118,13 @@ const ItemDetailsScreen = ({
             showsVerticalScrollIndicator={false}
         >
 
-            <Image
-                source={{
-                    uri:
-                        item.imageUrl ||
-                        PLACEHOLDER_IMAGE,
-                }}
+            <CachedImage
+                uri={item.imageUrl}
+                placeholder={PLACEHOLDER_IMAGE}
                 style={styles.image}
             />
 
-
             <View style={styles.content}>
-
-                {/* STATUS + TIME */}
 
                 <View style={styles.headerRow}>
 
@@ -245,7 +156,6 @@ const ItemDetailsScreen = ({
 
                     </View>
 
-
                     <Text style={styles.time}>
                         {formatRelativeTime(
                             item.createdAt
@@ -254,22 +164,13 @@ const ItemDetailsScreen = ({
 
                 </View>
 
-
-                {/* TITLE */}
-
                 <Text style={styles.title}>
                     {item.title}
                 </Text>
 
-
-                {/* DESCRIPTION */}
-
                 <Text style={styles.description}>
                     {item.description}
                 </Text>
-
-
-                {/* DETAILS */}
 
                 <View style={styles.section}>
 
@@ -300,67 +201,36 @@ const ItemDetailsScreen = ({
 
                 </View>
 
+                <View
+                    style={[
+                        styles.claimButtonWrapper,
+                        {
+                            backgroundColor: buttonColor,
+                        },
+                    ]}
+                >
 
-                {/* CLAIM BUTTON */}
+                    <PrimaryButton
+                        title={buttonTitle}
+                        onPress={handleClaimPress}
+                        disabled={buttonDisabled}
+                    />
 
-                {checkingClaim ? (
-
-                    <View style={styles.checkingContainer}>
-
-                        <ActivityIndicator
-                            size="small"
-                            color={Colors.primary}
-                        />
-
-                        <Text style={styles.checkingText}>
-                            Checking claim status...
-                        </Text>
-
-                    </View>
-
-                ) : (
-
-                    <View
-                        style={[
-                            styles.claimButtonWrapper,
-                            {
-                                opacity:
-                                    claimButton.disabled
-                                        ? 0.75
-                                        : 1,
-                            },
-                        ]}
-                    >
-
-                        <PrimaryButton
-                            title={claimButton.title}
-                            onPress={handleClaimPress}
-                            disabled={claimButton.disabled}
-                            backgroundColor={claimButton.backgroundColor}
-                        />
-
-                    </View>
-
-                )}
+                </View>
 
             </View>
 
         </ScrollView>
-
     );
-
 };
 
-
 export default ItemDetailsScreen;
-
 
 const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor:
-            Colors.background,
+        backgroundColor: Colors.background,
     },
 
     image: {
@@ -374,14 +244,9 @@ const styles = StyleSheet.create({
 
     headerRow: {
         flexDirection: "row",
-
-        justifyContent:
-            "space-between",
-
+        justifyContent: "space-between",
         alignItems: "center",
-
-        marginBottom:
-            Spacing.md,
+        marginBottom: Spacing.md,
     },
 
     badge: {
@@ -391,91 +256,40 @@ const styles = StyleSheet.create({
     },
 
     badgeText: {
-
-        fontFamily:
-            Fonts.bold,
-
+        fontFamily: Fonts.bold,
         fontSize: 12,
     },
 
     time: {
-        color:
-            Colors.gray500,
-
-        fontFamily:
-            Fonts.medium,
+        color: Colors.gray500,
+        fontFamily: Fonts.medium,
     },
 
     title: {
         fontSize: 28,
-
-        fontFamily:
-            Fonts.bold,
-
-        color:
-            Colors.text,
-
-        marginBottom:
-            Spacing.sm,
+        fontFamily: Fonts.bold,
+        color: Colors.text,
+        marginBottom: Spacing.sm,
     },
 
     description: {
-        color:
-            Colors.textSecondary,
-
+        color: Colors.textSecondary,
         fontSize: 16,
         lineHeight: 24,
-
-        fontFamily:
-            Fonts.regular,
-
-        marginBottom:
-            Spacing.lg,
+        fontFamily: Fonts.regular,
+        marginBottom: Spacing.lg,
     },
 
     section: {
-        backgroundColor:
-            Colors.white,
-
-        borderRadius:
-            Radius.lg,
-
-        padding:
-            Spacing.lg,
-
-        marginBottom:
-            Spacing.xl,
-
+        backgroundColor: Colors.white,
+        borderRadius: Radius.lg,
+        padding: Spacing.lg,
+        marginBottom: Spacing.xl,
         ...Shadows.sm,
     },
 
-    checkingContainer: {
-        height: 56,
-        borderRadius:
-            Radius.md,
-        backgroundColor:
-            Colors.white,
-        justifyContent:
-            "center",
-        alignItems:
-            "center",
-        flexDirection:
-            "row",
-        gap: 10,
-    },
-
-    checkingText: {
-        fontFamily:
-            Fonts.medium,
-        fontSize: 14,
-        color:
-            Colors.gray500,
-    },
-
     claimButtonWrapper: {
-        borderRadius:
-            Radius.md,
-
-        overflow: "hidden",
+        borderRadius: Radius.md,
     },
+
 });

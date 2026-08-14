@@ -28,6 +28,10 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 
+import {
+  useProfile,
+} from "../../context/ProfileContext";
+
 import userService from "../../services/userService";
 
 import {
@@ -42,20 +46,20 @@ const EditProfileScreen = () => {
 
   const navigation = useNavigation();
 
-  const [fullName, setFullName] =
-    useState("");
+  const [fullName, setFullName] = useState("");
 
-  const [phone, setPhone] =
-    useState("");
+  const [phone, setPhone] = useState("");
 
-  const [email, setEmail] =
-    useState("");
+  const [email, setEmail] = useState("");
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [saving, setSaving] =
-    useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const {
+    setProfile,
+  } = useProfile();
+
 
   useEffect(() => {
 
@@ -94,69 +98,37 @@ const EditProfileScreen = () => {
   };
 
   const handleSave = async () => {
-
     if (!fullName.trim()) {
-
-      Alert.alert(
-        "Invalid Name",
-        "Please enter your full name."
-      );
-
+      Alert.alert("Invalid Name", "Please enter your full name.");
       return;
     }
 
     if (!phone.trim()) {
-
-      Alert.alert(
-        "Invalid Phone",
-        "Please enter your phone number."
-      );
-
+      Alert.alert("Invalid Phone", "Please enter your phone number.");
       return;
     }
 
     try {
-
       setSaving(true);
-
-      await userService.updateProfile({
-
+      const updatedProfile = await userService.updateProfile({
         fullName: fullName.trim(),
-
         phone: phone.trim(),
-
       });
 
-      Alert.alert(
-        "Success",
-        "Profile updated successfully.",
-        [
-          {
-            text: "OK",
-            onPress: () =>
-              navigation.goBack(),
-          },
-        ]
-      );
+      setProfile(updatedProfile);
+
+      navigation.goBack();
+
+      Alert.alert("Success", "Profile updated successfully.");
 
     } catch (error: any) {
-
-      console.log(
-        "Update Profile Error:",
-        error.response?.data || error.message
-      );
-
-      Alert.alert(
-        "Update Failed",
-        "Unable to update your profile."
-      );
-
+      console.log("Update Profile Error:", error.response?.data || error.message);
+      Alert.alert("Update Failed", "Unable to update your profile.");
     } finally {
-
       setSaving(false);
-
     }
   };
+
 
   if (loading) {
 

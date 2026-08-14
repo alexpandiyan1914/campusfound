@@ -1,7 +1,4 @@
-import React, {
-  useCallback,
-  useState,
-} from "react";
+import React from "react";
 
 import {
   View,
@@ -14,13 +11,8 @@ import {
 } from "react-native";
 
 import {
-  useFocusEffect,
   useNavigation,
 } from "@react-navigation/native";
-
-import {
-  NativeStackNavigationProp,
-} from "@react-navigation/native-stack";
 
 import {
   SafeAreaView,
@@ -34,13 +26,20 @@ import ProfileHeader from "../../components/profile/ProfileHeader";
 import ProfileStatCard from "../../components/profile/ProfileStatCard";
 import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
 import SectionTitle from "../../components/profile/SectionTitle";
-import EditProfileScreen from "./EditProfileScreen";
 
 import useAuth from "../../hooks/useAuth";
-import { profileMenu } from "../../constants/ProfileMenu";
 
-import userService from "../../services/userService";
-import { UserProfile } from "../../types/user";
+import {
+  useProfile,
+} from "../../context/ProfileContext";
+
+import {
+  useClaims,
+} from "../../context/ClaimContext";
+
+import {
+  profileMenu,
+} from "../../constants/ProfileMenu";
 
 import {
   Colors,
@@ -50,66 +49,30 @@ import {
   Spacing,
 } from "../../theme";
 
-import { MainStackParamList } from "../../navigation/MainNavigator";
-
-type NavigationProp =
-  NativeStackNavigationProp<MainStackParamList>;
-
 const ProfileScreen = () => {
 
   const navigation =
-    useNavigation<NavigationProp>();
+    useNavigation();
 
   const { logout } = useAuth();
 
-  const [profile, setProfile] =
-    useState<UserProfile | null>(null);
+  const {
+    profile,
+    loading,
+  } = useProfile();
 
-  const [loading, setLoading] =
-    useState(true);
+  const {
+    claims,
+  } = useClaims();
 
-  const loadProfile = async () => {
-
-    try {
-
-      const data =
-        await userService.getCurrentUser();
-
-      setProfile(data);
-
-    } catch (error: any) {
-
-      console.log(
-        "Profile Error:",
-        error.response?.data || error.message
-      );
-
-      Alert.alert(
-        "Error",
-        "Failed to load profile."
-      );
-
-    } finally {
-
-      setLoading(false);
-
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-
-      loadProfile();
-
-    }, [])
-  );
+  const claimsCount =
+    claims.length;
 
   const handleLogout = () => {
 
     Alert.alert(
       "Logout",
       "Are you sure you want to logout?",
-
       [
         {
           text: "Cancel",
@@ -121,9 +84,7 @@ const ProfileScreen = () => {
           style: "destructive",
 
           onPress: async () => {
-
             await logout();
-
           },
         },
       ]
@@ -136,14 +97,18 @@ const ProfileScreen = () => {
 
     if (title === "Edit Profile") {
 
-      navigation.navigate("EditProfile");
+      navigation.navigate(
+        "EditProfile" as never
+      );
 
       return;
     }
 
     if (title === "About") {
 
-      navigation.navigate("About");
+      navigation.navigate(
+        "About" as never
+      );
 
       return;
     }
@@ -183,17 +148,6 @@ const ProfileScreen = () => {
           Unable to load profile.
         </Text>
 
-        <TouchableOpacity
-          style={styles.retryButton}
-          onPress={loadProfile}
-        >
-
-          <Text style={styles.retryText}>
-            Try Again
-          </Text>
-
-        </TouchableOpacity>
-
       </SafeAreaView>
     );
   }
@@ -206,7 +160,9 @@ const ProfileScreen = () => {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={
+          styles.content
+        }
       >
 
         <ProfileHeader
@@ -221,7 +177,8 @@ const ProfileScreen = () => {
             icon="school-outline"
             label="Department"
             value={
-              profile.department || "Not provided"
+              profile.department ||
+              "Not provided"
             }
           />
 
@@ -239,39 +196,44 @@ const ProfileScreen = () => {
             icon="call-outline"
             label="Phone"
             value={
-              profile.phone || "Not provided"
+              profile.phone ||
+              "Not provided"
             }
           />
 
         </View>
 
-        <SectionTitle title="Activity" />
+        <SectionTitle
+          title="Activity"
+        />
 
         <View style={styles.statsRow}>
 
           <ProfileStatCard
             title="Claims"
-            value={0}
+            value={claimsCount}
           />
 
         </View>
 
-        <SectionTitle title="Account" />
+        <SectionTitle
+          title="Account"
+        />
 
-        {
-          profileMenu.map((item) => (
+        {profileMenu.map(item => (
 
-            <ProfileMenuItem
-              key={item.id}
-              title={item.title}
-              icon={item.icon}
-              onPress={() =>
-                handleMenuPress(item.title)
-              }
-            />
+          <ProfileMenuItem
+            key={item.id}
+            title={item.title}
+            icon={item.icon}
+            onPress={() =>
+              handleMenuPress(
+                item.title
+              )
+            }
+          />
 
-          ))
-        }
+        ))}
 
         <TouchableOpacity
           style={styles.logoutButton}
