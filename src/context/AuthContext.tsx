@@ -1,106 +1,179 @@
 import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
+    createContext,
+    useEffect,
+    useState,
+    ReactNode,
 } from "react";
 
 import storage from "../utils/storage";
 import { registerLogout } from "../utils/authManager";
+import { getUserRoleFromToken } from "../utils/jwt";
+
+type UserRole = "STUDENT" | "ADMIN";
 
 interface AuthContextType {
-  token: string | null;
-  isAuthenticated: boolean;
-  loading: boolean;
 
-  login: (token: string) => Promise<void>;
-  logout: () => Promise<void>;
+    token: string | null;
+
+    role: UserRole | null;
+
+    isAuthenticated: boolean;
+
+    loading: boolean;
+
+    login: (token: string) => Promise<void>;
+
+    logout: () => Promise<void>;
+
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+const AuthContext =
+    createContext<AuthContextType | undefined>(
+        undefined
+    );
 
 interface Props {
-  children: ReactNode;
+    children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: Props) => {
+export const AuthProvider = ({
+    children,
+}: Props) => {
 
-  const [token, setToken] = useState<string | null>(null);
+    const [token, setToken] =
+        useState<string | null>(null);
 
-  const [loading, setLoading] = useState(true);
+    const [role, setRole] =
+        useState<UserRole | null>(null);
 
-  useEffect(() => {
-    loadToken();
-  }, []);
+    const [loading, setLoading] =
+        useState(true);
 
-  const loadToken = async () => {
 
-    try {
+    // --------------------------------
+    // LOAD TOKEN
+    // --------------------------------
 
-      const savedToken = await storage.getToken();
+    useEffect(() => {
 
-      if (savedToken) {
-        setToken(savedToken);
-      }
+        loadToken();
 
-    } finally {
+    }, []);
 
-      setLoading(false);
 
-    }
+    const loadToken = async () => {
 
-  };
+        try {
 
-  const login = async (jwt: string) => {
+            const savedToken =
+                await storage.getToken();
 
-    await storage.saveToken(jwt);
+            if (savedToken) {
 
-    const saved = await storage.getToken();
+                setToken(savedToken);
 
-    setToken(jwt);
+                const userRole =
+                    getUserRoleFromToken(
+                        savedToken
+                    );
 
-  };
+                setRole(userRole);
 
-  const logout = async () => {
+            }
 
-    await storage.removeToken();
+        } catch (error) {
 
-    setToken(null);
+            console.log(
+                "Auth loading error:",
+                error
+            );
 
-  };
+        } finally {
 
-  useEffect(() => {
-    registerLogout(logout);
-  }, []);
+            setLoading(false);
 
-  return (
+        }
 
-    <AuthContext.Provider
+    };
 
-      value={{
 
-        token,
+    // --------------------------------
+    // LOGIN
+    // --------------------------------
 
-        loading,
+    const login = async (
+        jwt: string
+    ) => {
 
-        isAuthenticated: !!token,
+        await storage.saveToken(jwt);
 
-        login,
+        setToken(jwt);
 
-        logout,
+        const userRole =
+            getUserRoleFromToken(jwt);
 
-      }}
+        setRole(userRole);
 
-    >
+        console.log(
+            "Logged in role:",
+            userRole
+        );
 
-      {children}
+    };
 
-    </AuthContext.Provider>
 
-  );
+    // --------------------------------
+    // LOGOUT
+    // --------------------------------
+
+    const logout = async () => {
+
+        await storage.removeToken();
+
+        setToken(null);
+
+        setRole(null);
+
+    };
+
+
+    // --------------------------------
+    // REGISTER GLOBAL LOGOUT
+    // --------------------------------
+
+    useEffect(() => {
+
+        registerLogout(logout);
+
+    }, []);
+
+
+    return (
+
+        <AuthContext.Provider
+            value={{
+
+                token,
+
+                role,
+
+                loading,
+
+                isAuthenticated:
+                    !!token,
+
+                login,
+
+                logout,
+
+            }}
+        >
+
+            {children}
+
+        </AuthContext.Provider>
+
+    );
 
 };
 

@@ -14,6 +14,13 @@ import {
 } from "react-native";
 
 import {
+    TouchableOpacity,
+} from "react-native";
+
+import useAuth from "../../hooks/useAuth";
+import { Ionicons } from "@expo/vector-icons";
+
+import {
     SafeAreaView,
 } from "react-native-safe-area-context";
 
@@ -39,17 +46,16 @@ import {
     Spacing,
 } from "../../theme";
 
-import { MainStackParamList } from "../../navigation/MainNavigator";
+import { AdminStackParamList } from "../../navigation/AdminNavigator";
 
-type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
+type NavigationProp = NativeStackNavigationProp<AdminStackParamList>;
 
 const AdminDashboardScreen = () => {
 
-    const navigation =
-        useNavigation < NavigationProp > ();
+    const navigation = useNavigation<NavigationProp>();
 
     const [pendingClaims, setPendingClaims] =
-        useState < Claim[] > ([]);
+        useState<Claim[]>([]);
 
     const [pendingCount, setPendingCount] =
         useState(0);
@@ -59,6 +65,30 @@ const AdminDashboardScreen = () => {
 
     const [refreshing, setRefreshing] =
         useState(false);
+
+    const { logout } = useAuth();
+
+    const handleLogout = () => {
+
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to logout?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
+                        await logout();
+                    },
+                },
+            ]
+        );
+
+    };
 
 
     const loadDashboard = async () => {
@@ -313,6 +343,22 @@ const AdminDashboardScreen = () => {
 
                 )}
 
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    activeOpacity={0.8}
+                    onPress={handleLogout}
+                >
+                    <Ionicons
+                        name="log-out-outline"
+                        size={21}
+                        color={Colors.danger}
+                    />
+
+                    <Text style={styles.logoutText}>
+                        Logout
+                    </Text>
+                </TouchableOpacity>
+
             </ScrollView>
 
         </SafeAreaView>
@@ -516,6 +562,34 @@ const styles = StyleSheet.create({
         color:
             Colors.gray500,
 
+    },
+
+    logoutButton: {
+        marginTop: Spacing.xl,
+        marginBottom: Spacing.lg,
+
+        height: 52,
+
+        backgroundColor: Colors.white,
+
+        borderRadius: 14,
+
+        borderWidth: 1,
+        borderColor: "#FFD7D7",
+
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    logoutText: {
+        marginLeft: 8,
+
+        fontSize: 15,
+
+        fontFamily: Fonts.semiBold,
+
+        color: Colors.danger,
     },
 
 });
