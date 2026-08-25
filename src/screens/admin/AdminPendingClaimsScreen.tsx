@@ -39,11 +39,13 @@ import {
 } from "../../theme";
 
 import {
-    MainStackParamList,
-} from "../../navigation/MainNavigator";
+    AdminStackParamList,
+} from "../../navigation/AdminNavigator";
 
 type NavigationProp =
-    NativeStackNavigationProp<MainStackParamList>;
+    NativeStackNavigationProp<
+        AdminStackParamList
+    >;
 
 const AdminPendingClaimsScreen = () => {
 

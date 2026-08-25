@@ -36,6 +36,6 @@ const AppNavigator = () => {
 
     return <MainNavigator />;
 
-};
+}
 
 export default AppNavigator;

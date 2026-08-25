@@ -13,9 +13,6 @@ import {
     View,
 } from "react-native";
 
-import {
-    TouchableOpacity,
-} from "react-native";
 
 import useAuth from "../../hooks/useAuth";
 import { Ionicons } from "@expo/vector-icons";
@@ -331,8 +328,7 @@ const AdminDashboardScreen = () => {
                                     navigation.navigate(
                                         "AdminClaimDetails",
                                         {
-                                            claimId:
-                                                claim.id,
+                                            claimId: claim.id,
                                         }
                                     )
                                 }
@@ -342,23 +338,6 @@ const AdminDashboardScreen = () => {
                     )
 
                 )}
-
-                <TouchableOpacity
-                    style={styles.logoutButton}
-                    activeOpacity={0.8}
-                    onPress={handleLogout}
-                >
-                    <Ionicons
-                        name="log-out-outline"
-                        size={21}
-                        color={Colors.danger}
-                    />
-
-                    <Text style={styles.logoutText}>
-                        Logout
-                    </Text>
-                </TouchableOpacity>
-
             </ScrollView>
 
         </SafeAreaView>

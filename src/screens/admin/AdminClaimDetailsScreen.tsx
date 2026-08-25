@@ -42,26 +42,24 @@ import {
     Spacing,
 } from "../../theme";
 
+
 import {
-    MainStackParamList,
-} from "../../navigation/MainNavigator";
+    AdminStackParamList,
+} from "../../navigation/AdminNavigator";
 
 
 type Props = NativeStackScreenProps<
-    MainStackParamList,
+    AdminStackParamList,
     "AdminClaimDetails"
 >;
 
 
 const AdminClaimDetailsScreen = ({
     route,
+    navigation,
 }: Props) => {
 
     const { claimId } = route.params;
-
-    const navigation =
-        useNavigation();
-
 
     const [claim, setClaim] =
         useState<Claim | null>(null);
@@ -624,14 +622,14 @@ const AdminClaimDetailsScreen = ({
                         <Ionicons
                             name={
                                 claim.status ===
-                                "APPROVED"
+                                    "APPROVED"
                                     ? "checkmark-circle"
                                     : "close-circle"
                             }
                             size={28}
                             color={
                                 claim.status ===
-                                "APPROVED"
+                                    "APPROVED"
                                     ? Colors.success
                                     : Colors.danger
                             }
@@ -649,7 +647,7 @@ const AdminClaimDetailsScreen = ({
                                 }
                             >
                                 {claim.status ===
-                                "APPROVED"
+                                    "APPROVED"
                                     ? "Claim Approved"
                                     : "Claim Rejected"}
                             </Text>
@@ -660,7 +658,7 @@ const AdminClaimDetailsScreen = ({
                                 }
                             >
                                 {claim.status ===
-                                "APPROVED"
+                                    "APPROVED"
                                     ? "This claim has been approved. The associated item is now closed."
                                     : "This claim has been rejected and cannot be reviewed again."}
                             </Text>
@@ -687,7 +685,7 @@ const AdminClaimDetailsScreen = ({
 interface InfoRowProps {
 
     icon:
-        keyof typeof Ionicons.glyphMap;
+    keyof typeof Ionicons.glyphMap;
 
     label: string;
 
