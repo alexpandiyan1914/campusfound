@@ -20,3 +20,13 @@ export interface ItemPageResponse {
     first: boolean;
     last: boolean;
 }
+
+export interface AdminItemRequest {
+
+    title: string;
+    description: string;
+    category: string;
+    location: string;
+    lostFoundDate: string;
+    imageUrl: string | null;
+}

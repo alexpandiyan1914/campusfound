@@ -1,6 +1,10 @@
 import api from "./api";
 
-import { Item, ItemPageResponse } from "../types/item";
+import {
+    Item,
+    ItemPageResponse,
+    AdminItemRequest,
+} from "../types/item";
 
 class ItemService {
 
@@ -49,6 +53,44 @@ class ItemService {
 
         return response.data;
 
+    }
+
+    async createItem(
+        request: AdminItemRequest
+    ): Promise<Item> {
+
+        const response =
+            await api.post<Item>(
+                "/items",
+                request
+            );
+
+        return response.data;
+    }
+
+
+    async updateItem(
+        id: number,
+        request: AdminItemRequest
+    ): Promise<Item> {
+
+        const response =
+            await api.put<Item>(
+                `/items/${id}`,
+                request
+            );
+
+        return response.data;
+    }
+
+
+    async deleteItem(
+        id: number
+    ): Promise<void> {
+
+        await api.delete(
+            `/items/${id}`
+        );
     }
 
 }
