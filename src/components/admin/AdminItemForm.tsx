@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
     StyleSheet,
     Text,
@@ -19,7 +17,6 @@ import {
 } from "../../theme";
 
 interface Props {
-
     title: string;
     setTitle: (value: string) => void;
 
@@ -35,9 +32,6 @@ interface Props {
     lostFoundDate: string;
     setLostFoundDate: (value: string) => void;
 
-    imageUrl: string;
-    setImageUrl: (value: string) => void;
-
     buttonTitle: string;
 
     loading: boolean;
@@ -48,26 +42,16 @@ interface Props {
 const AdminItemForm = ({
     title,
     setTitle,
-
     description,
     setDescription,
-
     category,
     setCategory,
-
     location,
     setLocation,
-
     lostFoundDate,
     setLostFoundDate,
-
-    imageUrl,
-    setImageUrl,
-
     buttonTitle,
-
     loading,
-
     onSubmit,
 }: Props) => {
 
@@ -91,9 +75,7 @@ const AdminItemForm = ({
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Enter item description"
-                placeholderTextColor={
-                    Colors.gray400
-                }
+                placeholderTextColor={Colors.gray400}
                 multiline
                 textAlignVertical="top"
             />
@@ -115,23 +97,13 @@ const AdminItemForm = ({
             <FormInput
                 label="Lost / Found Date"
                 value={lostFoundDate}
-                placeholder="2026-08-25"
-                onChangeText={
-                    setLostFoundDate
-                }
+                placeholder="2026-08-27"
+                onChangeText={setLostFoundDate}
             />
 
             <Text style={styles.helper}>
                 Use YYYY-MM-DD format.
             </Text>
-
-            <FormInput
-                label="Image URL"
-                value={imageUrl}
-                placeholder="https://..."
-                onChangeText={setImageUrl}
-                optional
-            />
 
             <View style={styles.buttonContainer}>
 
@@ -149,28 +121,18 @@ const AdminItemForm = ({
     );
 };
 
-
 interface FormInputProps {
-
     label: string;
-
     value: string;
-
     placeholder: string;
-
-    onChangeText:
-        (value: string) => void;
-
-    optional?: boolean;
+    onChangeText: (value: string) => void;
 }
-
 
 const FormInput = ({
     label,
     value,
     placeholder,
     onChangeText,
-    optional = false,
 }: FormInputProps) => {
 
     return (
@@ -178,29 +140,15 @@ const FormInput = ({
         <View style={styles.inputSection}>
 
             <Text style={styles.label}>
-
                 {label}
-
-                {optional && (
-                    <Text style={styles.optional}>
-                        {" "}Optional
-                    </Text>
-                )}
-
             </Text>
 
             <TextInput
                 style={styles.input}
                 value={value}
-                onChangeText={
-                    onChangeText
-                }
-                placeholder={
-                    placeholder
-                }
-                placeholderTextColor={
-                    Colors.gray400
-                }
+                onChangeText={onChangeText}
+                placeholder={placeholder}
+                placeholderTextColor={Colors.gray400}
             />
 
         </View>
@@ -208,138 +156,62 @@ const FormInput = ({
     );
 };
 
-
 export default AdminItemForm;
-
 
 const styles = StyleSheet.create({
 
     form: {
-
-        backgroundColor:
-            Colors.white,
-
-        borderRadius:
-            Radius.lg,
-
-        padding:
-            Spacing.lg,
-
+        backgroundColor: Colors.white,
+        borderRadius: Radius.lg,
+        padding: Spacing.lg,
         ...Shadows.sm,
-
     },
 
     inputSection: {
-
-        marginBottom:
-            Spacing.md,
-
+        marginBottom: Spacing.md,
     },
 
     label: {
-
         marginBottom: 7,
-
         fontSize: 14,
-
-        fontFamily:
-            Fonts.semiBold,
-
-        color:
-            Colors.text,
-
-    },
-
-    optional: {
-
-        fontSize: 11,
-
-        fontFamily:
-            Fonts.regular,
-
-        color:
-            Colors.gray500,
-
+        fontFamily: Fonts.semiBold,
+        color: Colors.text,
     },
 
     input: {
-
         minHeight: 52,
-
         borderWidth: 1,
-
-        borderColor:
-            Colors.border,
-
-        borderRadius:
-            Radius.md,
-
+        borderColor: Colors.border,
+        borderRadius: Radius.md,
         paddingHorizontal: 14,
-
         fontSize: 15,
-
-        fontFamily:
-            Fonts.regular,
-
-        color:
-            Colors.text,
-
-        backgroundColor:
-            Colors.white,
-
+        fontFamily: Fonts.regular,
+        color: Colors.text,
+        backgroundColor: Colors.white,
     },
 
     descriptionInput: {
-
         minHeight: 120,
-
         borderWidth: 1,
-
-        borderColor:
-            Colors.border,
-
-        borderRadius:
-            Radius.md,
-
-        padding:
-            Spacing.md,
-
+        borderColor: Colors.border,
+        borderRadius: Radius.md,
+        padding: Spacing.md,
         fontSize: 15,
-
-        fontFamily:
-            Fonts.regular,
-
-        color:
-            Colors.text,
-
-        marginBottom:
-            Spacing.md,
-
+        fontFamily: Fonts.regular,
+        color: Colors.text,
+        marginBottom: Spacing.md,
     },
 
     helper: {
-
-        marginTop:
-            -Spacing.sm,
-
-        marginBottom:
-            Spacing.md,
-
+        marginTop: -Spacing.sm,
+        marginBottom: Spacing.md,
         fontSize: 11,
-
-        fontFamily:
-            Fonts.regular,
-
-        color:
-            Colors.gray500,
-
+        fontFamily: Fonts.regular,
+        color: Colors.gray500,
     },
 
     buttonContainer: {
-
-        marginTop:
-            Spacing.md,
-
+        marginTop: Spacing.md,
     },
 
 });

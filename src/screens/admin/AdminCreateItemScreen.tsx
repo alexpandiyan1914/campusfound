@@ -16,12 +16,17 @@ import {
     NativeStackScreenProps,
 } from "@react-navigation/native-stack";
 
+import * as ImagePicker from "expo-image-picker";
+
 import {
     AdminStackParamList,
 } from "../../navigation/AdminNavigator";
 
 import AdminItemForm
     from "../../components/admin/AdminItemForm";
+
+import AdminItemImagePicker
+    from "../../components/admin/AdminItemImagePicker";
 
 import itemService
     from "../../services/itemService";
@@ -31,13 +36,11 @@ import {
     Spacing,
 } from "../../theme";
 
-
 type Props =
     NativeStackScreenProps<
         AdminStackParamList,
         "AdminCreateItem"
     >;
-
 
 const AdminCreateItemScreen = ({
     navigation,
@@ -46,10 +49,8 @@ const AdminCreateItemScreen = ({
     const [title, setTitle] =
         useState("");
 
-    const [
-        description,
-        setDescription,
-    ] = useState("");
+    const [description, setDescription] =
+        useState("");
 
     const [category, setCategory] =
         useState("");
@@ -57,17 +58,18 @@ const AdminCreateItemScreen = ({
     const [location, setLocation] =
         useState("");
 
-    const [
-        lostFoundDate,
-        setLostFoundDate,
-    ] = useState("");
-
-    const [imageUrl, setImageUrl] =
+    const [lostFoundDate, setLostFoundDate] =
         useState("");
+
+    const [
+        selectedImage,
+        setSelectedImage,
+    ] = useState<
+        ImagePicker.ImagePickerAsset | null
+    >(null);
 
     const [loading, setLoading] =
         useState(false);
-
 
     const handleCreate = async () => {
 
@@ -87,44 +89,56 @@ const AdminCreateItemScreen = ({
             return;
         }
 
+        if (!selectedImage) {
+
+            Alert.alert(
+                "Photo Required",
+                "Please take or select a photo of the item."
+            );
+
+            return;
+        }
 
         try {
 
             setLoading(true);
 
-            await itemService.createItem({
+            const createdItem =
+                await itemService.createItem(
+                    {
+                        title: title.trim(),
 
-                title:
-                    title.trim(),
+                        description:
+                            description.trim(),
 
-                description:
-                    description.trim(),
+                        category:
+                            category.trim(),
 
-                category:
-                    category.trim(),
+                        location:
+                            location.trim(),
 
-                location:
-                    location.trim(),
+                        lostFoundDate:
+                            lostFoundDate.trim(),
+                    },
 
-                lostFoundDate:
-                    lostFoundDate.trim(),
+                    selectedImage
+                );
 
-                imageUrl:
-                    imageUrl.trim() ||
-                    null,
-
-            });
-
+            console.log(
+                "Created Item:",
+                createdItem
+            );
 
             Alert.alert(
                 "Item Created",
-                "The item has been added to CampusFound.",
+                "The item has been added to CampusFound successfully.",
                 [
                     {
                         text: "OK",
 
-                        onPress: () =>
-                            navigation.goBack(),
+                        onPress: () => {
+                            navigation.goBack();
+                        },
                     },
                 ]
             );
@@ -132,14 +146,33 @@ const AdminCreateItemScreen = ({
         } catch (error: any) {
 
             console.log(
-                "Create Item Error:",
-                error.response?.data ||
+                "===== CREATE ITEM ERROR ====="
+            );
+
+            console.log(
+                "Message:",
                 error.message
+            );
+
+            console.log(
+                "Code:",
+                error.code
+            );
+
+            console.log(
+                "Status:",
+                error.response?.status
+            );
+
+            console.log(
+                "Data:",
+                error.response?.data
             );
 
             Alert.alert(
                 "Creation Failed",
                 error.response?.data?.message ||
+                error.message ||
                 "Unable to create the item."
             );
 
@@ -151,7 +184,6 @@ const AdminCreateItemScreen = ({
 
     };
 
-
     return (
 
         <SafeAreaView
@@ -159,79 +191,42 @@ const AdminCreateItemScreen = ({
         >
 
             <ScrollView
-
-                showsVerticalScrollIndicator={
-                    false
-                }
-
-                contentContainerStyle={
-                    styles.content
-                }
-
-                keyboardShouldPersistTaps={
-                    "handled"
-                }
-
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.content}
+                keyboardShouldPersistTaps="handled"
             >
 
+                <AdminItemImagePicker
+                    image={selectedImage}
+                    onImageSelected={
+                        setSelectedImage
+                    }
+                    onRemoveImage={() =>
+                        setSelectedImage(null)
+                    }
+                />
+
                 <AdminItemForm
-
                     title={title}
-
                     setTitle={setTitle}
 
-                    description={
-                        description
-                    }
+                    description={description}
+                    setDescription={setDescription}
 
-                    setDescription={
-                        setDescription
-                    }
+                    category={category}
+                    setCategory={setCategory}
 
-                    category={
-                        category
-                    }
+                    location={location}
+                    setLocation={setLocation}
 
-                    setCategory={
-                        setCategory
-                    }
+                    lostFoundDate={lostFoundDate}
+                    setLostFoundDate={setLostFoundDate}
 
-                    location={
-                        location
-                    }
+                    buttonTitle="Create Item"
 
-                    setLocation={
-                        setLocation
-                    }
+                    loading={loading}
 
-                    lostFoundDate={
-                        lostFoundDate
-                    }
-
-                    setLostFoundDate={
-                        setLostFoundDate
-                    }
-
-                    imageUrl={
-                        imageUrl
-                    }
-
-                    setImageUrl={
-                        setImageUrl
-                    }
-
-                    buttonTitle={
-                        "Create Item"
-                    }
-
-                    loading={
-                        loading
-                    }
-
-                    onSubmit={
-                        handleCreate
-                    }
-
+                    onSubmit={handleCreate}
                 />
 
             </ScrollView>
@@ -241,28 +236,18 @@ const AdminCreateItemScreen = ({
     );
 };
 
-
 export default AdminCreateItemScreen;
-
 
 const styles = StyleSheet.create({
 
     container: {
-
         flex: 1,
-
-        backgroundColor:
-            Colors.background,
-
+        backgroundColor: Colors.background,
     },
 
     content: {
-
-        padding:
-            Spacing.lg,
-
+        padding: Spacing.lg,
         paddingBottom: 60,
-
     },
 
 });

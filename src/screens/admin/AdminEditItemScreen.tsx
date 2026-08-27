@@ -108,24 +108,11 @@ const AdminEditItemScreen = ({
             await itemService.updateItem(
                 item.id,
                 {
-                    title:
-                        title.trim(),
-
-                    description:
-                        description.trim(),
-
-                    category:
-                        category.trim(),
-
-                    location:
-                        location.trim(),
-
-                    lostFoundDate:
-                        lostFoundDate.trim(),
-
-                    imageUrl:
-                        imageUrl.trim() ||
-                        null,
+                    title: title.trim(),
+                    description: description.trim(),
+                    category: category.trim(),
+                    location: location.trim(),
+                    lostFoundDate: lostFoundDate.trim(),
                 }
             );
 
@@ -224,13 +211,6 @@ const AdminEditItemScreen = ({
                         setLostFoundDate
                     }
 
-                    imageUrl={
-                        imageUrl
-                    }
-
-                    setImageUrl={
-                        setImageUrl
-                    }
 
                     buttonTitle={
                         "Save Changes"

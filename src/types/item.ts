@@ -22,11 +22,9 @@ export interface ItemPageResponse {
 }
 
 export interface AdminItemRequest {
-
     title: string;
     description: string;
     category: string;
     location: string;
     lostFoundDate: string;
-    imageUrl: string | null;
 }
