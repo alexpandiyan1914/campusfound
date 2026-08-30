@@ -1,39 +1,83 @@
 import api from "./api";
 
-import ENDPOINTS from "../constants/Endpoints";
+export interface RegisterRequest {
+    fullName: string;
+    email: string;
+    password: string;
+    phone: string;
+    department: string;
+    year: number;
+}
 
-import {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-  RegisterResponse,
-} from "../types/auth";
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+export interface AuthResponse {
+    message: string;
+    token: string | null;
+}
 
 class AuthService {
+    async sendOtp(
+        email: string
+    ): Promise<string> {
 
-  async login(
-    data: LoginRequest
-  ): Promise<LoginResponse> {
+        const response =
+            await api.post<string>(
+                "/auth/send-otp",
+                {
+                    email,
+                }
+            );
 
-    const response = await api.post<LoginResponse>(
-      ENDPOINTS.LOGIN,
-      data
-    );
+        return response.data;
+    }
 
-    return response.data;
-  }
+    async verifyOtp(
+        email: string,
+        otp: string
+    ): Promise<string> {
 
-  async register(
-    data: RegisterRequest
-  ): Promise<RegisterResponse> {
+        const response =
+            await api.post<string>(
+                "/auth/verify-otp",
+                {
+                    email,
+                    otp,
+                }
+            );
 
-    const response = await api.post<RegisterResponse>(
-      ENDPOINTS.REGISTER,
-      data
-    );
+        return response.data;
+    }
 
-    return response.data;
-  }
+    async register(
+        request: RegisterRequest
+    ): Promise<AuthResponse> {
+
+        const response =
+            await api.post<AuthResponse>(
+                "/auth/register",
+                request
+            );
+
+        return response.data;
+    }
+
+    async login(
+        request: LoginRequest
+    ): Promise<AuthResponse> {
+
+        const response =
+            await api.post<AuthResponse>(
+                "/auth/login",
+                request
+            );
+
+        return response.data;
+    }
+
 }
 
 export default new AuthService();
