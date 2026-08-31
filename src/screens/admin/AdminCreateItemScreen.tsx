@@ -1,16 +1,17 @@
-import React, {
-    useState,
-} from "react";
+import React, { useState } from "react";
 
 import {
     Alert,
-    ScrollView,
     StyleSheet,
 } from "react-native";
 
 import {
     SafeAreaView,
 } from "react-native-safe-area-context";
+
+import {
+    KeyboardAwareScrollView,
+} from "react-native-keyboard-aware-scroll-view";
 
 import {
     NativeStackScreenProps,
@@ -42,6 +43,7 @@ type Props =
         "AdminCreateItem"
     >;
 
+
 const AdminCreateItemScreen = ({
     navigation,
 }: Props) => {
@@ -59,7 +61,7 @@ const AdminCreateItemScreen = ({
         useState("");
 
     const [lostFoundDate, setLostFoundDate] =
-        useState("");
+        useState<Date>(new Date());
 
     const [
         selectedImage,
@@ -71,14 +73,35 @@ const AdminCreateItemScreen = ({
     const [loading, setLoading] =
         useState(false);
 
+
+    const formatDateForBackend = (
+        date: Date
+    ) => {
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    };
+
+
     const handleCreate = async () => {
 
         if (
             !title.trim() ||
             !description.trim() ||
             !category.trim() ||
-            !location.trim() ||
-            !lostFoundDate.trim()
+            !location.trim()
         ) {
 
             Alert.alert(
@@ -88,6 +111,7 @@ const AdminCreateItemScreen = ({
 
             return;
         }
+
 
         if (!selectedImage) {
 
@@ -99,14 +123,17 @@ const AdminCreateItemScreen = ({
             return;
         }
 
+
         try {
 
             setLoading(true);
 
+
             const createdItem =
                 await itemService.createItem(
                     {
-                        title: title.trim(),
+                        title:
+                            title.trim(),
 
                         description:
                             description.trim(),
@@ -118,16 +145,20 @@ const AdminCreateItemScreen = ({
                             location.trim(),
 
                         lostFoundDate:
-                            lostFoundDate.trim(),
+                            formatDateForBackend(
+                                lostFoundDate
+                            ),
                     },
 
                     selectedImage
                 );
 
+
             console.log(
                 "Created Item:",
                 createdItem
             );
+
 
             Alert.alert(
                 "Item Created",
@@ -136,9 +167,8 @@ const AdminCreateItemScreen = ({
                     {
                         text: "OK",
 
-                        onPress: () => {
-                            navigation.goBack();
-                        },
+                        onPress: () =>
+                            navigation.goBack(),
                     },
                 ]
             );
@@ -155,11 +185,6 @@ const AdminCreateItemScreen = ({
             );
 
             console.log(
-                "Code:",
-                error.code
-            );
-
-            console.log(
                 "Status:",
                 error.response?.status
             );
@@ -168,6 +193,7 @@ const AdminCreateItemScreen = ({
                 "Data:",
                 error.response?.data
             );
+
 
             Alert.alert(
                 "Creation Failed",
@@ -181,8 +207,8 @@ const AdminCreateItemScreen = ({
             setLoading(false);
 
         }
-
     };
+
 
     return (
 
@@ -190,64 +216,103 @@ const AdminCreateItemScreen = ({
             style={styles.container}
         >
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.content}
+            <KeyboardAwareScrollView
+
+                contentContainerStyle={
+                    styles.content
+                }
+
+                showsVerticalScrollIndicator={
+                    false
+                }
+
                 keyboardShouldPersistTaps="handled"
+                enableOnAndroid={true}
+                enableAutomaticScroll={true}
+                extraScrollHeight={120}
             >
 
                 <AdminItemImagePicker
-                    image={selectedImage}
+
+                    image={
+                        selectedImage
+                    }
+
                     onImageSelected={
                         setSelectedImage
                     }
+
                     onRemoveImage={() =>
                         setSelectedImage(null)
                     }
                 />
 
+
                 <AdminItemForm
+
                     title={title}
                     setTitle={setTitle}
 
-                    description={description}
-                    setDescription={setDescription}
+                    description={
+                        description
+                    }
+                    setDescription={
+                        setDescription
+                    }
 
                     category={category}
-                    setCategory={setCategory}
+                    setCategory={
+                        setCategory
+                    }
 
                     location={location}
-                    setLocation={setLocation}
+                    setLocation={
+                        setLocation
+                    }
 
-                    lostFoundDate={lostFoundDate}
-                    setLostFoundDate={setLostFoundDate}
+                    lostFoundDate={
+                        lostFoundDate
+                    }
+
+                    setLostFoundDate={
+                        setLostFoundDate
+                    }
 
                     buttonTitle="Create Item"
 
                     loading={loading}
 
-                    onSubmit={handleCreate}
+                    onSubmit={
+                        handleCreate
+                    }
                 />
 
-            </ScrollView>
+            </KeyboardAwareScrollView>
 
         </SafeAreaView>
 
     );
 };
 
+
 export default AdminCreateItemScreen;
 
-const styles = StyleSheet.create({
 
-    container: {
-        flex: 1,
-        backgroundColor: Colors.background,
-    },
+const styles =
+    StyleSheet.create({
 
-    content: {
-        padding: Spacing.lg,
-        paddingBottom: 60,
-    },
+        container: {
+            flex: 1,
+            backgroundColor:
+                Colors.background,
+        },
 
-});
+        content: {
+            padding:
+                Spacing.lg,
+
+            paddingBottom:
+                180,
+        },
+
+    });

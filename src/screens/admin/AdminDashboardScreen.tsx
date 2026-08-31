@@ -10,12 +10,9 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from "react-native";
-
-
-import useAuth from "../../hooks/useAuth";
-import { Ionicons } from "@expo/vector-icons";
 
 import {
     SafeAreaView,
@@ -30,118 +27,150 @@ import {
     NativeStackNavigationProp,
 } from "@react-navigation/native-stack";
 
-import AdminStatCard from "../../components/admin/AdminStatCard";
-import PendingClaimCard from "../../components/admin/PendingClaimCard";
+import {
+    Ionicons,
+} from "@expo/vector-icons";
 
-import claimService from "../../services/claimService";
+import PendingClaimCard
+    from "../../components/admin/PendingClaimCard";
 
-import { Claim } from "../../types/claim";
+import claimService
+    from "../../services/claimService";
+
+import {
+    Claim,
+} from "../../types/claim";
 
 import {
     Colors,
     Fonts,
+    Radius,
+    Shadows,
     Spacing,
 } from "../../theme";
 
-import { AdminStackParamList } from "../../navigation/AdminNavigator";
+import {
+    AdminStackParamList,
+} from "../../navigation/AdminNavigator";
 
-type NavigationProp = NativeStackNavigationProp<AdminStackParamList>;
+
+type NavigationProp =
+    NativeStackNavigationProp<
+        AdminStackParamList
+    >;
+
 
 const AdminDashboardScreen = () => {
 
-    const navigation = useNavigation<NavigationProp>();
-
-    const [pendingClaims, setPendingClaims] =
-        useState<Claim[]>([]);
-
-    const [pendingCount, setPendingCount] =
-        useState(0);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [refreshing, setRefreshing] =
-        useState(false);
-
-    const { logout } = useAuth();
-
-    const handleLogout = () => {
-
-        Alert.alert(
-            "Logout",
-            "Are you sure you want to logout?",
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel",
-                },
-                {
-                    text: "Logout",
-                    style: "destructive",
-                    onPress: async () => {
-                        await logout();
-                    },
-                },
-            ]
-        );
-
-    };
+    const navigation =
+        useNavigation<NavigationProp>();
 
 
-    const loadDashboard = async () => {
+    const [
+        pendingClaims,
+        setPendingClaims,
+    ] = useState<Claim[]>([]);
 
-        try {
 
-            const response =
-                await claimService.getPendingClaims(
-                    0,
-                    5
+    const [
+        pendingCount,
+        setPendingCount,
+    ] = useState(0);
+
+
+    const [
+        loading,
+        setLoading,
+    ] = useState(true);
+
+
+    const [
+        refreshing,
+        setRefreshing,
+    ] = useState(false);
+
+
+    // ==========================================
+    // LOAD DASHBOARD
+    // ==========================================
+
+    const loadDashboard =
+        async () => {
+
+            try {
+
+                const response =
+                    await claimService
+                        .getPendingClaims(
+                            0,
+                            5
+                        );
+
+
+                // Newest claim first
+                const sortedClaims = [
+                    ...response.content,
+                ].sort(
+                    (a, b) =>
+                        new Date(
+                            b.createdAt
+                        ).getTime() -
+                        new Date(
+                            a.createdAt
+                        ).getTime()
                 );
 
-            setPendingClaims(
-                response.content
-            );
 
-            setPendingCount(
-                response.totalElements
-            );
-
-        } catch (error: any) {
-
-            console.log(
-                "Admin Dashboard Error:",
-                error.response?.data ||
-                error.message
-            );
-
-            if (
-                error.response?.status !== 401
-            ) {
-
-                Alert.alert(
-                    "Error",
-                    "Failed to load admin dashboard."
+                setPendingClaims(
+                    sortedClaims
                 );
+
+
+                setPendingCount(
+                    response.totalElements
+                );
+
+            } catch (error: any) {
+
+                console.log(
+                    "Admin Dashboard Error:",
+                    error.response?.data ||
+                    error.message
+                );
+
+
+                if (
+                    error.response?.status
+                    !== 401
+                ) {
+
+                    Alert.alert(
+                        "Error",
+                        "Unable to load the admin dashboard."
+                    );
+
+                }
+
+            } finally {
+
+                setLoading(false);
+
+                setRefreshing(false);
 
             }
 
-        } finally {
-
-            setLoading(false);
-
-            setRefreshing(false);
-
-        }
-
-    };
+        };
 
 
+    // Refresh when dashboard gains focus
     useFocusEffect(
+
         useCallback(() => {
 
             loadDashboard();
 
         }, [])
+
     );
 
 
@@ -154,17 +183,25 @@ const AdminDashboardScreen = () => {
     };
 
 
+    // ==========================================
+    // LOADING
+    // ==========================================
+
     if (loading) {
 
         return (
 
             <SafeAreaView
-                style={styles.loadingContainer}
+                style={
+                    styles.loadingContainer
+                }
             >
 
                 <ActivityIndicator
                     size="large"
-                    color={Colors.primary}
+                    color={
+                        Colors.primary
+                    }
                 />
 
             </SafeAreaView>
@@ -174,6 +211,10 @@ const AdminDashboardScreen = () => {
     }
 
 
+    // ==========================================
+    // UI
+    // ==========================================
+
     return (
 
         <SafeAreaView
@@ -182,105 +223,300 @@ const AdminDashboardScreen = () => {
 
             <ScrollView
 
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={
+                    false
+                }
 
                 contentContainerStyle={
                     styles.content
                 }
 
                 refreshControl={
+
                     <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={handleRefresh}
+                        refreshing={
+                            refreshing
+                        }
+                        onRefresh={
+                            handleRefresh
+                        }
                         colors={[
                             Colors.primary,
                         ]}
                     />
+
                 }
 
             >
 
-                {/* Header */}
+                {/* HEADER */}
 
-                <View style={styles.header}>
-
-                    <Text style={styles.greeting}>
-                        Admin Dashboard
-                    </Text>
-
-                    <Text style={styles.subtitle}>
-                        Manage CampusFound claims
-                    </Text>
-
-                </View>
-
-
-                {/* Statistics */}
-
-                <View style={styles.statsRow}>
-
-                    <AdminStatCard
-                        title="Pending Claims"
-                        value={pendingCount}
-                        icon="time-outline"
-                        onPress={() =>
-                            navigation.navigate(
-                                "AdminPendingClaims"
-                            )
-                        }
-                    />
-
-                    <View style={styles.gap} />
-
-                    <AdminStatCard
-                        title="All Claims"
-                        value={0}
-                        icon="documents-outline"
-                    />
-
-                </View>
-
-
-                {/* Pending Section */}
-
-                <View style={styles.sectionHeader}>
+                <View
+                    style={
+                        styles.header
+                    }
+                >
 
                     <View>
 
                         <Text
-                            style={styles.sectionTitle}
+                            style={
+                                styles.greeting
+                            }
+                        >
+                            Admin Dashboard
+                        </Text>
+
+                        <Text
+                            style={
+                                styles.subtitle
+                            }
+                        >
+                            Manage items and review claims
+                        </Text>
+
+                    </View>
+
+
+                    <View
+                        style={
+                            styles.adminBadge
+                        }
+                    >
+
+                        <Ionicons
+                            name="shield-checkmark"
+                            size={15}
+                            color={
+                                Colors.primary
+                            }
+                        />
+
+                        <Text
+                            style={
+                                styles.adminBadgeText
+                            }
+                        >
+                            Admin
+                        </Text>
+
+                    </View>
+
+                </View>
+
+
+                {/* POST NEW ITEM */}
+
+                <TouchableOpacity
+
+                    activeOpacity={0.85}
+
+                    style={
+                        styles.createItemCard
+                    }
+
+                    onPress={() =>
+                        navigation.navigate(
+                            "AdminCreateItem"
+                        )
+                    }
+
+                >
+
+                    <View
+                        style={
+                            styles.createIconContainer
+                        }
+                    >
+
+                        <Ionicons
+                            name="camera-outline"
+                            size={27}
+                            color={
+                                Colors.white
+                            }
+                        />
+
+                    </View>
+
+
+                    <View
+                        style={
+                            styles.createTextContainer
+                        }
+                    >
+
+                        <Text
+                            style={
+                                styles.createTitle
+                            }
+                        >
+                            Post New Item
+                        </Text>
+
+                        <Text
+                            style={
+                                styles.createSubtitle
+                            }
+                        >
+                            Add a newly found item to CampusFound
+                        </Text>
+
+                    </View>
+
+
+                    <Ionicons
+                        name="chevron-forward"
+                        size={22}
+                        color={
+                            Colors.white
+                        }
+                    />
+
+                </TouchableOpacity>
+
+
+                {/* PENDING SUMMARY */}
+
+                <TouchableOpacity
+
+                    activeOpacity={0.85}
+
+                    style={
+                        styles.pendingSummary
+                    }
+
+                    onPress={() =>
+                        navigation.navigate(
+                            "AdminPendingClaims"
+                        )
+                    }
+
+                >
+
+                    <View
+                        style={
+                            styles.pendingIcon
+                        }
+                    >
+
+                        <Ionicons
+                            name="time-outline"
+                            size={24}
+                            color={
+                                "#D97706"
+                            }
+                        />
+
+                    </View>
+
+
+                    <View
+                        style={
+                            styles.pendingContent
+                        }
+                    >
+
+                        <Text
+                            style={
+                                styles.pendingNumber
+                            }
+                        >
+                            {pendingCount}
+                        </Text>
+
+                        <Text
+                            style={
+                                styles.pendingLabel
+                            }
                         >
                             Pending Claims
                         </Text>
 
                         <Text
-                            style={styles.sectionSubtitle}
+                            style={
+                                styles.pendingDescription
+                            }
                         >
-                            Claims waiting for review
+                            Require your attention
                         </Text>
 
                     </View>
 
-                    <Text
-                        style={styles.viewAll}
-                        onPress={() =>
-                            navigation.navigate(
-                                "AdminPendingClaims"
-                            )
+
+                    <Ionicons
+                        name="chevron-forward"
+                        size={21}
+                        color={
+                            Colors.gray500
                         }
-                    >
-                        View All
-                    </Text>
+                    />
+
+                </TouchableOpacity>
+
+
+                {/* RECENT CLAIMS HEADER */}
+
+                <View
+                    style={
+                        styles.sectionHeader
+                    }
+                >
+
+                    <View>
+
+                        <Text
+                            style={
+                                styles.sectionTitle
+                            }
+                        >
+                            Recent Claims
+                        </Text>
+
+                        <Text
+                            style={
+                                styles.sectionSubtitle
+                            }
+                        >
+                            Latest pending claims first
+                        </Text>
+
+                    </View>
+
+
+                    {pendingCount > 0 && (
+
+                        <TouchableOpacity
+                            onPress={() =>
+                                navigation.navigate(
+                                    "AdminPendingClaims"
+                                )
+                            }
+                        >
+
+                            <Text
+                                style={
+                                    styles.viewAll
+                                }
+                            >
+                                View All
+                            </Text>
+
+                        </TouchableOpacity>
+
+                    )}
 
                 </View>
 
 
-                {/* Claims */}
+                {/* RECENT CLAIMS */}
 
                 {pendingClaims.length === 0 ? (
 
                     <View
-                        style={styles.emptyContainer}
+                        style={
+                            styles.emptyContainer
+                        }
                     >
 
                         <View
@@ -289,29 +525,32 @@ const AdminDashboardScreen = () => {
                             }
                         >
 
-                            <Text
-                                style={
-                                    styles.emptyIconText
+                            <Ionicons
+                                name="checkmark"
+                                size={30}
+                                color={
+                                    Colors.success
                                 }
-                            >
-                                ✓
-                            </Text>
+                            />
 
                         </View>
 
+
                         <Text
-                            style={styles.emptyTitle}
+                            style={
+                                styles.emptyTitle
+                            }
                         >
                             All caught up!
                         </Text>
+
 
                         <Text
                             style={
                                 styles.emptySubtitle
                             }
                         >
-                            There are no pending
-                            claims to review.
+                            There are no pending claims to review.
                         </Text>
 
                     </View>
@@ -322,22 +561,32 @@ const AdminDashboardScreen = () => {
                         claim => (
 
                             <PendingClaimCard
-                                key={claim.id}
-                                claim={claim}
+
+                                key={
+                                    claim.id
+                                }
+
+                                claim={
+                                    claim
+                                }
+
                                 onPress={() =>
                                     navigation.navigate(
                                         "AdminClaimDetails",
                                         {
-                                            claimId: claim.id,
+                                            claimId:
+                                                claim.id,
                                         }
                                     )
                                 }
+
                             />
 
                         )
                     )
 
                 )}
+
             </ScrollView>
 
         </SafeAreaView>
@@ -346,229 +595,464 @@ const AdminDashboardScreen = () => {
 
 };
 
+
 export default AdminDashboardScreen;
 
 
-const styles = StyleSheet.create({
+const styles =
+    StyleSheet.create({
 
-    container: {
+        container: {
 
-        flex: 1,
+            flex: 1,
 
-        backgroundColor:
-            Colors.background,
+            backgroundColor:
+                Colors.background,
 
-    },
+        },
 
-    loadingContainer: {
 
-        flex: 1,
+        loadingContainer: {
 
-        justifyContent: "center",
+            flex: 1,
 
-        alignItems: "center",
+            justifyContent:
+                "center",
 
-        backgroundColor:
-            Colors.background,
+            alignItems:
+                "center",
 
-    },
+            backgroundColor:
+                Colors.background,
 
-    content: {
+        },
 
-        padding: Spacing.lg,
 
-        paddingBottom: 120,
+        content: {
 
-    },
+            padding:
+                Spacing.lg,
 
-    header: {
+            paddingBottom:
+                120,
 
-        marginBottom:
-            Spacing.lg,
+        },
 
-    },
 
-    greeting: {
+        // ======================================
+        // HEADER
+        // ======================================
 
-        fontSize: 27,
+        header: {
 
-        fontFamily: Fonts.bold,
+            flexDirection:
+                "row",
 
-        color: Colors.text,
+            justifyContent:
+                "space-between",
 
-    },
+            alignItems:
+                "center",
 
-    subtitle: {
+            marginBottom:
+                Spacing.lg,
 
-        marginTop: 5,
+        },
 
-        fontSize: 14,
 
-        fontFamily: Fonts.regular,
+        greeting: {
 
-        color:
-            Colors.textSecondary,
+            fontSize: 26,
 
-    },
+            fontFamily:
+                Fonts.bold,
 
-    statsRow: {
+            color:
+                Colors.text,
 
-        flexDirection: "row",
+        },
 
-        marginBottom:
-            Spacing.xl,
 
-    },
+        subtitle: {
 
-    gap: {
+            marginTop: 4,
 
-        width: Spacing.md,
+            fontSize: 13,
 
-    },
+            fontFamily:
+                Fonts.regular,
 
-    sectionHeader: {
+            color:
+                Colors.textSecondary,
 
-        flexDirection: "row",
+        },
 
-        justifyContent:
-            "space-between",
 
-        alignItems:
-            "center",
+        adminBadge: {
 
-        marginBottom:
-            Spacing.md,
+            flexDirection:
+                "row",
 
-    },
+            alignItems:
+                "center",
 
-    sectionTitle: {
+            backgroundColor:
+                "#EFF6FF",
 
-        fontSize: 20,
+            paddingHorizontal:
+                10,
 
-        fontFamily: Fonts.bold,
+            paddingVertical:
+                7,
 
-        color: Colors.text,
+            borderRadius:
+                20,
 
-    },
+        },
 
-    sectionSubtitle: {
 
-        marginTop: 3,
+        adminBadgeText: {
 
-        fontSize: 12,
+            marginLeft: 5,
 
-        fontFamily: Fonts.regular,
+            fontSize: 12,
 
-        color:
-            Colors.gray500,
+            fontFamily:
+                Fonts.semiBold,
 
-    },
+            color:
+                Colors.primary,
 
-    viewAll: {
+        },
 
-        fontSize: 13,
 
-        fontFamily: Fonts.semiBold,
+        // ======================================
+        // POST ITEM
+        // ======================================
 
-        color: Colors.primary,
+        createItemCard: {
 
-    },
+            flexDirection:
+                "row",
 
-    emptyContainer: {
+            alignItems:
+                "center",
 
-        backgroundColor:
-            Colors.white,
+            padding:
+                Spacing.lg,
 
-        borderRadius: 18,
+            backgroundColor:
+                Colors.primary,
 
-        padding: Spacing.xl,
+            borderRadius:
+                Radius.lg,
 
-        alignItems: "center",
+            marginBottom:
+                Spacing.lg,
 
-    },
+            ...Shadows.sm,
 
-    emptyIcon: {
+        },
 
-        width: 58,
 
-        height: 58,
+        createIconContainer: {
 
-        borderRadius: 29,
+            width: 48,
 
-        backgroundColor: "#DCFCE7",
+            height: 48,
 
-        justifyContent:
-            "center",
+            borderRadius: 14,
 
-        alignItems:
-            "center",
+            alignItems:
+                "center",
 
-        marginBottom:
-            Spacing.md,
+            justifyContent:
+                "center",
 
-    },
+            backgroundColor:
+                "rgba(255,255,255,0.18)",
 
-    emptyIconText: {
+        },
 
-        fontSize: 28,
 
-        color: Colors.success,
+        createTextContainer: {
 
-        fontFamily: Fonts.bold,
+            flex: 1,
 
-    },
+            marginLeft:
+                Spacing.md,
 
-    emptyTitle: {
+        },
 
-        fontSize: 17,
 
-        fontFamily: Fonts.bold,
+        createTitle: {
 
-        color: Colors.text,
+            fontSize: 17,
 
-    },
+            fontFamily:
+                Fonts.bold,
 
-    emptySubtitle: {
+            color:
+                Colors.white,
 
-        marginTop: 5,
+        },
 
-        fontSize: 13,
 
-        textAlign: "center",
+        createSubtitle: {
 
-        fontFamily: Fonts.regular,
+            marginTop: 3,
 
-        color:
-            Colors.gray500,
+            fontSize: 11,
 
-    },
+            lineHeight: 16,
 
-    logoutButton: {
-        marginTop: Spacing.xl,
-        marginBottom: Spacing.lg,
+            fontFamily:
+                Fonts.regular,
 
-        height: 52,
+            color:
+                "rgba(255,255,255,0.82)",
 
-        backgroundColor: Colors.white,
+        },
 
-        borderRadius: 14,
 
-        borderWidth: 1,
-        borderColor: "#FFD7D7",
+        // ======================================
+        // PENDING SUMMARY
+        // ======================================
 
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-    },
+        pendingSummary: {
 
-    logoutText: {
-        marginLeft: 8,
+            flexDirection:
+                "row",
 
-        fontSize: 15,
+            alignItems:
+                "center",
 
-        fontFamily: Fonts.semiBold,
+            padding:
+                Spacing.lg,
 
-        color: Colors.danger,
-    },
+            backgroundColor:
+                Colors.white,
 
-});
+            borderRadius:
+                Radius.lg,
+
+            marginBottom:
+                Spacing.xl,
+
+            ...Shadows.sm,
+
+        },
+
+
+        pendingIcon: {
+
+            width: 48,
+
+            height: 48,
+
+            borderRadius: 14,
+
+            alignItems:
+                "center",
+
+            justifyContent:
+                "center",
+
+            backgroundColor:
+                "#FEF3C7",
+
+        },
+
+
+        pendingContent: {
+
+            flex: 1,
+
+            marginLeft:
+                Spacing.md,
+
+        },
+
+
+        pendingNumber: {
+
+            fontSize: 24,
+
+            fontFamily:
+                Fonts.bold,
+
+            color:
+                Colors.text,
+
+        },
+
+
+        pendingLabel: {
+
+            marginTop: 1,
+
+            fontSize: 14,
+
+            fontFamily:
+                Fonts.semiBold,
+
+            color:
+                Colors.text,
+
+        },
+
+
+        pendingDescription: {
+
+            marginTop: 2,
+
+            fontSize: 11,
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.gray500,
+
+        },
+
+
+        // ======================================
+        // RECENT CLAIMS
+        // ======================================
+
+        sectionHeader: {
+
+            flexDirection:
+                "row",
+
+            justifyContent:
+                "space-between",
+
+            alignItems:
+                "center",
+
+            marginBottom:
+                Spacing.md,
+
+        },
+
+
+        sectionTitle: {
+
+            fontSize: 20,
+
+            fontFamily:
+                Fonts.bold,
+
+            color:
+                Colors.text,
+
+        },
+
+
+        sectionSubtitle: {
+
+            marginTop: 3,
+
+            fontSize: 12,
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.gray500,
+
+        },
+
+
+        viewAll: {
+
+            fontSize: 13,
+
+            fontFamily:
+                Fonts.semiBold,
+
+            color:
+                Colors.primary,
+
+        },
+
+
+        // ======================================
+        // EMPTY STATE
+        // ======================================
+
+        emptyContainer: {
+
+            backgroundColor:
+                Colors.white,
+
+            borderRadius:
+                Radius.lg,
+
+            padding:
+                Spacing.xl,
+
+            alignItems:
+                "center",
+
+            ...Shadows.sm,
+
+        },
+
+
+        emptyIcon: {
+
+            width: 58,
+
+            height: 58,
+
+            borderRadius: 29,
+
+            backgroundColor:
+                "#DCFCE7",
+
+            justifyContent:
+                "center",
+
+            alignItems:
+                "center",
+
+            marginBottom:
+                Spacing.md,
+
+        },
+
+
+        emptyTitle: {
+
+            fontSize: 17,
+
+            fontFamily:
+                Fonts.bold,
+
+            color:
+                Colors.text,
+
+        },
+
+
+        emptySubtitle: {
+
+            marginTop: 5,
+
+            fontSize: 13,
+
+            textAlign:
+                "center",
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.gray500,
+
+        },
+
+    });

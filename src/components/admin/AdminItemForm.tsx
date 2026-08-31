@@ -1,9 +1,24 @@
+import React, {
+    useState,
+} from "react";
+
 import {
+    Platform,
     StyleSheet,
     Text,
     TextInput,
+    TouchableOpacity,
     View,
 } from "react-native";
+
+import DateTimePicker, {
+    DateTimePickerAndroid,
+    DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
+
+import {
+    Ionicons,
+} from "@expo/vector-icons";
 
 import PrimaryButton
     from "../buttons/PrimaryButton";
@@ -16,21 +31,28 @@ import {
     Spacing,
 } from "../../theme";
 
+
 interface Props {
+
     title: string;
-    setTitle: (value: string) => void;
+    setTitle:
+        (value: string) => void;
 
     description: string;
-    setDescription: (value: string) => void;
+    setDescription:
+        (value: string) => void;
 
     category: string;
-    setCategory: (value: string) => void;
+    setCategory:
+        (value: string) => void;
 
     location: string;
-    setLocation: (value: string) => void;
+    setLocation:
+        (value: string) => void;
 
-    lostFoundDate: string;
-    setLostFoundDate: (value: string) => void;
+    lostFoundDate: Date;
+    setLostFoundDate:
+        (date: Date) => void;
 
     buttonTitle: string;
 
@@ -39,79 +61,334 @@ interface Props {
     onSubmit: () => void;
 }
 
+
 const AdminItemForm = ({
     title,
     setTitle,
+
     description,
     setDescription,
+
     category,
     setCategory,
+
     location,
     setLocation,
+
     lostFoundDate,
     setLostFoundDate,
+
     buttonTitle,
+
     loading,
+
     onSubmit,
 }: Props) => {
+
+    const [
+        showIOSDatePicker,
+        setShowIOSDatePicker,
+    ] = useState(false);
+
+
+    const openAndroidDatePicker =
+        () => {
+
+            DateTimePickerAndroid.open({
+
+                value:
+                    lostFoundDate,
+
+                mode:
+                    "date",
+
+                maximumDate:
+                    new Date(),
+
+                onChange: (
+                    event,
+                    selectedDate
+                ) => {
+
+                    if (
+                        event.type === "set" &&
+                        selectedDate
+                    ) {
+
+                        setLostFoundDate(
+                            selectedDate
+                        );
+                    }
+                },
+            });
+        };
+
+
+    const handleIOSDateChange = (
+        event: DateTimePickerEvent,
+        selectedDate?: Date
+    ) => {
+
+        if (selectedDate) {
+
+            setLostFoundDate(
+                selectedDate
+            );
+        }
+    };
+
+
+    const openDatePicker =
+        () => {
+
+            if (
+                Platform.OS === "android"
+            ) {
+
+                openAndroidDatePicker();
+
+            } else {
+
+                setShowIOSDatePicker(
+                    true
+                );
+            }
+        };
+
+
+    const formattedDate =
+        lostFoundDate.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            }
+        );
+
 
     return (
 
         <View style={styles.form}>
 
+
             <FormInput
+
                 label="Title"
+
                 value={title}
+
                 placeholder="Black Leather Wallet"
-                onChangeText={setTitle}
+
+                onChangeText={
+                    setTitle
+                }
             />
 
-            <Text style={styles.label}>
+
+            <Text
+                style={
+                    styles.label
+                }
+            >
                 Description
             </Text>
 
+
             <TextInput
-                style={styles.descriptionInput}
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Enter item description"
-                placeholderTextColor={Colors.gray400}
+
+                style={
+                    styles.descriptionInput
+                }
+
+                value={
+                    description
+                }
+
+                onChangeText={
+                    setDescription
+                }
+
+                placeholder={
+                    "Enter item description"
+                }
+
+                placeholderTextColor={
+                    Colors.gray400
+                }
+
                 multiline
+
                 textAlignVertical="top"
             />
 
+
             <FormInput
+
                 label="Category"
-                value={category}
+
+                value={
+                    category
+                }
+
                 placeholder="Wallet"
-                onChangeText={setCategory}
+
+                onChangeText={
+                    setCategory
+                }
             />
 
+
             <FormInput
+
                 label="Location"
-                value={location}
-                placeholder="Main Library"
-                onChangeText={setLocation}
+
+                value={
+                    location
+                }
+
+                placeholder={
+                    "Main Library"
+                }
+
+                onChangeText={
+                    setLocation
+                }
             />
 
-            <FormInput
-                label="Lost / Found Date"
-                value={lostFoundDate}
-                placeholder="2026-08-27"
-                onChangeText={setLostFoundDate}
-            />
 
-            <Text style={styles.helper}>
-                Use YYYY-MM-DD format.
+            <View
+                style={
+                    styles.inputSection
+                }
+            >
+
+                <Text
+                    style={
+                        styles.label
+                    }
+                >
+                    Lost / Found Date
+                </Text>
+
+
+                <TouchableOpacity
+
+                    style={
+                        styles.dateInput
+                    }
+
+                    activeOpacity={
+                        0.7
+                    }
+
+                    onPress={
+                        openDatePicker
+                    }
+                >
+
+                    <Ionicons
+
+                        name={
+                            "calendar-outline"
+                        }
+
+                        size={21}
+
+                        color={
+                            Colors.primary
+                        }
+                    />
+
+
+                    <Text
+                        style={
+                            styles.dateText
+                        }
+                    >
+
+                        {formattedDate}
+
+                    </Text>
+
+
+                    <Ionicons
+
+                        name={
+                            "chevron-down-outline"
+                        }
+
+                        size={18}
+
+                        color={
+                            Colors.gray500
+                        }
+                    />
+
+                </TouchableOpacity>
+
+            </View>
+
+
+            {
+                Platform.OS === "ios" &&
+                showIOSDatePicker && (
+
+                    <DateTimePicker
+
+                        value={
+                            lostFoundDate
+                        }
+
+                        mode="date"
+
+                        maximumDate={
+                            new Date()
+                        }
+
+                        display="spinner"
+
+                        onChange={
+                            handleIOSDateChange
+                        }
+                    />
+
+                )
+            }
+
+
+            <Text
+                style={
+                    styles.helper
+                }
+            >
+                Select the date when the item was found.
             </Text>
 
-            <View style={styles.buttonContainer}>
+
+            <View
+                style={
+                    styles.buttonContainer
+                }
+            >
 
                 <PrimaryButton
-                    title={buttonTitle}
-                    loading={loading}
-                    disabled={loading}
-                    onPress={onSubmit}
+
+                    title={
+                        buttonTitle
+                    }
+
+                    loading={
+                        loading
+                    }
+
+                    disabled={
+                        loading
+                    }
+
+                    onPress={
+                        onSubmit
+                    }
                 />
 
             </View>
@@ -121,12 +398,19 @@ const AdminItemForm = ({
     );
 };
 
+
 interface FormInputProps {
+
     label: string;
+
     value: string;
+
     placeholder: string;
-    onChangeText: (value: string) => void;
+
+    onChangeText:
+        (value: string) => void;
 }
+
 
 const FormInput = ({
     label,
@@ -137,18 +421,42 @@ const FormInput = ({
 
     return (
 
-        <View style={styles.inputSection}>
+        <View
+            style={
+                styles.inputSection
+            }
+        >
 
-            <Text style={styles.label}>
+            <Text
+                style={
+                    styles.label
+                }
+            >
                 {label}
             </Text>
 
+
             <TextInput
-                style={styles.input}
-                value={value}
-                onChangeText={onChangeText}
-                placeholder={placeholder}
-                placeholderTextColor={Colors.gray400}
+
+                style={
+                    styles.input
+                }
+
+                value={
+                    value
+                }
+
+                onChangeText={
+                    onChangeText
+                }
+
+                placeholder={
+                    placeholder
+                }
+
+                placeholderTextColor={
+                    Colors.gray400
+                }
             />
 
         </View>
@@ -156,62 +464,167 @@ const FormInput = ({
     );
 };
 
+
 export default AdminItemForm;
 
-const styles = StyleSheet.create({
 
-    form: {
-        backgroundColor: Colors.white,
-        borderRadius: Radius.lg,
-        padding: Spacing.lg,
-        ...Shadows.sm,
-    },
+const styles =
+    StyleSheet.create({
 
-    inputSection: {
-        marginBottom: Spacing.md,
-    },
+        form: {
 
-    label: {
-        marginBottom: 7,
-        fontSize: 14,
-        fontFamily: Fonts.semiBold,
-        color: Colors.text,
-    },
+            backgroundColor:
+                Colors.white,
 
-    input: {
-        minHeight: 52,
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: Radius.md,
-        paddingHorizontal: 14,
-        fontSize: 15,
-        fontFamily: Fonts.regular,
-        color: Colors.text,
-        backgroundColor: Colors.white,
-    },
+            borderRadius:
+                Radius.lg,
 
-    descriptionInput: {
-        minHeight: 120,
-        borderWidth: 1,
-        borderColor: Colors.border,
-        borderRadius: Radius.md,
-        padding: Spacing.md,
-        fontSize: 15,
-        fontFamily: Fonts.regular,
-        color: Colors.text,
-        marginBottom: Spacing.md,
-    },
+            padding:
+                Spacing.lg,
 
-    helper: {
-        marginTop: -Spacing.sm,
-        marginBottom: Spacing.md,
-        fontSize: 11,
-        fontFamily: Fonts.regular,
-        color: Colors.gray500,
-    },
+            ...Shadows.sm,
+        },
 
-    buttonContainer: {
-        marginTop: Spacing.md,
-    },
 
-});
+        inputSection: {
+
+            marginBottom:
+                Spacing.md,
+        },
+
+
+        label: {
+
+            marginBottom: 7,
+
+            fontSize: 14,
+
+            fontFamily:
+                Fonts.semiBold,
+
+            color:
+                Colors.text,
+        },
+
+
+        input: {
+
+            minHeight: 52,
+
+            borderWidth: 1,
+
+            borderColor:
+                Colors.border,
+
+            borderRadius:
+                Radius.md,
+
+            paddingHorizontal: 14,
+
+            fontSize: 15,
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.text,
+
+            backgroundColor:
+                Colors.white,
+        },
+
+
+        descriptionInput: {
+
+            minHeight: 120,
+
+            borderWidth: 1,
+
+            borderColor:
+                Colors.border,
+
+            borderRadius:
+                Radius.md,
+
+            padding:
+                Spacing.md,
+
+            fontSize: 15,
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.text,
+
+            marginBottom:
+                Spacing.md,
+        },
+
+
+        dateInput: {
+
+            minHeight: 52,
+
+            borderWidth: 1,
+
+            borderColor:
+                Colors.border,
+
+            borderRadius:
+                Radius.md,
+
+            paddingHorizontal: 14,
+
+            flexDirection:
+                "row",
+
+            alignItems:
+                "center",
+
+            gap: 10,
+
+            backgroundColor:
+                Colors.white,
+        },
+
+
+        dateText: {
+
+            flex: 1,
+
+            fontSize: 15,
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.text,
+        },
+
+
+        helper: {
+
+            marginTop:
+                -Spacing.sm,
+
+            marginBottom:
+                Spacing.md,
+
+            fontSize: 11,
+
+            fontFamily:
+                Fonts.regular,
+
+            color:
+                Colors.gray500,
+        },
+
+
+        buttonContainer: {
+
+            marginTop:
+                Spacing.md,
+        },
+
+    });

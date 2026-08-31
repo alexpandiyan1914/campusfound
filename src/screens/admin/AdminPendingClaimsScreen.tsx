@@ -89,16 +89,32 @@ const AdminPendingClaimsScreen = () => {
                 pageNumber === 0
             ) {
 
-                setClaims(
-                    response.content
+                const sortedClaims = [
+                    ...response.content,
+                ].sort(
+                    (a, b) =>
+                        new Date(b.createdAt).getTime() -
+                        new Date(a.createdAt).getTime()
                 );
+
+                setClaims(sortedClaims);
 
             } else {
 
-                setClaims(prev => [
-                    ...prev,
-                    ...response.content,
-                ]);
+                setClaims(previous => {
+
+                    const merged = [
+                        ...previous,
+                        ...response.content,
+                    ];
+
+                    return merged.sort(
+                        (a, b) =>
+                            new Date(b.createdAt).getTime() -
+                            new Date(a.createdAt).getTime()
+                    );
+
+                });
 
             }
 

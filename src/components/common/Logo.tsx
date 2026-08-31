@@ -9,7 +9,7 @@ const Logo = ({ size = 120 }: LogoProps) => {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../../assets/images/logo.png")}
+        source={require("../../assets/images/campusfound-logo.png")}
         style={{
           width: size,
           height: size,
