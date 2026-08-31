@@ -4,13 +4,16 @@ import React, {
 
 import {
     Alert,
-    ScrollView,
     StyleSheet,
 } from "react-native";
 
 import {
     SafeAreaView,
 } from "react-native-safe-area-context";
+
+import {
+    KeyboardAwareScrollView,
+} from "react-native-keyboard-aware-scroll-view";
 
 import {
     NativeStackScreenProps,
@@ -49,7 +52,10 @@ const AdminEditItemScreen = ({
 
 
     const [title, setTitle] =
-        useState(item.title);
+        useState(
+            item.title
+        );
+
 
     const [
         description,
@@ -59,27 +65,53 @@ const AdminEditItemScreen = ({
             item.description
         );
 
+
     const [category, setCategory] =
-        useState(item.category);
+        useState(
+            item.category
+        );
+
 
     const [location, setLocation] =
-        useState(item.location);
+        useState(
+            item.location
+        );
+
 
     const [
         lostFoundDate,
         setLostFoundDate,
     ] =
-        useState(
-            item.lostFoundDate
+        useState<Date>(
+            new Date(
+                item.lostFoundDate
+            )
         );
 
-    const [imageUrl, setImageUrl] =
-        useState(
-            item.imageUrl || ""
-        );
 
     const [loading, setLoading] =
         useState(false);
+
+
+    const formatDateForBackend = (
+        date: Date
+    ) => {
+
+        const year =
+            date.getFullYear();
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    };
 
 
     const handleUpdate = async () => {
@@ -88,8 +120,7 @@ const AdminEditItemScreen = ({
             !title.trim() ||
             !description.trim() ||
             !category.trim() ||
-            !location.trim() ||
-            !lostFoundDate.trim()
+            !location.trim()
         ) {
 
             Alert.alert(
@@ -105,14 +136,26 @@ const AdminEditItemScreen = ({
 
             setLoading(true);
 
+
             await itemService.updateItem(
                 item.id,
                 {
-                    title: title.trim(),
-                    description: description.trim(),
-                    category: category.trim(),
-                    location: location.trim(),
-                    lostFoundDate: lostFoundDate.trim(),
+                    title:
+                        title.trim(),
+
+                    description:
+                        description.trim(),
+
+                    category:
+                        category.trim(),
+
+                    location:
+                        location.trim(),
+
+                    lostFoundDate:
+                        formatDateForBackend(
+                            lostFoundDate
+                        ),
                 }
             );
 
@@ -133,14 +176,29 @@ const AdminEditItemScreen = ({
         } catch (error: any) {
 
             console.log(
-                "Update Item Error:",
-                error.response?.data ||
+                "===== UPDATE ITEM ERROR ====="
+            );
+
+            console.log(
+                "Message:",
                 error.message
             );
+
+            console.log(
+                "Status:",
+                error.response?.status
+            );
+
+            console.log(
+                "Data:",
+                error.response?.data
+            );
+
 
             Alert.alert(
                 "Update Failed",
                 error.response?.data?.message ||
+                error.message ||
                 "Unable to update this item."
             );
 
@@ -156,28 +214,56 @@ const AdminEditItemScreen = ({
     return (
 
         <SafeAreaView
-            style={styles.container}
+            style={
+                styles.container
+            }
         >
 
-            <ScrollView
-                showsVerticalScrollIndicator={
-                    false
-                }
+            <KeyboardAwareScrollView
 
                 contentContainerStyle={
                     styles.content
                 }
 
+                showsVerticalScrollIndicator={
+                    false
+                }
+
                 keyboardShouldPersistTaps={
                     "handled"
+                }
+
+                enableOnAndroid={
+                    true
+                }
+
+                enableAutomaticScroll={
+                    true
+                }
+
+                extraScrollHeight={
+                    60
+                }
+
+                extraHeight={
+                    80
+                }
+
+                keyboardOpeningTime={
+                    0
                 }
             >
 
                 <AdminItemForm
 
-                    title={title}
+                    title={
+                        title
+                    }
 
-                    setTitle={setTitle}
+                    setTitle={
+                        setTitle
+                    }
+
 
                     description={
                         description
@@ -187,6 +273,7 @@ const AdminEditItemScreen = ({
                         setDescription
                     }
 
+
                     category={
                         category
                     }
@@ -195,6 +282,7 @@ const AdminEditItemScreen = ({
                         setCategory
                     }
 
+
                     location={
                         location
                     }
@@ -202,6 +290,7 @@ const AdminEditItemScreen = ({
                     setLocation={
                         setLocation
                     }
+
 
                     lostFoundDate={
                         lostFoundDate
@@ -226,7 +315,7 @@ const AdminEditItemScreen = ({
 
                 />
 
-            </ScrollView>
+            </KeyboardAwareScrollView>
 
         </SafeAreaView>
 
@@ -237,24 +326,27 @@ const AdminEditItemScreen = ({
 export default AdminEditItemScreen;
 
 
-const styles = StyleSheet.create({
+const styles =
+    StyleSheet.create({
 
-    container: {
+        container: {
 
-        flex: 1,
+            flex: 1,
 
-        backgroundColor:
-            Colors.background,
+            backgroundColor:
+                Colors.background,
 
-    },
+        },
 
-    content: {
 
-        padding:
-            Spacing.lg,
+        content: {
 
-        paddingBottom: 60,
+            padding:
+                Spacing.lg,
 
-    },
+            paddingBottom:
+                100,
 
-});
+        },
+
+    });

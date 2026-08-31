@@ -29,7 +29,7 @@ class ClaimService {
 
         const response =
             await api.get<ClaimPageResponse>(
-                `/claims/my?page=${page}&size=${size}&sort=createdAt`
+                `/claims/my?page=${page}&size=${size}&sort=createdAt,desc`
             );
 
         return response.data;
@@ -56,7 +56,7 @@ class ClaimService {
 
         const response =
             await api.get<ClaimPageResponse>(
-                `/claims?page=${page}&size=${size}&sort=createdAt`
+                `/claims?page=${page}&size=${size}&sort=createdAt,desc`
             );
 
         return response.data;
@@ -70,7 +70,7 @@ class ClaimService {
 
         const response =
             await api.get<ClaimPageResponse>(
-                `/claims/pending?page=${page}&size=${size}&sort=createdAt`
+                `/claims/pending?page=${page}&size=${size}&sort=createdAt,desc`
             );
 
         return response.data;
