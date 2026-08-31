@@ -13,27 +13,20 @@ export const profileMenu: ProfileMenuItemType[] = [
     title: "Edit Profile",
     icon: "person-outline",
   },
-
   {
     id: 2,
-    title: "Change Password",
-    icon: "lock-closed-outline",
-  },
-
-  {
-    id: 3,
     title: "Claim History",
     icon: "document-text-outline",
   },
 
   {
-    id: 4,
+    id: 3,
     title: "Settings",
     icon: "settings-outline",
   },
 
   {
-    id: 5,
+    id: 4,
     title: "About",
     icon: "information-circle-outline",
   },

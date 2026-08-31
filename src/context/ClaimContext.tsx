@@ -88,30 +88,12 @@ export const ClaimProvider = ({ children }: Props) => {
         "ClaimContext: Fetching my claims"
       );
 
-      /*
-       * We intentionally load a larger page here.
-       *
-       * CampusFound V1 doesn't expect a student
-       * to have hundreds of claims.
-       *
-       * This prevents us from making repeated
-       * requests just to determine whether an
-       * item has already been claimed.
-       */
-
       const response =
         await claimService.getMyClaims(0, 50);
 
       setClaims(response.content);
 
     } catch (error: any) {
-
-      /*
-       * Don't show an Alert here.
-       *
-       * Claim information should never prevent
-       * the rest of the application from opening.
-       */
 
       console.log(
         "ClaimContext Error:",
@@ -146,14 +128,6 @@ export const ClaimProvider = ({ children }: Props) => {
     profile?.role,
   ]);
 
-  /*
-   * Refresh claims when the application comes
-   * back from background.
-   *
-   * This is useful because an ADMIN may have
-   * approved/rejected a claim while the app
-   * was not active.
-   */
 
   useEffect(() => {
 
@@ -195,13 +169,6 @@ export const ClaimProvider = ({ children }: Props) => {
 
   };
 
-  /*
-   * Find the student's claim for a specific item.
-   *
-   * NO API REQUEST HERE.
-   *
-   * This only searches the local memory cache.
-   */
 
   const getClaimForItem = (
     itemId: number
@@ -213,12 +180,6 @@ export const ClaimProvider = ({ children }: Props) => {
 
   };
 
-  /*
-   * Create claim.
-   *
-   * The backend response is immediately
-   * inserted into our local cache.
-   */
 
   const createClaim = async (
     request: CreateClaimRequest

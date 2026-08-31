@@ -94,22 +94,24 @@ const ProfileScreen = () => {
   const handleMenuPress = (
     title: string
   ) => {
-
     if (title === "Edit Profile") {
-
       navigation.navigate(
         "EditProfile" as never
       );
+      return;
+    }
 
+    if (title === "Claim History") {
+      navigation.navigate(
+        "ClaimHistory" as never
+      );
       return;
     }
 
     if (title === "About") {
-
       navigation.navigate(
         "About" as never
       );
-
       return;
     }
 

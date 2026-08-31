@@ -8,6 +8,9 @@ import CreateClaimScreen from "../screens/claim/CreateClaimScreen";
 import AdminPendingClaimsScreen from "../screens/admin/AdminPendingClaimsScreen";
 import AdminClaimDetailsScreen from "../screens/admin/AdminClaimDetailsScreen";
 import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
+import ClaimHistoryScreen from "../screens/profile/ClaimHistoryScreen";
+import ClaimDetailsScreen from "../screens/profile/ClaimDetailsScreen";
+
 import { Item } from "../types/item";
 
 export type MainStackParamList = {
@@ -35,6 +38,12 @@ export type MainStackParamList = {
   AdminAllClaims: undefined;
 
   AdminClaimDetails: {
+    claimId: number;
+  };
+
+  ClaimHistory: undefined;
+
+  ClaimDetails: {
     claimId: number;
   };
 
@@ -110,6 +119,22 @@ const MainNavigator = () => {
         component={AdminClaimDetailsScreen}
         options={{
           title: "Claim Details",
+        }}
+      />
+
+      <Stack.Screen
+        name="ClaimHistory"
+        component={ClaimHistoryScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="ClaimDetails"
+        component={ClaimDetailsScreen}
+        options={{
+          headerShown: false,
         }}
       />
 
