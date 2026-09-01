@@ -5,6 +5,11 @@ import {
   UpdateProfileRequest,
 } from "../types/user";
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 class UserService {
 
   async getCurrentUser(): Promise<UserProfile> {
@@ -24,6 +29,19 @@ class UserService {
       "/users/me",
       data
     );
+
+    return response.data;
+  }
+
+  async changePassword(
+    request: ChangePasswordRequest
+  ): Promise<string> {
+
+    const response =
+      await api.put<string>(
+        "/users/me/password",
+        request
+      );
 
     return response.data;
   }

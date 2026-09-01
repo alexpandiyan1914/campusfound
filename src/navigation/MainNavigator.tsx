@@ -10,6 +10,9 @@ import AdminClaimDetailsScreen from "../screens/admin/AdminClaimDetailsScreen";
 import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import ClaimHistoryScreen from "../screens/profile/ClaimHistoryScreen";
 import ClaimDetailsScreen from "../screens/profile/ClaimDetailsScreen";
+import SettingsScreen from "../screens/profile/SettingsScreen";
+
+import ChangePasswordScreen from "../screens/profile/ChangePasswordScreen";
 
 import { Item } from "../types/item";
 
@@ -46,6 +49,9 @@ export type MainStackParamList = {
   ClaimDetails: {
     claimId: number;
   };
+
+  Settings: undefined;
+  ChangePassword: undefined;
 
 };
 
@@ -133,6 +139,22 @@ const MainNavigator = () => {
       <Stack.Screen
         name="ClaimDetails"
         component={ClaimDetailsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
         options={{
           headerShown: false,
         }}
