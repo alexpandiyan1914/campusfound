@@ -1,6 +1,16 @@
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
+
+  ForgotPassword: undefined;
+
+  ForgotPasswordOtp: {
+    email: string;
+  };
+
+  ResetPassword: {
+    resetToken: string;
+  };
 };
 
 export type BottomTabParamList = {
@@ -11,19 +21,19 @@ export type BottomTabParamList = {
 };
 
 export type MainTabParamList = {
-    Home: undefined;
-    Search: undefined;
-    Report: undefined;
-    Notifications: undefined;
-    Profile: undefined;
+  Home: undefined;
+  Search: undefined;
+  Report: undefined;
+  Notifications: undefined;
+  Profile: undefined;
 };
 
 export type RootStackParamList = {
 
-    MainTabs: undefined;
+  MainTabs: undefined;
 
-    ItemDetails: {
-        itemId: number;
-    };
+  ItemDetails: {
+    itemId: number;
+  };
 
 };
