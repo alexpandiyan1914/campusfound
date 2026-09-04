@@ -1,38 +1,35 @@
 export const Shadows = {
   sm: {
-    shadowColor: "#000",
+    shadowColor: "#0F172A",
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
     elevation: 2,
   },
 
   md: {
-    shadowColor: "#000",
+    shadowColor: "#0F172A",
     shadowOffset: {
       width: 0,
-      height: 3,
+      height: 2,
     },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-
-    elevation: 4,
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 3,
   },
 
   lg: {
-    shadowColor: "#000",
+    shadowColor: "#0F172A",
     shadowOffset: {
       width: 0,
-      height: 6,
+      height: 4,
     },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-
-    elevation: 8,
+    shadowOpacity: 0.09,
+    shadowRadius: 10,
+    elevation: 5,
   },
 };
 

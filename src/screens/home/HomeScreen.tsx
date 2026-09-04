@@ -1,387 +1,431 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
-  StyleSheet,
-  FlatList,
   ActivityIndicator,
   Alert,
+  FlatList,
   RefreshControl,
+  StyleSheet,
+  View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { View } from "react-native";
+
+import {
+  SafeAreaView,
+} from "react-native-safe-area-context";
+
+import {
+  useNavigation,
+} from "@react-navigation/native";
+
+import {
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 
 import WelcomeHeader from "../../components/home/WelcomeHeader";
 import SearchShortcut from "../../components/home/SearchShortcut";
 import CategoryCard from "../../components/home/CategoryCard";
 import SectionHeader from "../../components/home/SectionHeader";
 import ItemCard from "../../components/home/ItemCard";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { MainStackParamList } from "../../navigation/MainNavigator";
 
-import { categories } from "../../data/categories";
+import {
+  MainStackParamList,
+} from "../../navigation/MainNavigator";
+
+import {
+  HOME_CATEGORIES,
+} from "../../constants/Categories";
 
 import itemService from "../../services/itemService";
-import { Item } from "../../types/item";
+
+import {
+  Item,
+} from "../../types/item";
 
 import {
   Colors,
   Spacing,
 } from "../../theme";
 
-type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
+type NavigationProp =
+  NativeStackNavigationProp<
+    MainStackParamList
+  >;
 
 const HomeScreen = () => {
+  const navigation =
+    useNavigation<NavigationProp>();
 
-  const navigation = useNavigation<NavigationProp>();
+  const [items, setItems] =
+    useState<Item[]>([]);
 
-  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] =
+    useState(false);
 
-  const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] =
+    useState(0);
 
-  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] =
+    useState(true);
 
-  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] =
+    useState(false);
 
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState("All");
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const loadingMoreRef = useRef(false);
+  const loadingMoreRef =
+    useRef(false);
 
   const loadItems = async (
     pageNumber = 0,
     refresh = false
   ) => {
-
     try {
+      console.log(
+        "Fetching Page:",
+        pageNumber
+      );
 
-      console.log("Fetching Page:", pageNumber);
-
-      const response = await itemService.getItems(pageNumber, 10);
+      const response =
+        await itemService.getItems(
+          pageNumber,
+          10
+        );
 
       console.log(
         "Page",
         pageNumber,
-        response.content.map(item => item.id)
+        response.content.map(
+          item => item.id
+        )
       );
 
       console.log(
         "Current Items",
-        items.map(item => item.id)
+        items.map(
+          item => item.id
+        )
       );
 
       if (refresh) {
-
-        setItems(response.content);
-
+        setItems(
+          response.content
+        );
       } else {
-
-        if (pageNumber === 0 || refresh) {
-
-          setItems(response.content);
-
+        if (
+          pageNumber === 0 ||
+          refresh
+        ) {
+          setItems(
+            response.content
+          );
         } else {
-
           setItems(prev => {
+            const existingIds =
+              new Set(
+                prev.map(
+                  item => item.id
+                )
+              );
 
-            const existingIds = new Set(
-              prev.map(item => item.id)
-            );
-
-            const newItems = response.content.filter(
-              item => !existingIds.has(item.id)
-            );
+            const newItems =
+              response.content.filter(
+                item =>
+                  !existingIds.has(
+                    item.id
+                  )
+              );
 
             return [
               ...prev,
               ...newItems,
             ];
-
           });
-
         }
-
       }
 
       setPage(pageNumber);
-
-      setHasMore(!response.last);
-
+      setHasMore(
+        !response.last
+      );
     } catch (error: any) {
-
       console.log(error);
 
-      if (error.response?.status !== 401) {
+      if (
+        error.response?.status !==
+        401
+      ) {
         Alert.alert(
           "Error",
           "Failed to load items."
         );
       }
-
     } finally {
-
       setLoading(false);
-
       setRefreshing(false);
-
-      loadingMoreRef.current = false;
-
+      loadingMoreRef.current =
+        false;
       setLoadingMore(false);
-
     }
-
   };
 
   useEffect(() => {
-
     loadItems(0, true);
-
   }, []);
 
-  const onRefresh = useCallback(() => {
+  const onRefresh =
+    useCallback(() => {
+      setRefreshing(true);
 
-    setRefreshing(true);
+      if (
+        selectedCategory === "All"
+      ) {
+        setPage(0);
+        setHasMore(true);
 
-    if (selectedCategory === "All") {
+        loadItems(
+          0,
+          true
+        );
+      } else {
+        filterCategory(
+          selectedCategory
+        );
 
-      setPage(0);
-
-      setHasMore(true);
-
-      loadItems(0, true);
-
-    } else {
-
-      filterCategory(selectedCategory);
-
-      setRefreshing(false);
-
-    }
-
-  }, [selectedCategory]);
+        setRefreshing(false);
+      }
+    }, [selectedCategory]);
 
   const loadMore = () => {
+    if (
+      selectedCategory !== "All"
+    ) {
+      return;
+    }
 
-    if (selectedCategory !== "All") return;
+    if (
+      loadingMoreRef.current
+    ) {
+      return;
+    }
 
-    if (loadingMoreRef.current) return;
+    if (!hasMore) {
+      return;
+    }
 
-    if (!hasMore) return;
-
-    loadingMoreRef.current = true;
+    loadingMoreRef.current =
+      true;
 
     setLoadingMore(true);
 
     loadItems(page + 1);
-
   };
 
-  const filterCategory = async (
-    category: string
-  ) => {
+  const filterCategory =
+    async (
+      category: string
+    ) => {
+      try {
+        setSelectedCategory(
+          category
+        );
 
-    try {
+        if (
+          category === "All"
+        ) {
+          setPage(0);
+          setHasMore(true);
 
-      setSelectedCategory(category);
+          loadItems(
+            0,
+            true
+          );
 
-      if (category === "All") {
+          return;
+        }
 
-        setPage(0);
+        const response =
+          await itemService
+            .getItemsByCategory(
+              category
+            );
 
-        setHasMore(true);
-
-        loadItems(0, true);
-
-        return;
-
+        setItems(response);
+      } catch {
+        Alert.alert(
+          "Error",
+          "Failed to filter items."
+        );
       }
-
-      const response =
-        await itemService.getItemsByCategory(category);
-
-      setItems(response);
-
-    } catch {
-
-      Alert.alert(
-        "Error",
-        "Failed to filter items."
-      );
-
-    }
-
-  };
-
+    };
 
   if (loading) {
-
     return (
-
-      <SafeAreaView style={styles.loadingContainer}>
-
+      <SafeAreaView
+        style={
+          styles.loadingContainer
+        }
+      >
         <ActivityIndicator
           size="large"
           color={Colors.primary}
         />
-
       </SafeAreaView>
-
     );
-
   }
 
   return (
-
-    <SafeAreaView style={styles.container}>
-
+    <SafeAreaView
+      style={styles.container}
+    >
       <FlatList
-
         data={items}
-
-        keyExtractor={(item) => item.id.toString()}
-
-        showsVerticalScrollIndicator={false}
-
-        contentContainerStyle={styles.content}
-
+        keyExtractor={item =>
+          item.id.toString()
+        }
+        showsVerticalScrollIndicator={
+          false
+        }
+        contentContainerStyle={
+          styles.content
+        }
         renderItem={({ item }) => (
           <ItemCard
-
             item={item}
-
             onPress={() =>
-
               navigation.navigate(
                 "ItemDetails",
                 { item }
               )
-
             }
-
           />
         )}
-
         refreshControl={
-
           <RefreshControl
-
-            refreshing={refreshing}
-
+            refreshing={
+              refreshing
+            }
             onRefresh={onRefresh}
-
-            colors={[Colors.primary]}
-
+            colors={[
+              Colors.primary,
+            ]}
           />
-
         }
-
         ListHeaderComponent={
-
           <>
-
             <WelcomeHeader />
 
             <SearchShortcut />
 
             <FlatList
-
               horizontal
-
-              data={categories}
-
-              keyExtractor={(item) => item.id}
-
-              showsHorizontalScrollIndicator={false}
-
-              contentContainerStyle={styles.categoryList}
-
-              renderItem={({ item }) => (
-
+              data={
+                HOME_CATEGORIES
+              }
+              keyExtractor={item =>
+                item.id
+              }
+              showsHorizontalScrollIndicator={
+                false
+              }
+              contentContainerStyle={
+                styles.categoryList
+              }
+              renderItem={({
+                item,
+              }) => (
                 <CategoryCard
-                  title={item.title}
-                  icon={item.icon as any}
-                  selected={selectedCategory === item.title}
-                  onPress={() => filterCategory(item.title)}
+                  title={
+                    item.title
+                  }
+                  icon={
+                    item.icon
+                  }
+                  selected={
+                    selectedCategory ===
+                    item.title
+                  }
+                  onPress={() =>
+                    filterCategory(
+                      item.title
+                    )
+                  }
                 />
-
               )}
-
             />
 
             <SectionHeader
-
               title="Recent Lost & Found"
-
             />
-
           </>
-
         }
-
         ListFooterComponent={
           loadingMore ? (
             <View
-              style={{
-                paddingVertical: 20,
-              }}
+              style={
+                styles.footerLoader
+              }
             >
               <ActivityIndicator
                 size="large"
-                color={Colors.primary}
+                color={
+                  Colors.primary
+                }
               />
             </View>
           ) : null
         }
-
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-
+        onEndReached={
+          loadMore
+        }
+        onEndReachedThreshold={
+          0.5
+        }
       />
-
     </SafeAreaView>
-
   );
-
 };
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({
+const styles =
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor:
+        Colors.background,
+    },
 
-  container: {
+    loadingContainer: {
+      flex: 1,
+      justifyContent:
+        "center",
+      alignItems: "center",
+      backgroundColor:
+        Colors.background,
+    },
 
-    flex: 1,
+    content: {
+      padding: Spacing.lg,
+      paddingBottom: 120,
+    },
 
-    backgroundColor: Colors.background,
+    categoryList: {
+      paddingVertical:
+        Spacing.sm,
+    },
 
-  },
-
-  loadingContainer: {
-
-    flex: 1,
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    backgroundColor: Colors.background,
-
-  },
-
-  content: {
-
-    padding: Spacing.lg,
-
-    paddingBottom: 120,
-
-  },
-
-  categoryList: {
-
-    paddingVertical: Spacing.sm,
-
-  },
-
-});
+    footerLoader: {
+      paddingVertical: 20,
+    },
+  });

@@ -311,10 +311,6 @@ const SearchScreen = () => {
             />
           )}
 
-          <Text style={styles.emptySubtitle}>
-            Backend search will be connected next.
-          </Text>
-
         </View>
 
       )}
