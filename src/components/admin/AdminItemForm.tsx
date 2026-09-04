@@ -24,6 +24,10 @@ import PrimaryButton
     from "../buttons/PrimaryButton";
 
 import {
+    ITEM_CATEGORIES,
+} from "../../constants/Categories";
+
+import {
     Colors,
     Fonts,
     Radius,
@@ -31,28 +35,31 @@ import {
     Spacing,
 } from "../../theme";
 
-
 interface Props {
-
     title: string;
+
     setTitle:
-        (value: string) => void;
+    (value: string) => void;
 
     description: string;
+
     setDescription:
-        (value: string) => void;
+    (value: string) => void;
 
     category: string;
+
     setCategory:
-        (value: string) => void;
+    (value: string) => void;
 
     location: string;
+
     setLocation:
-        (value: string) => void;
+    (value: string) => void;
 
     lostFoundDate: Date;
+
     setLostFoundDate:
-        (date: Date) => void;
+    (date: Date) => void;
 
     buttonTitle: string;
 
@@ -60,7 +67,6 @@ interface Props {
 
     onSubmit: () => void;
 }
-
 
 const AdminItemForm = ({
     title,
@@ -84,18 +90,14 @@ const AdminItemForm = ({
 
     onSubmit,
 }: Props) => {
-
     const [
         showIOSDatePicker,
         setShowIOSDatePicker,
     ] = useState(false);
 
-
     const openAndroidDatePicker =
         () => {
-
             DateTimePickerAndroid.open({
-
                 value:
                     lostFoundDate,
 
@@ -109,12 +111,10 @@ const AdminItemForm = ({
                     event,
                     selectedDate
                 ) => {
-
                     if (
                         event.type === "set" &&
                         selectedDate
                     ) {
-
                         setLostFoundDate(
                             selectedDate
                         );
@@ -123,38 +123,31 @@ const AdminItemForm = ({
             });
         };
 
-
     const handleIOSDateChange = (
-        event: DateTimePickerEvent,
+        event:
+            DateTimePickerEvent,
         selectedDate?: Date
     ) => {
-
         if (selectedDate) {
-
             setLostFoundDate(
                 selectedDate
             );
         }
     };
 
-
     const openDatePicker =
         () => {
-
             if (
-                Platform.OS === "android"
+                Platform.OS ===
+                "android"
             ) {
-
                 openAndroidDatePicker();
-
             } else {
-
                 setShowIOSDatePicker(
                     true
                 );
             }
         };
-
 
     const formattedDate =
         lostFoundDate.toLocaleDateString(
@@ -166,241 +159,213 @@ const AdminItemForm = ({
             }
         );
 
-
     return (
-
         <View style={styles.form}>
-
-
             <FormInput
-
                 label="Title"
-
                 value={title}
-
                 placeholder="Black Leather Wallet"
-
                 onChangeText={
                     setTitle
                 }
             />
 
-
             <Text
-                style={
-                    styles.label
-                }
+                style={styles.label}
             >
                 Description
             </Text>
 
-
             <TextInput
-
                 style={
                     styles.descriptionInput
                 }
-
-                value={
-                    description
-                }
-
+                value={description}
                 onChangeText={
                     setDescription
                 }
-
-                placeholder={
-                    "Enter item description"
-                }
-
+                placeholder="Enter item description"
                 placeholderTextColor={
                     Colors.gray400
                 }
-
                 multiline
-
                 textAlignVertical="top"
             />
-
-
-            <FormInput
-
-                label="Category"
-
-                value={
-                    category
-                }
-
-                placeholder="Wallet"
-
-                onChangeText={
-                    setCategory
-                }
-            />
-
-
-            <FormInput
-
-                label="Location"
-
-                value={
-                    location
-                }
-
-                placeholder={
-                    "Main Library"
-                }
-
-                onChangeText={
-                    setLocation
-                }
-            />
-
 
             <View
                 style={
                     styles.inputSection
                 }
             >
-
                 <Text
+                    style={styles.label}
+                >
+                    Category
+                </Text>
+
+                <View
                     style={
-                        styles.label
+                        styles.categoryGrid
                     }
+                >
+                    {ITEM_CATEGORIES.map(
+                        item => {
+                            const selected =
+                                category ===
+                                item.title;
+
+                            return (
+                                <TouchableOpacity
+                                    key={
+                                        item.id
+                                    }
+                                    style={[
+                                        styles.categoryChip,
+
+                                        selected &&
+                                        styles.categoryChipSelected,
+                                    ]}
+                                    activeOpacity={
+                                        0.75
+                                    }
+                                    onPress={() =>
+                                        setCategory(
+                                            item.title
+                                        )
+                                    }
+                                >
+                                    <Ionicons
+                                        name={
+                                            item.icon
+                                        }
+                                        size={17}
+                                        color={
+                                            selected
+                                                ? Colors.primary
+                                                : Colors.gray500
+                                        }
+                                    />
+
+                                    <Text
+                                        style={[
+                                            styles.categoryText,
+
+                                            selected &&
+                                            styles.categoryTextSelected,
+                                        ]}
+                                    >
+                                        {
+                                            item.title
+                                        }
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        }
+                    )}
+                </View>
+            </View>
+
+            <FormInput
+                label="Location"
+                value={location}
+                placeholder="Main Library"
+                onChangeText={
+                    setLocation
+                }
+            />
+
+            <View
+                style={
+                    styles.inputSection
+                }
+            >
+                <Text
+                    style={styles.label}
                 >
                     Lost / Found Date
                 </Text>
 
-
                 <TouchableOpacity
-
                     style={
                         styles.dateInput
                     }
-
-                    activeOpacity={
-                        0.7
-                    }
-
+                    activeOpacity={0.7}
                     onPress={
                         openDatePicker
                     }
                 >
-
                     <Ionicons
-
-                        name={
-                            "calendar-outline"
-                        }
-
+                        name="calendar-outline"
                         size={21}
-
                         color={
                             Colors.primary
                         }
                     />
-
 
                     <Text
                         style={
                             styles.dateText
                         }
                     >
-
                         {formattedDate}
-
                     </Text>
 
-
                     <Ionicons
-
-                        name={
-                            "chevron-down-outline"
-                        }
-
+                        name="chevron-down-outline"
                         size={18}
-
                         color={
                             Colors.gray500
                         }
                     />
-
                 </TouchableOpacity>
-
             </View>
 
-
-            {
-                Platform.OS === "ios" &&
+            {Platform.OS ===
+                "ios" &&
                 showIOSDatePicker && (
-
                     <DateTimePicker
-
                         value={
                             lostFoundDate
                         }
-
                         mode="date"
-
                         maximumDate={
                             new Date()
                         }
-
                         display="spinner"
-
                         onChange={
                             handleIOSDateChange
                         }
                     />
-
-                )
-            }
-
+                )}
 
             <Text
-                style={
-                    styles.helper
-                }
+                style={styles.helper}
             >
-                Select the date when the item was found.
+                Select the date when
+                the item was found.
             </Text>
-
 
             <View
                 style={
                     styles.buttonContainer
                 }
             >
-
                 <PrimaryButton
-
                     title={
                         buttonTitle
                     }
-
-                    loading={
-                        loading
-                    }
-
-                    disabled={
-                        loading
-                    }
-
+                    loading={loading}
+                    disabled={loading}
                     onPress={
                         onSubmit
                     }
                 />
-
             </View>
-
         </View>
-
     );
 };
 
-
 interface FormInputProps {
-
     label: string;
 
     value: string;
@@ -408,9 +373,8 @@ interface FormInputProps {
     placeholder: string;
 
     onChangeText:
-        (value: string) => void;
+    (value: string) => void;
 }
-
 
 const FormInput = ({
     label,
@@ -418,61 +382,40 @@ const FormInput = ({
     placeholder,
     onChangeText,
 }: FormInputProps) => {
-
     return (
-
         <View
             style={
                 styles.inputSection
             }
         >
-
             <Text
-                style={
-                    styles.label
-                }
+                style={styles.label}
             >
                 {label}
             </Text>
 
-
             <TextInput
-
-                style={
-                    styles.input
-                }
-
-                value={
-                    value
-                }
-
+                style={styles.input}
+                value={value}
                 onChangeText={
                     onChangeText
                 }
-
                 placeholder={
                     placeholder
                 }
-
                 placeholderTextColor={
                     Colors.gray400
                 }
             />
-
         </View>
-
     );
 };
 
-
 export default AdminItemForm;
-
 
 const styles =
     StyleSheet.create({
-
         form: {
-
             backgroundColor:
                 Colors.white,
 
@@ -482,20 +425,21 @@ const styles =
             padding:
                 Spacing.lg,
 
+            borderWidth: 1,
+
+            borderColor:
+                Colors.border,
+
             ...Shadows.sm,
         },
 
-
         inputSection: {
-
             marginBottom:
                 Spacing.md,
         },
 
-
         label: {
-
-            marginBottom: 7,
+            marginBottom: 8,
 
             fontSize: 14,
 
@@ -506,9 +450,7 @@ const styles =
                 Colors.text,
         },
 
-
         input: {
-
             minHeight: 52,
 
             borderWidth: 1,
@@ -533,9 +475,7 @@ const styles =
                 Colors.white,
         },
 
-
         descriptionInput: {
-
             minHeight: 120,
 
             borderWidth: 1,
@@ -557,13 +497,69 @@ const styles =
             color:
                 Colors.text,
 
+            backgroundColor:
+                Colors.white,
+
             marginBottom:
                 Spacing.md,
         },
 
+        categoryGrid: {
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 8,
+        },
+
+        categoryChip: {
+            minHeight: 40,
+
+            flexDirection: "row",
+
+            alignItems: "center",
+
+            paddingHorizontal: 12,
+
+            borderRadius:
+                Radius.pill,
+
+            borderWidth: 1,
+
+            borderColor:
+                Colors.border,
+
+            backgroundColor:
+                Colors.white,
+
+            gap: 6,
+        },
+
+        categoryChipSelected: {
+            borderColor:
+                Colors.primary,
+
+            backgroundColor:
+                Colors.primarySoft,
+        },
+
+        categoryText: {
+            fontSize: 13,
+
+            fontFamily:
+                Fonts.medium,
+
+            color:
+                Colors.gray600,
+        },
+
+        categoryTextSelected: {
+            fontFamily:
+                Fonts.semiBold,
+
+            color:
+                Colors.primary,
+        },
 
         dateInput: {
-
             minHeight: 52,
 
             borderWidth: 1,
@@ -588,9 +584,7 @@ const styles =
                 Colors.white,
         },
 
-
         dateText: {
-
             flex: 1,
 
             fontSize: 15,
@@ -602,16 +596,16 @@ const styles =
                 Colors.text,
         },
 
-
         helper: {
-
             marginTop:
                 -Spacing.sm,
 
             marginBottom:
                 Spacing.md,
 
-            fontSize: 11,
+            fontSize: 12,
+
+            lineHeight: 18,
 
             fontFamily:
                 Fonts.regular,
@@ -620,11 +614,8 @@ const styles =
                 Colors.gray500,
         },
 
-
         buttonContainer: {
-
             marginTop:
                 Spacing.md,
         },
-
     });
