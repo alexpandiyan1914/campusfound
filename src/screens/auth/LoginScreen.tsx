@@ -59,6 +59,14 @@ const LoginScreen = ({ navigation }: Props) => {
                 password,
             });
 
+            if (!response.token) {
+                Alert.alert(
+                    "Login Failed",
+                    "Authentication token was not received."
+                );
+                return;
+            }
+
             await login(response.token);
         } catch (error: any) {
             console.log("===== LOGIN ERROR =====");
