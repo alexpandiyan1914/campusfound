@@ -1,46 +1,24 @@
 import React from "react";
-
 import {
-  View,
-  Text,
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
+  View,
 } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import {
-  useNavigation,
-} from "@react-navigation/native";
-
-import {
-  SafeAreaView,
-} from "react-native-safe-area-context";
-
-import {
-  Ionicons,
-} from "@expo/vector-icons";
-
-import ProfileHeader from "../../components/profile/ProfileHeader";
-import ProfileStatCard from "../../components/profile/ProfileStatCard";
-import ProfileMenuItem from "../../components/profile/ProfileMenuItem";
-import SectionTitle from "../../components/profile/SectionTitle";
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 
 import useAuth from "../../hooks/useAuth";
-
-import {
-  useProfile,
-} from "../../context/ProfileContext";
-
-import {
-  useClaims,
-} from "../../context/ClaimContext";
-
-import {
-  profileMenu,
-} from "../../constants/ProfileMenu";
-
+import useFeedback from "../../hooks/useFeedback";
+import { useProfile } from "../../context/ProfileContext";
+import { useClaims } from "../../context/ClaimContext";
+import { MainStackParamList } from "../../navigation/MainNavigator";
 import {
   Colors,
   Fonts,
@@ -49,10 +27,12 @@ import {
   Spacing,
 } from "../../theme";
 
-const ProfileScreen = () => {
+type NavigationProp =
+  NativeStackNavigationProp<MainStackParamList>;
 
+const ProfileScreen = () => {
   const navigation =
-    useNavigation();
+    useNavigation<NavigationProp>();
 
   const { logout } = useAuth();
 
@@ -65,268 +45,268 @@ const ProfileScreen = () => {
     claims,
   } = useClaims();
 
-  const claimsCount =
+  const {
+    showConfirm,
+  } = useFeedback();
+
+  const totalClaims =
     claims.length;
 
+  const approvedClaims =
+    claims.filter(
+      claim =>
+        claim.status === "APPROVED"
+    ).length;
+
   const handleLogout = () => {
-
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-
-        {
-          text: "Logout",
-          style: "destructive",
-
-          onPress: async () => {
-            await logout();
-          },
-        },
-      ]
-    );
-  };
-
-  const handleMenuPress = (
-    title: string
-  ) => {
-
-    if (title === "Edit Profile") {
-
-      navigation.navigate(
-        "EditProfile" as never
-      );
-
-      return;
-    }
-
-    if (title === "Claim History") {
-
-      navigation.navigate(
-        "ClaimHistory" as never
-      );
-
-      return;
-    }
-
-    if (title === "Settings") {
-
-      navigation.navigate(
-        "Settings" as never
-      );
-
-      return;
-    }
-
-    if (title === "About") {
-
-      navigation.navigate(
-        "About" as never
-      );
-
-      return;
-    }
-
-    console.log(
-      "Menu pressed:",
-      title
-    );
+    showConfirm({
+      title: "Logout",
+      message:
+        "Are you sure you want to logout from CampusFound?",
+      confirmText: "Logout",
+      cancelText: "Cancel",
+      destructive: true,
+      onConfirm: async () => {
+        await logout();
+      },
+    });
   };
 
   if (loading) {
-
     return (
-
       <SafeAreaView
         style={styles.loadingContainer}
       >
-
         <ActivityIndicator
           size="large"
           color={Colors.primary}
         />
-
       </SafeAreaView>
     );
   }
 
   if (!profile) {
-
     return (
-
       <SafeAreaView
         style={styles.loadingContainer}
       >
+        <Ionicons
+          name="person-circle-outline"
+          size={54}
+          color={Colors.gray400}
+        />
 
-        <Text style={styles.errorText}>
-          Unable to load profile.
+        <Text style={styles.errorTitle}>
+          Profile unavailable
         </Text>
 
+        <Text style={styles.errorText}>
+          We couldn't load your profile information.
+        </Text>
       </SafeAreaView>
     );
   }
 
-  return (
+  const initial =
+    profile.fullName
+      ?.trim()
+      .charAt(0)
+      .toUpperCase() || "U";
 
+  return (
     <SafeAreaView
       style={styles.container}
     >
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
           styles.content
         }
       >
+        <View style={styles.pageHeader}>
+          <Text style={styles.pageTitle}>
+            Profile
+          </Text>
 
-        <ProfileHeader
-          fullName={profile.fullName}
-          email={profile.email}
-          role={profile.role}
-        />
-
-        <View style={styles.infoCard}>
-
-          <InfoRow
-            icon="school-outline"
-            label="Department"
-            value={
-              profile.department ||
-              "Not provided"
-            }
-          />
-
-          <InfoRow
-            icon="calendar-outline"
-            label="Year"
-            value={
-              profile.year
-                ? `Year ${profile.year}`
-                : "Not provided"
-            }
-          />
-
-          <InfoRow
-            icon="call-outline"
-            label="Phone"
-            value={
-              profile.phone ||
-              "Not provided"
-            }
-          />
-
+          <Text style={styles.pageSubtitle}>
+            Your CampusFound account
+          </Text>
         </View>
 
-        <SectionTitle
-          title="Activity"
-        />
+        <View style={styles.profileHeader}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {initial}
+            </Text>
+          </View>
 
-        <View style={styles.statsRow}>
+          <Text
+            style={styles.name}
+            numberOfLines={1}
+          >
+            {profile.fullName}
+          </Text>
 
-          <ProfileStatCard
-            title="Claims"
-            value={claimsCount}
-          />
+          <Text
+            style={styles.email}
+            numberOfLines={1}
+          >
+            {profile.email}
+          </Text>
 
+          <View style={styles.roleBadge}>
+            <Ionicons
+              name={
+                profile.role === "ADMIN"
+                  ? "shield-checkmark-outline"
+                  : "school-outline"
+              }
+              size={14}
+              color={Colors.primary}
+            />
+
+            <Text style={styles.roleText}>
+              {profile.role}
+            </Text>
+          </View>
         </View>
 
-        <SectionTitle
-          title="Account"
-        />
+        {profile.role === "STUDENT" && (
+          <View style={styles.statsCard}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>
+                {totalClaims}
+              </Text>
 
-        {profileMenu.map(item => (
+              <Text style={styles.statLabel}>
+                Claims
+              </Text>
+            </View>
 
-          <ProfileMenuItem
-            key={item.id}
-            title={item.title}
-            icon={item.icon}
+            <View style={styles.statDivider} />
+
+            <View style={styles.statItem}>
+              <Text
+                style={[
+                  styles.statValue,
+                  styles.approvedValue,
+                ]}
+              >
+                {approvedClaims}
+              </Text>
+
+              <Text style={styles.statLabel}>
+                Approved
+              </Text>
+            </View>
+          </View>
+        )}
+
+        <Text style={styles.sectionLabel}>
+          QUICK ACCESS
+        </Text>
+
+        {profile.role === "STUDENT" && (
+          <MenuRow
+            icon="document-text-outline"
+            title="Claim History"
+            description="Track your submitted claims"
             onPress={() =>
-              handleMenuPress(
-                item.title
+              navigation.navigate(
+                "ClaimHistory"
               )
             }
           />
+        )}
 
-        ))}
+        <MenuRow
+          icon="settings-outline"
+          title="Settings"
+          description="Account, support and app information"
+          onPress={() =>
+            navigation.navigate(
+              "Settings"
+            )
+          }
+        />
 
         <TouchableOpacity
           style={styles.logoutButton}
           activeOpacity={0.8}
           onPress={handleLogout}
         >
-
           <Ionicons
             name="log-out-outline"
-            size={22}
+            size={20}
             color={Colors.danger}
           />
 
           <Text style={styles.logoutText}>
             Logout
           </Text>
-
         </TouchableOpacity>
 
         <Text style={styles.version}>
-          CampusFound v1.0.0
+          CampusFound v0.9.0-beta
         </Text>
-
       </ScrollView>
-
     </SafeAreaView>
   );
 };
 
-interface InfoRowProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  value: string;
+interface MenuRowProps {
+  icon:
+    keyof typeof Ionicons.glyphMap;
+  title: string;
+  description: string;
+  onPress: () => void;
 }
 
-const InfoRow = ({
+const MenuRow = ({
   icon,
-  label,
-  value,
-}: InfoRowProps) => {
-
+  title,
+  description,
+  onPress,
+}: MenuRowProps) => {
   return (
-
-    <View style={styles.infoRow}>
-
-      <View style={styles.infoIcon}>
-
+    <TouchableOpacity
+      style={styles.menuRow}
+      activeOpacity={0.78}
+      onPress={onPress}
+    >
+      <View style={styles.menuIcon}>
         <Ionicons
           name={icon}
-          size={20}
+          size={21}
           color={Colors.primary}
         />
-
       </View>
 
-      <View style={styles.infoContent}>
-
-        <Text style={styles.infoLabel}>
-          {label}
+      <View style={styles.menuContent}>
+        <Text style={styles.menuTitle}>
+          {title}
         </Text>
 
-        <Text style={styles.infoValue}>
-          {value}
+        <Text
+          style={styles.menuDescription}
+          numberOfLines={1}
+        >
+          {description}
         </Text>
-
       </View>
 
-    </View>
+      <Ionicons
+        name="chevron-forward"
+        size={19}
+        color={Colors.gray400}
+      />
+    </TouchableOpacity>
   );
 };
 
 export default ProfileScreen;
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -334,107 +314,213 @@ const styles = StyleSheet.create({
 
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
+    padding: Spacing.xl,
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: Colors.background,
   },
 
   content: {
     padding: Spacing.lg,
-    paddingBottom: 14,
+    paddingBottom: 110,
   },
 
-  infoCard: {
-    backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
+  pageHeader: {
     marginBottom: Spacing.lg,
-    ...Shadows.sm,
   },
 
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-
-  infoIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: Colors.primary + "12",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-
-  infoContent: {
-    flex: 1,
-  },
-
-  infoLabel: {
-    fontFamily: Fonts.regular,
-    fontSize: 12,
-    color: Colors.gray500,
-    marginBottom: 3,
-  },
-
-  infoValue: {
-    fontFamily: Fonts.medium,
-    fontSize: 15,
+  pageTitle: {
+    fontSize: 27,
+    fontFamily: Fonts.bold,
     color: Colors.text,
   },
 
-  statsRow: {
+  pageSubtitle: {
+    marginTop: 3,
+    fontSize: 13,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+
+  profileHeader: {
+    alignItems: "center",
+    paddingVertical: Spacing.xl,
+  },
+
+  avatar: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.primary,
+    marginBottom: Spacing.md,
+  },
+
+  avatarText: {
+    fontSize: 34,
+    fontFamily: Fonts.bold,
+    color: Colors.white,
+  },
+
+  name: {
+    maxWidth: "100%",
+    fontSize: 22,
+    fontFamily: Fonts.bold,
+    color: Colors.text,
+  },
+
+  email: {
+    maxWidth: "100%",
+    marginTop: 5,
+    fontSize: 13,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+
+  roleBadge: {
     flexDirection: "row",
-    marginBottom: Spacing.lg,
+    alignItems: "center",
+    marginTop: Spacing.md,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.primarySoft,
+  },
+
+  roleText: {
+    marginLeft: 5,
+    fontSize: 11,
+    fontFamily: Fonts.semiBold,
+    color: Colors.primary,
+  },
+
+  statsCard: {
+    minHeight: 90,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Spacing.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.white,
+    ...Shadows.sm,
+  },
+
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  statValue: {
+    fontSize: 24,
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+  },
+
+  approvedValue: {
+    color: Colors.success,
+  },
+
+  statLabel: {
+    marginTop: 4,
+    fontSize: 12,
+    fontFamily: Fonts.medium,
+    color: Colors.textSecondary,
+  },
+
+  statDivider: {
+    width: 1,
+    height: 42,
+    backgroundColor: Colors.border,
+  },
+
+  sectionLabel: {
+    marginBottom: Spacing.sm,
+    fontSize: 11,
+    letterSpacing: 0.8,
+    fontFamily: Fonts.semiBold,
+    color: Colors.gray500,
+  },
+
+  menuRow: {
+    minHeight: 70,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.white,
+  },
+
+  menuIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: Radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.primarySoft,
+  },
+
+  menuContent: {
+    flex: 1,
+    marginLeft: Spacing.md,
+  },
+
+  menuTitle: {
+    fontSize: 15,
+    fontFamily: Fonts.semiBold,
+    color: Colors.text,
+  },
+
+  menuDescription: {
+    marginTop: 3,
+    fontSize: 11,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
   },
 
   logoutButton: {
-    marginTop: 30,
-    backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    paddingVertical: 16,
+    minHeight: 54,
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.lg,
     borderWidth: 1,
-    borderColor: "#FFD7D7",
-    ...Shadows.sm,
+    borderColor: "#FECACA",
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.white,
   },
 
   logoutText: {
-    marginLeft: 10,
-    fontSize: 16,
+    marginLeft: Spacing.sm,
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
     color: Colors.danger,
-    fontFamily: Fonts.bold,
   },
 
   version: {
-    marginTop: 28,
+    marginTop: Spacing.xl,
     textAlign: "center",
-    color: Colors.gray500,
+    fontSize: 11,
     fontFamily: Fonts.regular,
-    fontSize: 13,
+    color: Colors.gray500,
+  },
+
+  errorTitle: {
+    marginTop: Spacing.md,
+    fontSize: 17,
+    fontFamily: Fonts.bold,
+    color: Colors.text,
   },
 
   errorText: {
-    fontFamily: Fonts.medium,
-    color: Colors.text,
-    fontSize: 16,
-    marginBottom: 15,
+    marginTop: 5,
+    textAlign: "center",
+    fontSize: 13,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
   },
-
-  retryButton: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: Radius.md,
-  },
-
-  retryText: {
-    color: Colors.white,
-    fontFamily: Fonts.bold,
-  },
-
 });
