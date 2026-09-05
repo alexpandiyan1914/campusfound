@@ -7,18 +7,16 @@ import React, {
 
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 
 import {
   SafeAreaView,
 } from "react-native-safe-area-context";
-
-import useFeedback from "../../hooks/useFeedback";
 
 import {
   useNavigation,
@@ -28,11 +26,20 @@ import {
   NativeStackNavigationProp,
 } from "@react-navigation/native-stack";
 
-import WelcomeHeader from "../../components/home/WelcomeHeader";
-import SearchShortcut from "../../components/home/SearchShortcut";
-import CategoryCard from "../../components/home/CategoryCard";
-import SectionHeader from "../../components/home/SectionHeader";
-import ItemCard from "../../components/home/ItemCard";
+import WelcomeHeader
+  from "../../components/home/WelcomeHeader";
+
+import SearchShortcut
+  from "../../components/home/SearchShortcut";
+
+import CategoryCard
+  from "../../components/home/CategoryCard";
+
+import SectionHeader
+  from "../../components/home/SectionHeader";
+
+import ItemCard
+  from "../../components/home/ItemCard";
 
 import {
   MainStackParamList,
@@ -42,7 +49,8 @@ import {
   HOME_CATEGORIES,
 } from "../../constants/Categories";
 
-import itemService from "../../services/itemService";
+import itemService
+  from "../../services/itemService";
 
 import {
   Item,
@@ -50,8 +58,12 @@ import {
 
 import {
   Colors,
+  Fonts,
   Spacing,
 } from "../../theme";
+
+import useFeedback
+  from "../../hooks/useFeedback";
 
 type NavigationProp =
   NativeStackNavigationProp<
@@ -59,16 +71,12 @@ type NavigationProp =
   >;
 
 const HomeScreen = () => {
-  const {
-    showSuccess,
-    showError,
-    showWarning,
-    showInfo,
-    showConfirm,
-  } = useFeedback();
-
   const navigation =
     useNavigation<NavigationProp>();
+
+  const {
+    showError,
+  } = useFeedback();
 
   const [items, setItems] =
     useState<Item[]>([]);
@@ -76,17 +84,23 @@ const HomeScreen = () => {
   const [loading, setLoading] =
     useState(true);
 
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [
+    refreshing,
+    setRefreshing,
+  ] = useState(false);
 
   const [page, setPage] =
     useState(0);
 
-  const [hasMore, setHasMore] =
-    useState(true);
+  const [
+    hasMore,
+    setHasMore,
+  ] = useState(true);
 
-  const [loadingMore, setLoadingMore] =
-    useState(false);
+  const [
+    loadingMore,
+    setLoadingMore,
+  ] = useState(false);
 
   const [
     selectedCategory,
@@ -101,70 +115,45 @@ const HomeScreen = () => {
     refresh = false
   ) => {
     try {
-      console.log(
-        "Fetching Page:",
-        pageNumber
-      );
-
       const response =
         await itemService.getItems(
           pageNumber,
           10
         );
 
-      console.log(
-        "Page",
-        pageNumber,
-        response.content.map(
-          item => item.id
-        )
-      );
-
-      console.log(
-        "Current Items",
-        items.map(
-          item => item.id
-        )
-      );
-
-      if (refresh) {
+      if (
+        refresh ||
+        pageNumber === 0
+      ) {
         setItems(
           response.content
         );
       } else {
-        if (
-          pageNumber === 0 ||
-          refresh
-        ) {
-          setItems(
-            response.content
-          );
-        } else {
-          setItems(prev => {
-            const existingIds =
-              new Set(
-                prev.map(
-                  item => item.id
+        setItems(prev => {
+          const existingIds =
+            new Set(
+              prev.map(
+                item => item.id
+              )
+            );
+
+          const newItems =
+            response.content.filter(
+              item =>
+                !existingIds.has(
+                  item.id
                 )
-              );
+            );
 
-            const newItems =
-              response.content.filter(
-                item =>
-                  !existingIds.has(
-                    item.id
-                  )
-              );
-
-            return [
-              ...prev,
-              ...newItems,
-            ];
-          });
-        }
+          return [
+            ...prev,
+            ...newItems,
+          ];
+        });
       }
 
       setPage(pageNumber);
+
       setHasMore(
         !response.last
       );
@@ -175,9 +164,9 @@ const HomeScreen = () => {
         error.response?.status !==
         401
       ) {
-        Alert.alert(
-          "Error",
-          "Failed to load items."
+        showError(
+          "Couldn't load items",
+          "Please check your connection and try again."
         );
       }
     } finally {
@@ -193,12 +182,56 @@ const HomeScreen = () => {
     loadItems(0, true);
   }, []);
 
+  const filterCategory =
+    async (
+      category: string
+    ) => {
+      try {
+        setSelectedCategory(
+          category
+        );
+
+        if (
+          category === "All"
+        ) {
+          setPage(0);
+          setHasMore(true);
+
+          await loadItems(
+            0,
+            true
+          );
+
+          return;
+        }
+
+        const response =
+          await itemService
+            .getItemsByCategory(
+              category
+            );
+
+        setItems(response);
+        setHasMore(false);
+      } catch (error) {
+        console.log(error);
+
+        showError(
+          "Couldn't filter items",
+          "Please try again."
+        );
+      } finally {
+        setRefreshing(false);
+      }
+    };
+
   const onRefresh =
     useCallback(() => {
       setRefreshing(true);
 
       if (
-        selectedCategory === "All"
+        selectedCategory ===
+        "All"
       ) {
         setPage(0);
         setHasMore(true);
@@ -211,14 +244,15 @@ const HomeScreen = () => {
         filterCategory(
           selectedCategory
         );
-
-        setRefreshing(false);
       }
-    }, [selectedCategory]);
+    }, [
+      selectedCategory,
+    ]);
 
   const loadMore = () => {
     if (
-      selectedCategory !== "All"
+      selectedCategory !==
+      "All"
     ) {
       return;
     }
@@ -238,46 +272,10 @@ const HomeScreen = () => {
 
     setLoadingMore(true);
 
-    loadItems(page + 1);
+    loadItems(
+      page + 1
+    );
   };
-
-  const filterCategory =
-    async (
-      category: string
-    ) => {
-      try {
-        setSelectedCategory(
-          category
-        );
-
-        if (
-          category === "All"
-        ) {
-          setPage(0);
-          setHasMore(true);
-
-          loadItems(
-            0,
-            true
-          );
-
-          return;
-        }
-
-        const response =
-          await itemService
-            .getItemsByCategory(
-              category
-            );
-
-        setItems(response);
-      } catch {
-        showError(
-          "Error",
-          "Failed to filter items."
-        );
-      }
-    };
 
   if (loading) {
     return (
@@ -288,15 +286,27 @@ const HomeScreen = () => {
       >
         <ActivityIndicator
           size="large"
-          color={Colors.primary}
+          color={
+            Colors.primary
+          }
         />
+
+        <Text
+          style={
+            styles.loadingText
+          }
+        >
+          Finding recent items...
+        </Text>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView
-      style={styles.container}
+      style={
+        styles.container
+      }
     >
       <FlatList
         data={items}
@@ -309,13 +319,17 @@ const HomeScreen = () => {
         contentContainerStyle={
           styles.content
         }
-        renderItem={({ item }) => (
+        renderItem={({
+          item,
+        }) => (
           <ItemCard
             item={item}
             onPress={() =>
               navigation.navigate(
                 "ItemDetails",
-                { item }
+                {
+                  item,
+                }
               )
             }
           />
@@ -325,10 +339,15 @@ const HomeScreen = () => {
             refreshing={
               refreshing
             }
-            onRefresh={onRefresh}
+            onRefresh={
+              onRefresh
+            }
             colors={[
               Colors.primary,
             ]}
+            tintColor={
+              Colors.primary
+            }
           />
         }
         ListHeaderComponent={
@@ -337,13 +356,36 @@ const HomeScreen = () => {
 
             <SearchShortcut />
 
+            <View
+              style={
+                styles.categoryHeader
+              }
+            >
+              <Text
+                style={
+                  styles.categoryTitle
+                }
+              >
+                Categories
+              </Text>
+
+              <Text
+                style={
+                  styles.categorySubtitle
+                }
+              >
+                Browse by item type
+              </Text>
+            </View>
+
             <FlatList
               horizontal
               data={
                 HOME_CATEGORIES
               }
-              keyExtractor={item =>
-                item.id
+              keyExtractor={
+                item =>
+                  item.id
               }
               showsHorizontalScrollIndicator={
                 false
@@ -375,7 +417,18 @@ const HomeScreen = () => {
             />
 
             <SectionHeader
-              title="Recent Lost & Found"
+              title={
+                selectedCategory ===
+                "All"
+                  ? "Recently Found"
+                  : selectedCategory
+              }
+              subtitle={
+                selectedCategory ===
+                "All"
+                  ? "Latest items reported on campus"
+                  : `Recently found ${selectedCategory.toLowerCase()} items`
+              }
             />
           </>
         }
@@ -387,19 +440,25 @@ const HomeScreen = () => {
               }
             >
               <ActivityIndicator
-                size="large"
+                size="small"
                 color={
                   Colors.primary
                 }
               />
             </View>
-          ) : null
+          ) : (
+            <View
+              style={
+                styles.footerSpace
+              }
+            />
+          )
         }
         onEndReached={
           loadMore
         }
         onEndReachedThreshold={
-          0.5
+          0.4
         }
       />
     </SafeAreaView>
@@ -408,34 +467,74 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const styles =
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor:
-        Colors.background,
-    },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor:
+      Colors.background,
+  },
 
-    loadingContainer: {
-      flex: 1,
-      justifyContent:
-        "center",
-      alignItems: "center",
-      backgroundColor:
-        Colors.background,
-    },
+  loadingContainer: {
+    flex: 1,
+    justifyContent:
+      "center",
+    alignItems: "center",
+    backgroundColor:
+      Colors.background,
+  },
 
-    content: {
-      padding: Spacing.lg,
-      paddingBottom: 120,
-    },
+  loadingText: {
+    marginTop:
+      Spacing.sm,
+    fontSize: 13,
+    fontFamily:
+      Fonts.regular,
+    color:
+      Colors.textSecondary,
+  },
 
-    categoryList: {
-      paddingVertical:
-        Spacing.sm,
-    },
+  content: {
+    paddingHorizontal:
+      Spacing.md,
+    paddingTop:
+      Spacing.md,
+  },
 
-    footerLoader: {
-      paddingVertical: 20,
-    },
-  });
+  categoryHeader: {
+    marginTop:
+      Spacing.sm,
+  },
+
+  categoryTitle: {
+    fontSize: 18,
+    fontFamily:
+      Fonts.bold,
+    color:
+      Colors.text,
+  },
+
+  categorySubtitle: {
+    marginTop: 3,
+    fontSize: 12,
+    fontFamily:
+      Fonts.regular,
+    color:
+      Colors.textSecondary,
+  },
+
+  categoryList: {
+    paddingTop:
+      Spacing.md,
+    paddingBottom:
+      Spacing.sm,
+  },
+
+  footerLoader: {
+    paddingVertical:
+      Spacing.lg,
+  },
+
+  footerSpace: {
+    height: 110,
+  },
+});

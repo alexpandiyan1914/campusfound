@@ -2,9 +2,12 @@ import {
   StyleSheet,
   Text,
   View,
+  Image
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+} from "@expo/vector-icons";
 
 import {
   Colors,
@@ -16,17 +19,16 @@ import {
 const WelcomeHeader = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.topRow}>
+      <View style={styles.brandRow}>
         <View style={styles.brandIcon}>
-          <Ionicons
-            name="location"
-            size={20}
-            color={Colors.primary}
+          <Image
+            source={require('../../assets/images/campusfound-logo.png')}
+            style={styles.icon}
           />
         </View>
 
         <Text style={styles.brandName}>
-          CampusFound
+          Campus Found
         </Text>
       </View>
 
@@ -35,7 +37,7 @@ const WelcomeHeader = () => {
       </Text>
 
       <Text style={styles.subtitle}>
-        Search recently found items across your campus.
+        Search recently found items and get them back safely.
       </Text>
     </View>
   );
@@ -48,9 +50,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
 
-  topRow: {
+  brandRow: {
     flexDirection: "row",
     alignItems: "center",
+    alignContent:"center",
     marginBottom: Spacing.md,
   },
 
@@ -65,24 +68,30 @@ const styles = StyleSheet.create({
 
   brandName: {
     marginLeft: Spacing.sm,
-    fontSize: 15,
-    color: Colors.primary,
+    fontSize: 14,
     fontFamily: Fonts.semiBold,
+    color: Colors.primary,
+    letterSpacing: 0.2,
   },
 
   title: {
-    fontSize: 28,
-    lineHeight: 34,
-    color: Colors.text,
+    fontSize: 29,
+    lineHeight: 35,
     fontFamily: Fonts.bold,
+    color: Colors.text,
   },
 
   subtitle: {
-    marginTop: Spacing.sm,
-    maxWidth: 310,
+    marginTop: 7,
+    maxWidth: 330,
     fontSize: 14,
     lineHeight: 21,
-    color: Colors.textSecondary,
     fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+
+  icon: {
+    width: 42, 
+    height: 42
   },
 });
