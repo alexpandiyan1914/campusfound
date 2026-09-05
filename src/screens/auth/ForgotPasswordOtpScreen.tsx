@@ -34,6 +34,8 @@ import {
     AuthStackParamList,
 } from "../../types/navigation";
 
+import useFeedback from "../../hooks/useFeedback";
+
 import {
     Colors,
     Fonts,
@@ -51,6 +53,15 @@ const ForgotPasswordOtpScreen = ({
     route,
     navigation,
 }: Props) => {
+
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
+
     const { email } = route.params;
 
     const [otp, setOtp] =
@@ -81,7 +92,7 @@ const ForgotPasswordOtpScreen = ({
 
     const handleVerifyOtp = async () => {
         if (!/^\d{6}$/.test(otp)) {
-            Alert.alert(
+            showError(
                 "Invalid OTP",
                 "Please enter the 6-digit OTP sent to your email."
             );
@@ -100,7 +111,7 @@ const ForgotPasswordOtpScreen = ({
                     );
 
             if (!response.resetToken) {
-                Alert.alert(
+                showError(
                     "Verification Failed",
                     "Password reset token was not received."
                 );
@@ -122,7 +133,7 @@ const ForgotPasswordOtpScreen = ({
                 error.message
             );
 
-            Alert.alert(
+            showError(
                 "Verification Failed",
                 getErrorMessage(
                     error,
@@ -151,7 +162,7 @@ const ForgotPasswordOtpScreen = ({
             setOtp("");
             setCountdown(60);
 
-            Alert.alert(
+            showInfo(
                 "New OTP Sent",
                 message ||
                 "A new OTP has been sent to your email."
@@ -163,7 +174,7 @@ const ForgotPasswordOtpScreen = ({
                 error.message
             );
 
-            Alert.alert(
+            showError(
                 "Unable to Resend OTP",
                 getErrorMessage(
                     error,

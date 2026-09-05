@@ -33,6 +33,7 @@ import {
 } from "../../context/ProfileContext";
 
 import userService from "../../services/userService";
+import useFeedback from "../../hooks/useFeedback";
 
 import {
   Colors,
@@ -43,6 +44,14 @@ import {
 } from "../../theme";
 
 const EditProfileScreen = () => {
+
+  const {
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+    showConfirm,
+  } = useFeedback();
 
   const navigation = useNavigation();
 
@@ -85,7 +94,7 @@ const EditProfileScreen = () => {
         error.response?.data || error.message
       );
 
-      Alert.alert(
+      showError(
         "Error",
         "Failed to load profile."
       );
@@ -99,12 +108,12 @@ const EditProfileScreen = () => {
 
   const handleSave = async () => {
     if (!fullName.trim()) {
-      Alert.alert("Invalid Name", "Please enter your full name.");
+      showWarning("Invalid Name", "Please enter your full name.");
       return;
     }
 
     if (!phone.trim()) {
-      Alert.alert("Invalid Phone", "Please enter your phone number.");
+      showWarning("Invalid Phone", "Please enter your phone number.");
       return;
     }
 
@@ -123,7 +132,7 @@ const EditProfileScreen = () => {
 
     } catch (error: any) {
       console.log("Update Profile Error:", error.response?.data || error.message);
-      Alert.alert("Update Failed", "Unable to update your profile.");
+      showError("Update Failed", "Unable to update your profile.");
     } finally {
       setSaving(false);
     }

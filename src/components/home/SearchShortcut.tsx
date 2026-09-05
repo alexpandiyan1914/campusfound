@@ -1,11 +1,17 @@
 import {
   StyleSheet,
-  TouchableOpacity,
   Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import {
+  Ionicons,
+} from "@expo/vector-icons";
+
+import {
+  useNavigation,
+} from "@react-navigation/native";
 
 import {
   Colors,
@@ -15,22 +21,35 @@ import {
   Spacing,
 } from "../../theme";
 
-
 const SearchShortcut = () => {
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<any>();
+
   return (
-    <TouchableOpacity style={styles.container}
+    <TouchableOpacity
+      style={styles.container}
       activeOpacity={0.8}
-      onPress={() => navigation.navigate("Search")}>
-      <Ionicons
-        name="search"
-        size={22}
-        color={Colors.gray500}
-      />
+      onPress={() =>
+        navigation.navigate("Search")
+      }
+    >
+      <View style={styles.iconContainer}>
+        <Ionicons
+          name="search-outline"
+          size={20}
+          color={Colors.primary}
+        />
+      </View>
 
       <Text style={styles.placeholder}>
-        Search lost or found items...
+        Search found items...
       </Text>
+
+      <Ionicons
+        name="chevron-forward"
+        size={19}
+        color={Colors.gray400}
+      />
     </TouchableOpacity>
   );
 };
@@ -39,25 +58,32 @@ export default SearchShortcut;
 
 const styles = StyleSheet.create({
   container: {
+    minHeight: 56,
     flexDirection: "row",
     alignItems: "center",
-
     backgroundColor: Colors.white,
-
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-
     borderRadius: Radius.lg,
-
-    marginBottom: Spacing.xl,
-
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.lg,
     ...Shadows.sm,
   },
 
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.primarySoft,
+  },
+
   placeholder: {
-    marginLeft: Spacing.md,
-    color: Colors.gray500,
+    flex: 1,
+    marginLeft: Spacing.sm,
+    fontSize: 14,
     fontFamily: Fonts.regular,
-    fontSize: 15,
+    color: Colors.gray500,
   },
 });

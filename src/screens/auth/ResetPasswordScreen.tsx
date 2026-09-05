@@ -16,6 +16,8 @@ import {
     SafeAreaView,
 } from "react-native-safe-area-context";
 
+import useFeedback from "../../hooks/useFeedback";
+
 import {
     NativeStackScreenProps,
 } from "@react-navigation/native-stack";
@@ -48,6 +50,15 @@ const ResetPasswordScreen = ({
     route,
     navigation,
 }: Props) => {
+
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
+
     const { resetToken } = route.params;
 
     const [newPassword, setNewPassword] =
@@ -77,7 +88,7 @@ const ResetPasswordScreen = ({
                 !newPassword ||
                 !confirmPassword
             ) {
-                Alert.alert(
+                showWarning(
                     "Missing Information",
                     "Please enter and confirm your new password."
                 );
@@ -86,7 +97,7 @@ const ResetPasswordScreen = ({
             }
 
             if (newPassword.length < 6) {
-                Alert.alert(
+                showError(
                     "Invalid Password",
                     "Password must contain at least 6 characters."
                 );
@@ -98,7 +109,7 @@ const ResetPasswordScreen = ({
                 newPassword !==
                 confirmPassword
             ) {
-                Alert.alert(
+                showError(
                     "Password Mismatch",
                     "Passwords do not match."
                 );
@@ -115,26 +126,21 @@ const ResetPasswordScreen = ({
                         newPassword
                     );
 
-                Alert.alert(
+                showSuccess(
                     "Password Updated",
                     message ||
-                    "Your password has been reset successfully. You can now sign in using your new password.",
-                    [
-                        {
-                            text: "Login",
-                            onPress: () => {
-                                navigation.reset({
-                                    index: 0,
-                                    routes: [
-                                        {
-                                            name: "Login",
-                                        },
-                                    ],
-                                });
-                            },
-                        },
-                    ]
+                    "Your password has been reset successfully. You can now sign in using your new password."
                 );
+
+                navigation.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: "Login",
+                        },
+                    ],
+                });
+                
             } catch (error: any) {
                 console.log(
                     "Reset Password Error:",
@@ -142,7 +148,7 @@ const ResetPasswordScreen = ({
                     error.message
                 );
 
-                Alert.alert(
+                showError(
                     "Password Reset Failed",
                     getErrorMessage(
                         error,
@@ -237,7 +243,7 @@ interface PasswordInputProps {
     label: string;
     value: string;
     onChangeText:
-        (value: string) => void;
+    (value: string) => void;
     visible: boolean;
     onToggle: () => void;
     placeholder: string;

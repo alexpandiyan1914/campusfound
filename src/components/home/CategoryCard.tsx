@@ -4,7 +4,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+} from "@expo/vector-icons";
 
 import {
   Colors,
@@ -15,28 +17,43 @@ import {
 
 interface Props {
   title: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  selected: boolean;
-  onPress: () => void;
+  icon:
+    keyof typeof Ionicons.glyphMap;
+  selected?: boolean;
+  onPress?: () => void;
 }
 
-const CategoryCard = ({ title, icon, selected, onPress }: Props) => {
+const CategoryCard = ({
+  title,
+  icon,
+  selected = false,
+  onPress,
+}: Props) => {
   return (
     <TouchableOpacity
-      style={[styles.card, selected && styles.selectedContainer]}
+      style={[
+        styles.container,
+        selected &&
+          styles.selectedContainer,
+      ]}
+      activeOpacity={0.75}
       onPress={onPress}
     >
-
       <Ionicons
         name={icon}
-        size={28}
-        color={Colors.primary}
+        size={18}
+        color={
+          selected
+            ? Colors.white
+            : Colors.primary
+        }
       />
 
       <Text
         style={[
           styles.title,
-          selected && styles.selectedTitle,
+          selected &&
+            styles.selectedTitle,
         ]}
       >
         {title}
@@ -48,36 +65,32 @@ const CategoryCard = ({ title, icon, selected, onPress }: Props) => {
 export default CategoryCard;
 
 const styles = StyleSheet.create({
-  card: {
-    width: 95,
-    height: 95,
-
-    backgroundColor: Colors.white,
-
-    borderRadius: Radius.lg,
-
-    justifyContent: "center",
+  container: {
+    minHeight: 42,
+    flexDirection: "row",
     alignItems: "center",
-
-    marginRight: Spacing.md,
-
+    paddingHorizontal: 14,
+    marginRight: Spacing.sm,
+    borderRadius: Radius.pill,
     borderWidth: 1,
     borderColor: Colors.border,
-  },
-
-  title: {
-    marginTop: 10,
-    textAlign: "center",
-    color: Colors.text,
-    fontFamily: Fonts.medium,
-    fontSize: 13,
+    backgroundColor: Colors.white,
   },
 
   selectedContainer: {
+    borderColor: Colors.primary,
     backgroundColor: Colors.primary,
+  },
+
+  title: {
+    marginLeft: 6,
+    fontSize: 13,
+    fontFamily: Fonts.medium,
+    color: Colors.gray700,
   },
 
   selectedTitle: {
     color: Colors.white,
+    fontFamily: Fonts.semiBold,
   },
 });

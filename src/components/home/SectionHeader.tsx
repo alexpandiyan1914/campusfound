@@ -1,9 +1,8 @@
-import React from "react";
 import {
-  View,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
 
 import {
@@ -14,24 +13,42 @@ import {
 
 interface Props {
   title: string;
-  onPress?: () => void;
+  subtitle?: string;
+  actionLabel?: string;
+  onActionPress?: () => void;
 }
 
 const SectionHeader = ({
   title,
-  onPress,
+  subtitle,
+  actionLabel,
+  onActionPress,
 }: Props) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {title}
-      </Text>
-
-      <TouchableOpacity onPress={onPress}>
-        <Text style={styles.seeAll}>
-          See All
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>
+          {title}
         </Text>
-      </TouchableOpacity>
+
+        {subtitle ? (
+          <Text style={styles.subtitle}>
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
+
+      {actionLabel &&
+      onActionPress ? (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onActionPress}
+        >
+          <Text style={styles.action}>
+            {actionLabel}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
@@ -40,22 +57,35 @@ export default SectionHeader;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.md,
-
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent:
+      "space-between",
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+
+  textContainer: {
+    flex: 1,
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 19,
     fontFamily: Fonts.bold,
     color: Colors.text,
   },
 
-  seeAll: {
+  subtitle: {
+    marginTop: 3,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+
+  action: {
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
     color: Colors.primary,
-    fontFamily: Fonts.medium,
   },
 });

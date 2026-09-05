@@ -16,6 +16,7 @@ import AuthLayout from "../../components/common/AuthLayout";
 import authService from "../../services/authService";
 import useAuth from "../../hooks/useAuth";
 import { AuthStackParamList } from "../../types/navigation";
+import useFeedback from "../../hooks/useFeedback";
 
 import {
     Colors,
@@ -29,6 +30,14 @@ import {
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 const LoginScreen = ({ navigation }: Props) => {
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
+    
     const { login } = useAuth();
 
     const [email, setEmail] = useState("");
@@ -41,7 +50,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
         if (!email || !password) {
 
-            Alert.alert(
+            showWarning(
                 "Validation",
                 "Please fill in all fields."
             );
@@ -60,7 +69,7 @@ const LoginScreen = ({ navigation }: Props) => {
             });
 
             if (!response.token) {
-                Alert.alert(
+                showError(
                     "Login Failed",
                     "Authentication token was not received."
                 );
@@ -75,7 +84,7 @@ const LoginScreen = ({ navigation }: Props) => {
             console.log("Response:", error.response);
             console.log("Data:", error.response?.data);
 
-            Alert.alert(
+            showError(
                 "Login Failed",
                 error.message || "Unable to login."
             );

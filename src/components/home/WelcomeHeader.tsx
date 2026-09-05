@@ -1,19 +1,43 @@
-import { StyleSheet, Text, View } from "react-native";
-import { Colors, Fonts, Spacing } from "../../theme";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image
+} from "react-native";
+
+import {
+  Ionicons,
+} from "@expo/vector-icons";
+
+import {
+  Colors,
+  Fonts,
+  Radius,
+  Spacing,
+} from "../../theme";
 
 const WelcomeHeader = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>
-        Welcome Back
-      </Text>
+      <View style={styles.brandRow}>
+        <View style={styles.brandIcon}>
+          <Image
+            source={require('../../assets/images/campusfound-logo.png')}
+            style={styles.icon}
+          />
+        </View>
+
+        <Text style={styles.brandName}>
+          Campus Found
+        </Text>
+      </View>
 
       <Text style={styles.title}>
-        CampusFound
+        Lost something?
       </Text>
 
       <Text style={styles.subtitle}>
-        Find and report lost items across campus.
+        Search recently found items and get them back safely.
       </Text>
     </View>
   );
@@ -23,26 +47,51 @@ export default WelcomeHeader;
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
 
-  greeting: {
-    fontSize: 16,
-    color: Colors.textSecondary,
-    fontFamily: Fonts.medium,
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignContent:"center",
+    marginBottom: Spacing.md,
+  },
+
+  brandIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: Radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.primarySoft,
+  },
+
+  brandName: {
+    marginLeft: Spacing.sm,
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
+    color: Colors.primary,
+    letterSpacing: 0.2,
   },
 
   title: {
-    fontSize: 30,
-    color: Colors.text,
+    fontSize: 29,
+    lineHeight: 35,
     fontFamily: Fonts.bold,
-    marginTop: 6,
+    color: Colors.text,
   },
 
   subtitle: {
-    marginTop: 8,
-    color: Colors.textSecondary,
+    marginTop: 7,
+    maxWidth: 330,
+    fontSize: 14,
+    lineHeight: 21,
     fontFamily: Fonts.regular,
-    lineHeight: 22,
+    color: Colors.textSecondary,
+  },
+
+  icon: {
+    width: 42, 
+    height: 42
   },
 });

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
+import useFeedback from "../../hooks/useFeedback";
 import userService from "../../services/userService";
 import {
     Colors,
@@ -23,6 +23,13 @@ import {
 } from "../../theme";
 
 const ChangePasswordScreen = () => {
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+    } = useFeedback();
+
     const navigation = useNavigation();
 
     const [currentPassword, setCurrentPassword] =
@@ -52,7 +59,7 @@ const ChangePasswordScreen = () => {
             !newPassword ||
             !confirmPassword
         ) {
-            Alert.alert(
+            showWarning(
                 "Missing Information",
                 "Please complete all password fields."
             );
@@ -60,7 +67,7 @@ const ChangePasswordScreen = () => {
         }
 
         if (newPassword.length < 6) {
-            Alert.alert(
+            showWarning(
                 "Weak Password",
                 "New password must contain at least 6 characters."
             );
@@ -68,7 +75,7 @@ const ChangePasswordScreen = () => {
         }
 
         if (newPassword !== confirmPassword) {
-            Alert.alert(
+            showError(
                 "Password Mismatch",
                 "New password and confirm password do not match."
             );
@@ -76,7 +83,7 @@ const ChangePasswordScreen = () => {
         }
 
         if (currentPassword === newPassword) {
-            Alert.alert(
+            showError(
                 "Choose a Different Password",
                 "New password cannot be the same as your current password."
             );
@@ -92,18 +99,13 @@ const ChangePasswordScreen = () => {
                     newPassword,
                 });
 
-            Alert.alert(
+            showSuccess(
                 "Password Updated",
                 message ||
                 "Your password has been changed successfully.",
-                [
-                    {
-                        text: "OK",
-                        onPress: () =>
-                            navigation.goBack(),
-                    },
-                ]
             );
+
+            navigation.goBack();
 
             setCurrentPassword("");
             setNewPassword("");
@@ -124,7 +126,7 @@ const ChangePasswordScreen = () => {
                     : data?.message ||
                     "Unable to change password.";
 
-            Alert.alert(
+            showError(
                 "Password Change Failed",
                 message
             );
