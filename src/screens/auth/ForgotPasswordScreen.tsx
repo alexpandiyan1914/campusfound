@@ -30,6 +30,8 @@ import {
     Spacing,
 } from "../../theme";
 
+import useFeedback from "../../hooks/useFeedback";
+
 type Props =
     NativeStackScreenProps<
         AuthStackParamList,
@@ -39,6 +41,15 @@ type Props =
 const ForgotPasswordScreen = ({
     navigation,
 }: Props) => {
+
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
+
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -46,7 +57,7 @@ const ForgotPasswordScreen = ({
         const normalizedEmail = email.trim().toLowerCase();
 
         if (!normalizedEmail) {
-            Alert.alert(
+            showWarning(
                 "Email Required",
                 "Please enter your registered email address."
             );
@@ -58,7 +69,7 @@ const ForgotPasswordScreen = ({
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(normalizedEmail)) {
-            Alert.alert(
+            showError(
                 "Invalid Email",
                 "Please enter a valid email address."
             );
@@ -86,7 +97,7 @@ const ForgotPasswordScreen = ({
                 error.message
             );
 
-            Alert.alert(
+            showError(
                 "Unable to Send OTP",
                 getErrorMessage(
                     error,

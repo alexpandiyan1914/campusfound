@@ -1,6 +1,13 @@
-import React, { useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import * as SplashScreen from "expo-splash-screen";
+import React, {
+  useEffect,
+} from "react";
+
+import {
+  NavigationContainer,
+} from "@react-navigation/native";
+
+import * as SplashScreen
+  from "expo-splash-screen";
 
 import {
   Inter_400Regular,
@@ -10,16 +17,34 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 
-import AppNavigator from "./src/navigation/AppNavigator";
+import AppNavigator
+  from "./src/navigation/AppNavigator";
 
-import { AuthProvider } from "./src/context/AuthContext";
-import { ProfileProvider } from "./src/context/ProfileContext";
-import { ClaimProvider } from "./src/context/ClaimContext";
+import {
+  AuthProvider,
+} from "./src/context/AuthContext";
 
-SplashScreen.preventAutoHideAsync().catch(() => {});
+import {
+  ProfileProvider,
+} from "./src/context/ProfileContext";
+
+import {
+  ClaimProvider,
+} from "./src/context/ClaimContext";
+
+import {
+  FeedbackProvider,
+} from "./src/context/FeedbackContext";
+
+SplashScreen
+  .preventAutoHideAsync()
+  .catch(() => {});
 
 export default function App() {
-  const [fontsLoaded, fontError] = useFonts({
+  const [
+    fontsLoaded,
+    fontError,
+  ] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -27,24 +52,36 @@ export default function App() {
   });
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+    if (
+      fontsLoaded ||
+      fontError
+    ) {
+      SplashScreen
+        .hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [
+    fontsLoaded,
+    fontError,
+  ]);
 
-  if (!fontsLoaded && !fontError) {
+  if (
+    !fontsLoaded &&
+    !fontError
+  ) {
     return null;
   }
 
   return (
-    <AuthProvider>
-      <ProfileProvider>
-        <ClaimProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
-        </ClaimProvider>
-      </ProfileProvider>
-    </AuthProvider>
+    <FeedbackProvider>
+      <AuthProvider>
+        <ProfileProvider>
+          <ClaimProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+          </ClaimProvider>
+        </ProfileProvider>
+      </AuthProvider>
+    </FeedbackProvider>
   );
 }

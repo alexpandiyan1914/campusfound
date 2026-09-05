@@ -36,6 +36,8 @@ import {
     Spacing,
 } from "../../theme";
 
+import useFeedback from "../../hooks/useFeedback";
+
 import PrimaryButton
     from "../../components/buttons/PrimaryButton";
 
@@ -55,10 +57,17 @@ type RegisterStep =
     | "OTP"
     | "DETAILS";
 
-
 const RegisterScreen = ({
     navigation,
 }: Props) => {
+
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
 
     // ==========================================
     // STEP
@@ -193,7 +202,7 @@ const RegisterScreen = ({
 
             if (!normalizedEmail) {
 
-                Alert.alert(
+                showWarning(
                     "Email Required",
                     "Please enter your college email."
                 );
@@ -208,7 +217,7 @@ const RegisterScreen = ({
                 )
             ) {
 
-                Alert.alert(
+                showError(
                     "Invalid College Email",
                     "Please use your TCE email ending with @student.tce.edu or @tce.edu."
                 );
@@ -238,7 +247,7 @@ const RegisterScreen = ({
                 setStep("OTP");
 
 
-                Alert.alert(
+                showSuccess(
                     "OTP Sent",
                     message ||
                     "OTP sent successfully."
@@ -252,7 +261,7 @@ const RegisterScreen = ({
                     error.message
                 );
 
-                Alert.alert(
+                showError(
                     "Unable to Send OTP",
                     getErrorMessage(
                         error,
@@ -292,8 +301,7 @@ const RegisterScreen = ({
 
                 setCountdown(60);
 
-
-                Alert.alert(
+                showSuccess(
                     "New OTP Sent",
                     message ||
                     "A new OTP has been sent to your email."
@@ -307,7 +315,7 @@ const RegisterScreen = ({
                     error.message
                 );
 
-                Alert.alert(
+                showError(
                     "Unable to Resend OTP",
                     getErrorMessage(
                         error,
@@ -333,7 +341,7 @@ const RegisterScreen = ({
 
             if (!/^\d{6}$/.test(otp)) {
 
-                Alert.alert(
+                showWarning(
                     "Invalid OTP",
                     "Please enter the 6-digit OTP sent to your email."
                 );
@@ -354,7 +362,7 @@ const RegisterScreen = ({
                         );
 
 
-                Alert.alert(
+                showSuccess(
                     "Email Verified",
                     message ||
                     "Email verified successfully."
@@ -373,7 +381,7 @@ const RegisterScreen = ({
                     error.message
                 );
 
-                Alert.alert(
+                showError(
                     "Verification Failed",
                     getErrorMessage(
                         error,
@@ -406,7 +414,7 @@ const RegisterScreen = ({
                 !confirmPassword
             ) {
 
-                Alert.alert(
+                showWarning(
                     "Missing Information",
                     "Please complete all registration fields."
                 );
@@ -420,7 +428,7 @@ const RegisterScreen = ({
                 confirmPassword
             ) {
 
-                Alert.alert(
+                showError(
                     "Password Mismatch",
                     "Password and confirm password must match."
                 );
@@ -441,7 +449,7 @@ const RegisterScreen = ({
                 yearNumber > 4
             ) {
 
-                Alert.alert(
+                showWarning(
                     "Invalid Year",
                     "Please enter a valid year between 1 and 4."
                 );
@@ -478,25 +486,13 @@ const RegisterScreen = ({
 
                     });
 
-
-                Alert.alert(
+                showSuccess(
                     "Account Created",
                     response.message ||
-                    "Registration successful. Please login.",
-                    [
-                        {
-                            text: "Login",
-
-                            onPress: () => {
-
-                                navigation.navigate(
-                                    "Login"
-                                );
-
-                            },
-                        },
-                    ]
+                    "Registration successful. Please login."
                 );
+
+                navigation.navigate("Login");
 
             } catch (error: any) {
 
@@ -506,7 +502,7 @@ const RegisterScreen = ({
                     error.message
                 );
 
-                Alert.alert(
+                showError(
                     "Registration Failed",
                     getErrorMessage(
                         error,
@@ -564,7 +560,7 @@ const RegisterScreen = ({
 
 
             <Text style={styles.helper}>
-                Use your @student.tce.edu or @tce.edu email address.
+                Use your @student.tce.edu email address.
             </Text>
 
 
@@ -1003,7 +999,7 @@ interface FormInputProps {
     value: string;
 
     onChangeText:
-        (value: string) => void;
+    (value: string) => void;
 
     placeholder: string;
 
@@ -1082,13 +1078,13 @@ const StepIndicator = ({
                                 styles.stepCircle,
 
                                 current >=
-                                    stepNumber &&
+                                stepNumber &&
                                 styles.activeStepCircle,
                             ]}
                         >
 
                             {current >
-                            stepNumber ? (
+                                stepNumber ? (
 
                                 <Ionicons
                                     name="checkmark"
@@ -1105,7 +1101,7 @@ const StepIndicator = ({
                                         styles.stepNumber,
 
                                         current >=
-                                            stepNumber &&
+                                        stepNumber &&
                                         styles.activeStepNumber,
                                     ]}
                                 >
@@ -1126,7 +1122,7 @@ const StepIndicator = ({
                                     styles.stepLine,
 
                                     current >
-                                        stepNumber &&
+                                    stepNumber &&
                                     styles.activeStepLine,
                                 ]}
                             />

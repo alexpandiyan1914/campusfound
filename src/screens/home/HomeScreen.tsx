@@ -18,6 +18,8 @@ import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 
+import useFeedback from "../../hooks/useFeedback";
+
 import {
   useNavigation,
 } from "@react-navigation/native";
@@ -57,6 +59,14 @@ type NavigationProp =
   >;
 
 const HomeScreen = () => {
+  const {
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+    showConfirm,
+  } = useFeedback();
+
   const navigation =
     useNavigation<NavigationProp>();
 
@@ -262,7 +272,7 @@ const HomeScreen = () => {
 
         setItems(response);
       } catch {
-        Alert.alert(
+        showError(
           "Error",
           "Failed to filter items."
         );

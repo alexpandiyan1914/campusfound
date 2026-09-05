@@ -23,6 +23,8 @@ import PrimaryButton from "../../components/buttons/PrimaryButton";
 
 import claimService from "../../services/claimService";
 
+import useFeedback from "../../hooks/useFeedback";
+
 import {
     Colors,
     Fonts,
@@ -38,6 +40,14 @@ type Props = NativeStackScreenProps<
 
 const CreateClaimScreen = ({ route, navigation }: Props) => {
 
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
+
     const { item } = route.params;
 
     const [reason, setReason] = useState("");
@@ -50,7 +60,7 @@ const CreateClaimScreen = ({ route, navigation }: Props) => {
 
         if (!trimmedReason) {
 
-            Alert.alert(
+            showWarning(
                 "Reason Required",
                 "Please explain why you believe this item belongs to you."
             );
@@ -60,7 +70,7 @@ const CreateClaimScreen = ({ route, navigation }: Props) => {
 
         if (trimmedReason.length < 10) {
 
-            Alert.alert(
+            showWarning(
                 "Reason Too Short",
                 "Please provide a little more information about your claim."
             );
@@ -87,16 +97,12 @@ const CreateClaimScreen = ({ route, navigation }: Props) => {
                 claim
             );
 
-            Alert.alert(
+            showSuccess(
                 "Claim Submitted",
-                "Your claim has been submitted successfully and is waiting for admin review.",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => navigation.goBack(),
-                    },
-                ]
+                "Your claim has been submitted successfully and is waiting for admin review."
             );
+
+            navigation.goBack();
 
         } catch (error: any) {
 
@@ -120,7 +126,7 @@ const CreateClaimScreen = ({ route, navigation }: Props) => {
                 error.response?.data?.message ||
                 "Unable to submit your claim. Please try again.";
 
-            Alert.alert(
+            showError(
                 "Claim Failed",
                 message
             );

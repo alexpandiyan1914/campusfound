@@ -24,6 +24,7 @@ import { PLACEHOLDER_IMAGE } from "../../constants/images";
 import { formatRelativeTime } from "../../utils/date";
 
 import { useClaims } from "../../context/ClaimContext";
+import useFeedback from "../../hooks/useFeedback";
 
 import {
     Colors,
@@ -43,6 +44,14 @@ const ItemDetailsScreen = ({
     route,
     navigation,
 }: Props) => {
+
+    const {
+        showSuccess,
+        showError,
+        showWarning,
+        showInfo,
+        showConfirm,
+    } = useFeedback();
 
     const { item } = route.params;
 
