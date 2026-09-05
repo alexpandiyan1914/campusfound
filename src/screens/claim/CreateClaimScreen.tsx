@@ -1,15 +1,26 @@
-import React, { useState } from "react";
+import React, {
+    useState,
+} from "react";
 
 import {
-    Alert,
+    ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
+    TouchableOpacity,
     View,
 } from "react-native";
+
+import {
+    SafeAreaView,
+} from "react-native-safe-area-context";
+
+import {
+    Ionicons,
+} from "@expo/vector-icons";
 
 import {
     NativeStackScreenProps,
@@ -19,11 +30,22 @@ import {
     MainStackParamList,
 } from "../../navigation/MainNavigator";
 
-import PrimaryButton from "../../components/buttons/PrimaryButton";
+import {
+    useClaims,
+} from "../../context/ClaimContext";
 
-import claimService from "../../services/claimService";
+import useFeedback
+    from "../../hooks/useFeedback";
 
-import useFeedback from "../../hooks/useFeedback";
+import getErrorMessage
+    from "../../utils/getErrorMessage";
+
+import CachedImage
+    from "../../components/common/ChachedImage";
+
+import {
+    PLACEHOLDER_IMAGE,
+} from "../../constants/images";
 
 import {
     Colors,
@@ -33,323 +55,975 @@ import {
     Spacing,
 } from "../../theme";
 
-type Props = NativeStackScreenProps<
-    MainStackParamList,
-    "CreateClaim"
->;
+type Props =
+    NativeStackScreenProps<
+        MainStackParamList,
+        "CreateClaim"
+    >;
 
-const CreateClaimScreen = ({ route, navigation }: Props) => {
+const CreateClaimScreen = ({
+    route,
+    navigation,
+}: Props) => {
+    const { item } = route.params;
+
+    const {
+        createClaim,
+    } = useClaims();
 
     const {
         showSuccess,
         showError,
         showWarning,
-        showInfo,
-        showConfirm,
     } = useFeedback();
 
-    const { item } = route.params;
+    const [reason, setReason] =
+        useState("");
 
-    const [reason, setReason] = useState("");
+    const [loading, setLoading] =
+        useState(false);
 
-    const [loading, setLoading] = useState(false);
+    const trimmedReason =
+        reason.trim();
+
+    const canSubmit =
+        trimmedReason.length > 0 &&
+        !loading;
 
     const handleSubmit = async () => {
-
-        const trimmedReason = reason.trim();
-
         if (!trimmedReason) {
-
             showWarning(
-                "Reason Required",
-                "Please explain why you believe this item belongs to you."
-            );
-
-            return;
-        }
-
-        if (trimmedReason.length < 10) {
-
-            showWarning(
-                "Reason Too Short",
-                "Please provide a little more information about your claim."
+                "Ownership Details Required",
+                "Tell us something that can help the Lost & Found team verify that this item belongs to you."
             );
 
             return;
         }
 
         try {
-
             setLoading(true);
 
-            console.log(
-                "Creating claim for item:",
-                item.id
-            );
-
-            const claim = await claimService.createClaim({
-                itemId: item.id,
-                reason: trimmedReason,
-            });
-
-            console.log(
-                "Claim created:",
-                claim
-            );
+            const newClaim =
+                await createClaim({
+                    itemId: item.id,
+                    reason: trimmedReason,
+                });
 
             showSuccess(
                 "Claim Submitted",
-                "Your claim has been submitted successfully and is waiting for admin review."
+                "Your claim has been sent to the Lost & Found team for verification."
             );
 
-            navigation.goBack();
-
+            navigation.replace(
+                "ClaimDetails",
+                {
+                    claimId:
+                        newClaim.id,
+                }
+            );
         } catch (error: any) {
-
             console.log(
-                "===== CREATE CLAIM ERROR ====="
+                "Create Claim Error:",
+                error.response?.data ||
+                    error.message
             );
-
-            console.log(error);
-
-            console.log(
-                "Status:",
-                error.response?.status
-            );
-
-            console.log(
-                "Data:",
-                error.response?.data
-            );
-
-            const message =
-                error.response?.data?.message ||
-                "Unable to submit your claim. Please try again.";
 
             showError(
                 "Claim Failed",
-                message
+                getErrorMessage(
+                    error,
+                    "We couldn't submit your claim. Please try again."
+                )
             );
-
         } finally {
-
             setLoading(false);
-
         }
-
     };
 
     return (
-
-        <KeyboardAvoidingView
+        <SafeAreaView
             style={styles.container}
-            behavior={
-                Platform.OS === "ios"
-                    ? "padding"
-                    : undefined
-            }
+            edges={[
+                "left",
+                "right",
+                "bottom",
+            ]}
         >
-
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.content}
-                keyboardShouldPersistTaps="handled"
+            <KeyboardAvoidingView
+                style={styles.flex}
+                behavior={
+                    Platform.OS === "ios"
+                        ? "padding"
+                        : undefined
+                }
             >
+                <ScrollView
+                    contentContainerStyle={
+                        styles.scrollContent
+                    }
+                    showsVerticalScrollIndicator={
+                        false
+                    }
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.intro}>
+                        <View style={styles.introIcon}>
+                            <Ionicons
+                                name="shield-checkmark-outline"
+                                size={24}
+                                color={Colors.primary}
+                            />
+                        </View>
 
-                <Text style={styles.heading}>
-                    Claim This Item
-                </Text>
+                        <Text style={styles.title}>
+                            Verify your ownership
+                        </Text>
 
-                <Text style={styles.subtitle}>
-                    Tell us why you believe this item belongs to you.
-                </Text>
+                        <Text style={styles.subtitle}>
+                            Help the Lost & Found team confirm that this item belongs to you.
+                        </Text>
+                    </View>
 
-                <View style={styles.itemCard}>
+                    <View style={styles.itemCard}>
+                        <CachedImage
+                            uri={item.imageUrl}
+                            placeholder={
+                                PLACEHOLDER_IMAGE
+                            }
+                            style={styles.itemImage}
+                        />
 
-                    <Text style={styles.itemLabel}>
-                        Item
+                        <View style={styles.itemContent}>
+                            <View
+                                style={
+                                    styles.categoryBadge
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.categoryText
+                                    }
+                                >
+                                    {item.category}
+                                </Text>
+                            </View>
+
+                            <Text
+                                style={styles.itemTitle}
+                                numberOfLines={2}
+                            >
+                                {item.title}
+                            </Text>
+
+                            <View
+                                style={
+                                    styles.itemLocation
+                                }
+                            >
+                                <Ionicons
+                                    name="location-outline"
+                                    size={16}
+                                    color={
+                                        Colors.gray500
+                                    }
+                                />
+
+                                <Text
+                                    style={
+                                        styles.locationText
+                                    }
+                                    numberOfLines={1}
+                                >
+                                    {item.location}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>
+                            What should I provide?
+                        </Text>
+
+                        <Text
+                            style={
+                                styles.sectionDescription
+                            }
+                        >
+                            Describe something that can help distinguish you as the real owner.
+                        </Text>
+
+                        <View
+                            style={
+                                styles.exampleContainer
+                            }
+                        >
+                            <ExampleRow
+                                icon="finger-print-outline"
+                                text="A unique mark, scratch, sticker or identifying feature"
+                            />
+
+                            <ExampleRow
+                                icon="cube-outline"
+                                text="Something that was inside the item"
+                            />
+
+                            <ExampleRow
+                                icon="location-outline"
+                                text="Where or approximately when you lost it"
+                            />
+
+                            <ExampleRow
+                                icon="information-circle-outline"
+                                text="Another detail that only the actual owner is likely to know"
+                                last
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.formSection}>
+                        <View style={styles.labelRow}>
+                            <Text style={styles.inputLabel}>
+                                Ownership details
+                            </Text>
+
+                            <Text style={styles.required}>
+                                Required
+                            </Text>
+                        </View>
+
+                        <TextInput
+                            style={styles.input}
+                            value={reason}
+                            onChangeText={
+                                setReason
+                            }
+                            placeholder="Example: I lost this wallet near the library yesterday. It has a small scratch on the back and contains..."
+                            placeholderTextColor={
+                                Colors.gray400
+                            }
+                            multiline
+                            textAlignVertical="top"
+                            editable={!loading}
+                        />
+
+                        <View style={styles.inputFooter}>
+                            <View
+                                style={
+                                    styles.privacyHint
+                                }
+                            >
+                                <Ionicons
+                                    name="lock-closed-outline"
+                                    size={14}
+                                    color={
+                                        Colors.gray500
+                                    }
+                                />
+
+                                <Text
+                                    style={
+                                        styles.privacyText
+                                    }
+                                >
+                                    Provide only details needed for ownership verification.
+                                </Text>
+                            </View>
+
+                            <Text
+                                style={
+                                    styles.characterCount
+                                }
+                            >
+                                {reason.length} characters
+                            </Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.warningCard}>
+                        <View style={styles.warningIcon}>
+                            <Ionicons
+                                name="warning-outline"
+                                size={20}
+                                color={Colors.warning}
+                            />
+                        </View>
+
+                        <View style={styles.warningContent}>
+                            <Text style={styles.warningTitle}>
+                                Keep sensitive information private
+                            </Text>
+
+                            <Text style={styles.warningText}>
+                                Don't include passwords, PINs, OTPs, banking details or other unnecessary sensitive information.
+                            </Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.nextSection}>
+                        <Text style={styles.sectionTitle}>
+                            What happens after I submit?
+                        </Text>
+
+                        <View style={styles.timeline}>
+                            <TimelineStep
+                                icon="paper-plane-outline"
+                                title="Claim submitted"
+                                description="Your ownership details are securely sent to the Lost & Found team."
+                                first
+                            />
+
+                            <TimelineStep
+                                icon="search-outline"
+                                title="Admin verification"
+                                description="An authorized Lost & Found admin reviews the information you provided."
+                            />
+
+                            <TimelineStep
+                                icon="notifications-outline"
+                                title="You'll receive an update"
+                                description="CampusFound will notify you once your claim has been reviewed."
+                            />
+
+                            <TimelineStep
+                                icon="business-outline"
+                                title="Visit the Lost & Found office"
+                                description="If approved, visit the official Lost & Found office for physical verification."
+                            />
+
+                            <TimelineStep
+                                icon="card-outline"
+                                title="Verify and collect"
+                                description="Carry your college ID. The item will be handed over only after final verification."
+                                last
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.approvalNotice}>
+                        <Ionicons
+                            name="shield-checkmark"
+                            size={22}
+                            color={Colors.primary}
+                        />
+
+                        <View style={styles.approvalTextContainer}>
+                            <Text
+                                style={
+                                    styles.approvalTitle
+                                }
+                            >
+                                App approval is not final collection
+                            </Text>
+
+                            <Text
+                                style={
+                                    styles.approvalText
+                                }
+                            >
+                                An approved claim means you can proceed to the Lost & Found office. Staff may still verify your identity and ownership before handing over the item.
+                            </Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.submitButton,
+                            !canSubmit &&
+                                styles.submitButtonDisabled,
+                        ]}
+                        activeOpacity={0.82}
+                        disabled={!canSubmit}
+                        onPress={handleSubmit}
+                    >
+                        {loading ? (
+                            <ActivityIndicator
+                                size="small"
+                                color={Colors.white}
+                            />
+                        ) : (
+                            <>
+                                <View>
+                                    <Text
+                                        style={
+                                            styles.submitTitle
+                                        }
+                                    >
+                                        Submit Claim
+                                    </Text>
+
+                                    <Text
+                                        style={
+                                            styles.submitSubtitle
+                                        }
+                                    >
+                                        Send for ownership verification
+                                    </Text>
+                                </View>
+
+                                <View
+                                    style={
+                                        styles.submitArrow
+                                    }
+                                >
+                                    <Ionicons
+                                        name="arrow-forward"
+                                        size={19}
+                                        color={
+                                            canSubmit
+                                                ? Colors.primary
+                                                : Colors.gray400
+                                        }
+                                    />
+                                </View>
+                            </>
+                        )}
+                    </TouchableOpacity>
+
+                    <Text style={styles.footerNote}>
+                        Please submit only genuine ownership claims. False claims may be rejected by the Lost & Found team.
                     </Text>
-
-                    <Text style={styles.itemTitle}>
-                        {item.title}
-                    </Text>
-
-                    <Text style={styles.itemCategory}>
-                        {item.category}
-                    </Text>
-
-                    <Text style={styles.itemLocation}>
-                        {item.location}
-                    </Text>
-
-                </View>
-
-                <View style={styles.formSection}>
-
-                    <Text style={styles.label}>
-                        Why is this your item?
-                    </Text>
-
-                    <TextInput
-                        value={reason}
-                        onChangeText={setReason}
-                        placeholder="Explain details that can help the admin verify your claim..."
-                        placeholderTextColor={Colors.gray400}
-                        multiline
-                        textAlignVertical="top"
-                        maxLength={500}
-                        style={styles.input}
-                    />
-
-                    <Text style={styles.counter}>
-                        {reason.length}/500
-                    </Text>
-
-                </View>
-
-                <PrimaryButton
-                    title="Submit Claim"
-                    loading={loading}
-                    disabled={loading}
-                    onPress={handleSubmit}
-                />
-
-                <Text style={styles.note}>
-                    Your claim will be reviewed by a CampusFound administrator.
-                </Text>
-
-            </ScrollView>
-
-        </KeyboardAvoidingView>
-
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
+};
 
+interface ExampleRowProps {
+    icon:
+        keyof typeof Ionicons.glyphMap;
+    text: string;
+    last?: boolean;
+}
+
+const ExampleRow = ({
+    icon,
+    text,
+    last = false,
+}: ExampleRowProps) => {
+    return (
+        <View
+            style={[
+                styles.exampleRow,
+                last &&
+                    styles.exampleRowLast,
+            ]}
+        >
+            <View style={styles.exampleIcon}>
+                <Ionicons
+                    name={icon}
+                    size={18}
+                    color={Colors.primary}
+                />
+            </View>
+
+            <Text style={styles.exampleText}>
+                {text}
+            </Text>
+        </View>
+    );
+};
+
+interface TimelineStepProps {
+    icon:
+        keyof typeof Ionicons.glyphMap;
+    title: string;
+    description: string;
+    first?: boolean;
+    last?: boolean;
+}
+
+const TimelineStep = ({
+    icon,
+    title,
+    description,
+    first = false,
+    last = false,
+}: TimelineStepProps) => {
+    return (
+        <View style={styles.timelineStep}>
+            <View
+                style={
+                    styles.timelineIndicator
+                }
+            >
+                {!first ? (
+                    <View
+                        style={
+                            styles.timelineTopLine
+                        }
+                    />
+                ) : (
+                    <View
+                        style={
+                            styles.timelineLinePlaceholder
+                        }
+                    />
+                )}
+
+                <View
+                    style={
+                        styles.timelineIcon
+                    }
+                >
+                    <Ionicons
+                        name={icon}
+                        size={17}
+                        color={Colors.primary}
+                    />
+                </View>
+
+                {!last ? (
+                    <View
+                        style={
+                            styles.timelineBottomLine
+                        }
+                    />
+                ) : (
+                    <View
+                        style={
+                            styles.timelineLinePlaceholder
+                        }
+                    />
+                )}
+            </View>
+
+            <View
+                style={
+                    styles.timelineContent
+                }
+            >
+                <Text
+                    style={
+                        styles.timelineTitle
+                    }
+                >
+                    {title}
+                </Text>
+
+                <Text
+                    style={
+                        styles.timelineDescription
+                    }
+                >
+                    {description}
+                </Text>
+            </View>
+        </View>
+    );
 };
 
 export default CreateClaimScreen;
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
 
-    content: {
+    flex: {
+        flex: 1,
+    },
+
+    scrollContent: {
         padding: Spacing.lg,
-        paddingBottom: 50,
+        paddingBottom: 60,
     },
 
-    heading: {
-        fontSize: 28,
-        fontFamily: Fonts.bold,
-        color: Colors.text,
-        marginBottom: Spacing.sm,
-    },
-
-    subtitle: {
-        fontSize: 15,
-        lineHeight: 22,
-        fontFamily: Fonts.regular,
-        color: Colors.textSecondary,
+    intro: {
+        alignItems: "center",
+        paddingHorizontal: Spacing.sm,
         marginBottom: Spacing.lg,
     },
 
-    itemCard: {
-        backgroundColor: Colors.white,
-
+    introIcon: {
+        width: 52,
+        height: 52,
         borderRadius: Radius.lg,
-
-        padding: Spacing.lg,
-
-        marginBottom: Spacing.xl,
-
-        ...Shadows.sm,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.primarySoft,
+        marginBottom: Spacing.md,
     },
 
-    itemLabel: {
-        fontSize: 12,
-        fontFamily: Fonts.medium,
-        color: Colors.gray500,
-        marginBottom: 6,
-    },
-
-    itemTitle: {
-        fontSize: 20,
+    title: {
+        fontSize: 25,
+        lineHeight: 31,
+        textAlign: "center",
         fontFamily: Fonts.bold,
         color: Colors.text,
-        marginBottom: 6,
     },
 
-    itemCategory: {
+    subtitle: {
+        marginTop: Spacing.sm,
+        maxWidth: 330,
+        textAlign: "center",
         fontSize: 14,
-        fontFamily: Fonts.medium,
-        color: Colors.primary,
-        marginBottom: 4,
-    },
-
-    itemLocation: {
-        fontSize: 14,
+        lineHeight: 21,
         fontFamily: Fonts.regular,
         color: Colors.textSecondary,
     },
 
-    formSection: {
-        marginBottom: Spacing.xl,
-    },
-
-    label: {
-        fontSize: 16,
-        fontFamily: Fonts.semiBold,
-        color: Colors.text,
-        marginBottom: Spacing.sm,
-    },
-
-    input: {
-        minHeight: 170,
-
-        backgroundColor: Colors.white,
-
+    itemCard: {
+        flexDirection: "row",
+        padding: Spacing.sm,
+        borderRadius: Radius.lg,
         borderWidth: 1,
         borderColor: Colors.border,
-
-        borderRadius: Radius.lg,
-
-        padding: Spacing.md,
-
-        fontSize: 15,
-
-        fontFamily: Fonts.regular,
-
-        color: Colors.text,
-
+        backgroundColor: Colors.white,
         ...Shadows.sm,
     },
 
-    counter: {
-        textAlign: "right",
-
-        marginTop: 6,
-
-        fontSize: 12,
-
-        color: Colors.gray500,
-
-        fontFamily: Fonts.regular,
+    itemImage: {
+        width: 88,
+        height: 88,
+        borderRadius: Radius.md,
+        backgroundColor: Colors.gray100,
     },
 
-    note: {
-        textAlign: "center",
+    itemContent: {
+        flex: 1,
+        justifyContent: "center",
+        marginLeft: Spacing.md,
+    },
 
-        marginTop: Spacing.lg,
+    categoryBadge: {
+        alignSelf: "flex-start",
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: Radius.pill,
+        backgroundColor: Colors.primarySoft,
+    },
 
-        fontSize: 13,
+    categoryText: {
+        fontSize: 10,
+        fontFamily: Fonts.semiBold,
+        color: Colors.primary,
+    },
 
+    itemTitle: {
+        marginTop: 7,
+        fontSize: 15,
         lineHeight: 20,
-
-        color: Colors.gray500,
-
-        fontFamily: Fonts.regular,
+        fontFamily: Fonts.semiBold,
+        color: Colors.text,
     },
 
+    itemLocation: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 5,
+    },
+
+    locationText: {
+        flex: 1,
+        marginLeft: 4,
+        fontSize: 12,
+        fontFamily: Fonts.regular,
+        color: Colors.gray500,
+    },
+
+    section: {
+        marginTop: Spacing.xl,
+    },
+
+    sectionTitle: {
+        fontSize: 18,
+        fontFamily: Fonts.bold,
+        color: Colors.text,
+    },
+
+    sectionDescription: {
+        marginTop: 5,
+        fontSize: 13,
+        lineHeight: 19,
+        fontFamily: Fonts.regular,
+        color: Colors.textSecondary,
+    },
+
+    exampleContainer: {
+        marginTop: Spacing.md,
+        paddingHorizontal: Spacing.md,
+        borderRadius: Radius.lg,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        backgroundColor: Colors.white,
+    },
+
+    exampleRow: {
+        minHeight: 60,
+        flexDirection: "row",
+        alignItems: "center",
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.gray100,
+    },
+
+    exampleRowLast: {
+        borderBottomWidth: 0,
+    },
+
+    exampleIcon: {
+        width: 34,
+        height: 34,
+        borderRadius: Radius.md,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.primarySoft,
+    },
+
+    exampleText: {
+        flex: 1,
+        marginLeft: Spacing.md,
+        fontSize: 12,
+        lineHeight: 18,
+        fontFamily: Fonts.medium,
+        color: Colors.gray700,
+    },
+
+    formSection: {
+        marginTop: Spacing.xl,
+    },
+
+    labelRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: Spacing.sm,
+    },
+
+    inputLabel: {
+        fontSize: 15,
+        fontFamily: Fonts.semiBold,
+        color: Colors.text,
+    },
+
+    required: {
+        fontSize: 11,
+        fontFamily: Fonts.medium,
+        color: Colors.primary,
+    },
+
+    input: {
+        minHeight: 150,
+        padding: Spacing.md,
+        borderWidth: 1,
+        borderColor: Colors.borderStrong,
+        borderRadius: Radius.lg,
+        backgroundColor: Colors.white,
+        fontSize: 14,
+        lineHeight: 21,
+        fontFamily: Fonts.regular,
+        color: Colors.text,
+    },
+
+    inputFooter: {
+        marginTop: Spacing.sm,
+    },
+
+    privacyHint: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+    },
+
+    privacyText: {
+        flex: 1,
+        marginLeft: 5,
+        fontSize: 11,
+        lineHeight: 16,
+        fontFamily: Fonts.regular,
+        color: Colors.gray500,
+    },
+
+    characterCount: {
+        marginTop: 5,
+        textAlign: "right",
+        fontSize: 10,
+        fontFamily: Fonts.regular,
+        color: Colors.gray400,
+    },
+
+    warningCard: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginTop: Spacing.lg,
+        padding: Spacing.md,
+        borderRadius: Radius.lg,
+        backgroundColor: Colors.warningSoft,
+    },
+
+    warningIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: Radius.md,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.white,
+    },
+
+    warningContent: {
+        flex: 1,
+        marginLeft: Spacing.md,
+    },
+
+    warningTitle: {
+        fontSize: 13,
+        fontFamily: Fonts.semiBold,
+        color: Colors.text,
+    },
+
+    warningText: {
+        marginTop: 4,
+        fontSize: 11,
+        lineHeight: 17,
+        fontFamily: Fonts.regular,
+        color: Colors.gray700,
+    },
+
+    nextSection: {
+        marginTop: Spacing.xl,
+    },
+
+    timeline: {
+        marginTop: Spacing.md,
+        padding: Spacing.md,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        borderRadius: Radius.lg,
+        backgroundColor: Colors.white,
+    },
+
+    timelineStep: {
+        flexDirection: "row",
+        minHeight: 82,
+    },
+
+    timelineIndicator: {
+        width: 40,
+        alignItems: "center",
+    },
+
+    timelineTopLine: {
+        width: 2,
+        height: 10,
+        backgroundColor: Colors.primaryLight,
+    },
+
+    timelineBottomLine: {
+        flex: 1,
+        width: 2,
+        backgroundColor: Colors.primaryLight,
+    },
+
+    timelineLinePlaceholder: {
+        width: 2,
+        height: 10,
+    },
+
+    timelineIcon: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: Colors.primaryLight,
+        backgroundColor: Colors.primarySoft,
+    },
+
+    timelineContent: {
+        flex: 1,
+        paddingLeft: Spacing.sm,
+        paddingBottom: Spacing.md,
+    },
+
+    timelineTitle: {
+        fontSize: 14,
+        lineHeight: 20,
+        fontFamily: Fonts.semiBold,
+        color: Colors.text,
+    },
+
+    timelineDescription: {
+        marginTop: 3,
+        fontSize: 12,
+        lineHeight: 18,
+        fontFamily: Fonts.regular,
+        color: Colors.textSecondary,
+    },
+
+    approvalNotice: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginTop: Spacing.lg,
+        padding: Spacing.md,
+        borderRadius: Radius.lg,
+        backgroundColor: Colors.primarySoft,
+    },
+
+    approvalTextContainer: {
+        flex: 1,
+        marginLeft: Spacing.sm,
+    },
+
+    approvalTitle: {
+        fontSize: 13,
+        fontFamily: Fonts.semiBold,
+        color: Colors.text,
+    },
+
+    approvalText: {
+        marginTop: 4,
+        fontSize: 11,
+        lineHeight: 18,
+        fontFamily: Fonts.regular,
+        color: Colors.gray700,
+    },
+
+    submitButton: {
+        minHeight: 64,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginTop: Spacing.xl,
+        paddingHorizontal: Spacing.md,
+        borderRadius: Radius.lg,
+        backgroundColor: Colors.primary,
+        ...Shadows.sm,
+    },
+
+    submitButtonDisabled: {
+        backgroundColor: Colors.disabled,
+    },
+
+    submitTitle: {
+        fontSize: 15,
+        fontFamily: Fonts.semiBold,
+        color: Colors.white,
+    },
+
+    submitSubtitle: {
+        marginTop: 3,
+        fontSize: 11,
+        fontFamily: Fonts.regular,
+        color: Colors.primaryLight,
+    },
+
+    submitArrow: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.white,
+    },
+
+    footerNote: {
+        marginTop: Spacing.md,
+        paddingHorizontal: Spacing.sm,
+        textAlign: "center",
+        fontSize: 10,
+        lineHeight: 16,
+        fontFamily: Fonts.regular,
+        color: Colors.gray500,
+    },
 });
