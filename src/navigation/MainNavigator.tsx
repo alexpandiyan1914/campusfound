@@ -11,8 +11,11 @@ import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import ClaimHistoryScreen from "../screens/profile/ClaimHistoryScreen";
 import ClaimDetailsScreen from "../screens/profile/ClaimDetailsScreen";
 import SettingsScreen from "../screens/profile/SettingsScreen";
-
+import NotificationSettingsScreen from "../screens/profile/NotificationSettingsScreen";
 import ChangePasswordScreen from "../screens/profile/ChangePasswordScreen";
+import TermsAndConditionsScreen from "../screens/profile/TermsAndConditionsScreen";
+import PrivacyPolicyScreen from "../screens/profile/PrivacyPolicyScreen";
+import OpenSourceLicensesScreen from "../screens/profile/OpenSourceLicensesScreen";
 
 import { Item } from "../types/item";
 
@@ -53,6 +56,12 @@ export type MainStackParamList = {
   Settings: undefined;
   ChangePassword: undefined;
 
+  NotificationSettings: undefined;
+
+  TermsAndConditions: undefined;
+  PrivacyPolicy: undefined;
+
+  OpenSourceLicenses: undefined;
 };
 
 const Stack =
@@ -155,6 +164,38 @@ const MainNavigator = () => {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="TermsAndConditions"
+        component={TermsAndConditionsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicyScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="OpenSourceLicenses"
+        component={OpenSourceLicensesScreen}
         options={{
           headerShown: false,
         }}

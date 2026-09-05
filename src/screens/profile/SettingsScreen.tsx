@@ -6,27 +6,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import {
-  SafeAreaView,
-} from "react-native-safe-area-context";
-
-import {
-  useNavigation,
-} from "@react-navigation/native";
-
+import * as Linking from "expo-linking";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import {
   NativeStackNavigationProp,
 } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 
-import {
-  Ionicons,
-} from "@expo/vector-icons";
-
-import {
-  MainStackParamList,
-} from "../../navigation/MainNavigator";
-
+import useFeedback from "../../hooks/useFeedback";
+import { MainStackParamList } from "../../navigation/MainNavigator";
 import {
   Colors,
   Fonts,
@@ -36,30 +25,49 @@ import {
 } from "../../theme";
 
 type NavigationProp =
-  NativeStackNavigationProp<
-    MainStackParamList
-  >;
+  NativeStackNavigationProp<MainStackParamList>;
 
 const SettingsScreen = () => {
-
   const navigation =
     useNavigation<NavigationProp>();
 
-  return (
+  const {
+    showInfo,
+    showError
+  } = useFeedback();
 
+  const handleReportIssue = async () => {
+    const url =
+      "https://github.com/alexpandiyan1914/campusfound/issues";
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      showError(
+        "Unable to Open GitHub",
+        "Please try again later."
+      );
+    }
+  };
+
+  const handleFeedback = () => {
+    showInfo(
+      "Send Feedback",
+      "Beta feedback will be connected before the CampusFound release."
+    );
+  };
+
+  return (
     <SafeAreaView
       style={styles.container}
     >
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
           styles.content
         }
       >
-
         <View style={styles.header}>
-
           <TouchableOpacity
             style={styles.backButton}
             activeOpacity={0.7}
@@ -67,147 +75,284 @@ const SettingsScreen = () => {
               navigation.goBack()
             }
           >
-
             <Ionicons
               name="arrow-back"
-              size={22}
+              size={21}
               color={Colors.text}
             />
-
           </TouchableOpacity>
 
           <View style={styles.headerText}>
-
             <Text style={styles.title}>
               Settings
             </Text>
 
             <Text style={styles.subtitle}>
-              Manage your CampusFound account
+              Manage your CampusFound experience
             </Text>
-
           </View>
-
         </View>
 
-        <Text style={styles.sectionTitle}>
-          Security
-        </Text>
-
-        <TouchableOpacity
-          style={styles.settingItem}
-          activeOpacity={0.8}
-          onPress={() =>
-            navigation.navigate(
-              "ChangePassword"
-            )
-          }
+        <SettingsSection
+          title="ACCOUNT"
         >
-
-          <View style={styles.settingLeft}>
-
-            <View style={styles.iconContainer}>
-
-              <Ionicons
-                name="lock-closed-outline"
-                size={22}
-                color={Colors.primary}
-              />
-
-            </View>
-
-            <View style={styles.settingTextContainer}>
-
-              <Text style={styles.settingTitle}>
-                Change Password
-              </Text>
-
-              <Text style={styles.settingDescription}>
-                Update your account password securely
-              </Text>
-
-            </View>
-
-          </View>
-
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={Colors.gray400}
+          <SettingsRow
+            icon="person-outline"
+            title="Edit Profile"
+            description="Update your name and phone number"
+            onPress={() =>
+              navigation.navigate(
+                "EditProfile"
+              )
+            }
           />
 
-        </TouchableOpacity>
+          <RowDivider />
 
-        <Text style={styles.sectionTitle}>
-          Notifications
+          <SettingsRow
+            icon="lock-closed-outline"
+            title="Change Password"
+            description="Update your account password"
+            onPress={() =>
+              navigation.navigate(
+                "ChangePassword"
+              )
+            }
+          />
+
+          <RowDivider />
+
+          <SettingsRow
+            icon="notifications-outline"
+            title="Notifications"
+            description="Manage claim and item alerts"
+            onPress={() =>
+              navigation.navigate(
+                "NotificationSettings"
+              )
+            }
+          />
+        </SettingsSection>
+
+        <SettingsSection
+          title="SUPPORT"
+        >
+          <SettingsRow
+            icon="bug-outline"
+            title="Report an Issue"
+            description="Tell us if something isn't working"
+            onPress={handleReportIssue}
+          />
+
+          <RowDivider />
+
+          <SettingsRow
+            icon="bulb-outline"
+            title="Send Feedback"
+            description="Help us improve CampusFound"
+            onPress={handleFeedback}
+          />
+        </SettingsSection>
+
+        <SettingsSection
+          title="ABOUT"
+        >
+          <SettingsRow
+            icon="flask-outline"
+            title="CampusFound Beta"
+            description="About this beta release"
+            onPress={() =>
+              navigation.navigate(
+                "About"
+              )
+            }
+          />
+
+          <RowDivider />
+
+          <SettingsRow
+            icon="document-text-outline"
+            title="Terms & Conditions"
+            onPress={() =>
+              navigation.navigate(
+                "TermsAndConditions"
+              )
+            }
+          />
+
+          <RowDivider />
+
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            title="Privacy Policy"
+            onPress={() =>
+              navigation.navigate(
+                "PrivacyPolicy"
+              )
+            }
+          />
+
+          <RowDivider />
+
+          <SettingsRow
+            icon="code-slash-outline"
+            title="Open Source Licenses"
+            onPress={() =>
+              navigation.navigate(
+                "OpenSourceLicenses"
+              )
+            }
+          />
+
+          <RowDivider />
+
+          <SettingsRow
+            icon="information-circle-outline"
+            title="Version"
+            trailingText="0.9.0-beta"
+          />
+        </SettingsSection>
+
+        <Text style={styles.footer}>
+          CampusFound · Beta Release
+        </Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+interface SettingsSectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const SettingsSection = ({
+  title,
+  children,
+}: SettingsSectionProps) => {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>
+        {title}
+      </Text>
+
+      <View style={styles.sectionCard}>
+        {children}
+      </View>
+    </View>
+  );
+};
+
+interface SettingsRowProps {
+  icon:
+  keyof typeof Ionicons.glyphMap;
+  title: string;
+  description?: string;
+  onPress?: () => void;
+  trailingText?: string;
+}
+
+const SettingsRow = ({
+  icon,
+  title,
+  description,
+  onPress,
+  trailingText,
+}: SettingsRowProps) => {
+  const content = (
+    <>
+      <View style={styles.settingIcon}>
+        <Ionicons
+          name={icon}
+          size={20}
+          color={Colors.primary}
+        />
+      </View>
+
+      <View style={styles.settingContent}>
+        <Text style={styles.settingTitle}>
+          {title}
         </Text>
 
-        <View style={styles.comingSoonCard}>
+        {description ? (
+          <Text
+            style={
+              styles.settingDescription
+            }
+          >
+            {description}
+          </Text>
+        ) : null}
+      </View>
 
-          <View style={styles.comingSoonIcon}>
+      {trailingText ? (
+        <Text style={styles.trailingText}>
+          {trailingText}
+        </Text>
+      ) : onPress ? (
+        <Ionicons
+          name="chevron-forward"
+          size={18}
+          color={Colors.gray400}
+        />
+      ) : null}
+    </>
+  );
 
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color={Colors.primary}
-            />
+  if (!onPress) {
+    return (
+      <View style={styles.settingRow}>
+        {content}
+      </View>
+    );
+  }
 
-          </View>
+  return (
+    <TouchableOpacity
+      style={styles.settingRow}
+      activeOpacity={0.75}
+      onPress={onPress}
+    >
+      {content}
+    </TouchableOpacity>
+  );
+};
 
-          <View style={styles.comingSoonContent}>
-
-            <Text style={styles.comingSoonTitle}>
-              Notification Preferences
-            </Text>
-
-            <Text style={styles.comingSoonText}>
-              Notification controls will be available when push notifications are added.
-            </Text>
-
-          </View>
-
-        </View>
-
-      </ScrollView>
-
-    </SafeAreaView>
+const RowDivider = () => {
+  return (
+    <View style={styles.divider} />
   );
 };
 
 export default SettingsScreen;
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    backgroundColor:
-      Colors.background,
+    backgroundColor: Colors.background,
   },
 
   content: {
-    padding:
-      Spacing.lg,
-    paddingBottom: 80,
+    padding: Spacing.lg,
+    paddingBottom: 90,
   },
 
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom:
-      Spacing.xl,
+    marginBottom: Spacing.xl,
   },
 
   backButton: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor:
-      Colors.white,
-    justifyContent: "center",
     alignItems: "center",
-    marginRight:
-      Spacing.md,
-    ...Shadows.sm,
+    justifyContent: "center",
+    marginRight: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
   },
 
   headerText: {
@@ -216,132 +361,93 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 25,
-    fontFamily:
-      Fonts.bold,
-    color:
-      Colors.text,
+    fontFamily: Fonts.bold,
+    color: Colors.text,
   },
 
   subtitle: {
     marginTop: 3,
     fontSize: 13,
-    fontFamily:
-      Fonts.regular,
-    color:
-      Colors.textSecondary,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+
+  section: {
+    marginBottom: Spacing.lg,
   },
 
   sectionTitle: {
-    marginBottom:
-      Spacing.sm,
-    marginTop:
-      Spacing.md,
-    fontSize: 12,
+    marginBottom: Spacing.sm,
+    marginLeft: 2,
+    fontSize: 11,
     letterSpacing: 0.8,
-    fontFamily:
-      Fonts.semiBold,
-    color:
-      Colors.gray500,
-    textTransform: "uppercase",
+    fontFamily: Fonts.semiBold,
+    color: Colors.gray500,
   },
 
-  settingItem: {
-    backgroundColor:
-      Colors.white,
-    borderRadius:
-      Radius.lg,
-    padding:
-      Spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  sectionCard: {
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.white,
     ...Shadows.sm,
   },
 
-  settingLeft: {
+  settingRow: {
+    minHeight: 70,
     flexDirection: "row",
     alignItems: "center",
-    flex: 1,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 11,
   },
 
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor:
-      "#EEF4FF",
-    justifyContent: "center",
+  settingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.md,
     alignItems: "center",
-    marginRight:
-      Spacing.md,
+    justifyContent: "center",
+    backgroundColor: Colors.primarySoft,
   },
 
-  settingTextContainer: {
+  settingContent: {
     flex: 1,
+    marginLeft: Spacing.md,
   },
 
   settingTitle: {
-    fontSize: 15,
-    fontFamily:
-      Fonts.semiBold,
-    color:
-      Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
+    color: Colors.text,
   },
 
   settingDescription: {
     marginTop: 3,
+    fontSize: 11,
+    lineHeight: 16,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+
+  trailingText: {
+    marginLeft: Spacing.sm,
     fontSize: 12,
-    lineHeight: 18,
-    fontFamily:
-      Fonts.regular,
-    color:
-      Colors.textSecondary,
+    fontFamily: Fonts.medium,
+    color: Colors.gray500,
   },
 
-  comingSoonCard: {
-    flexDirection: "row",
-    backgroundColor:
-      Colors.white,
-    borderRadius:
-      Radius.lg,
-    padding:
-      Spacing.md,
-    alignItems: "center",
-    opacity: 0.75,
+  divider: {
+    height: 1,
+    marginLeft: 72,
+    backgroundColor: Colors.gray100,
   },
 
-  comingSoonIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor:
-      "#EEF4FF",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight:
-      Spacing.md,
+  footer: {
+    marginTop: Spacing.sm,
+    textAlign: "center",
+    fontSize: 11,
+    fontFamily: Fonts.regular,
+    color: Colors.gray500,
   },
-
-  comingSoonContent: {
-    flex: 1,
-  },
-
-  comingSoonTitle: {
-    fontSize: 15,
-    fontFamily:
-      Fonts.semiBold,
-    color:
-      Colors.text,
-  },
-
-  comingSoonText: {
-    marginTop: 3,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily:
-      Fonts.regular,
-    color:
-      Colors.textSecondary,
-  },
-
 });

@@ -128,7 +128,7 @@ const EditProfileScreen = () => {
 
       navigation.goBack();
 
-      Alert.alert("Success", "Profile updated successfully.");
+      showSuccess("Success", "Profile updated successfully.");
 
     } catch (error: any) {
       console.log("Update Profile Error:", error.response?.data || error.message);
