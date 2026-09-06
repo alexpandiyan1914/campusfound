@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -52,11 +53,13 @@ const AboutScreen = () => {
         </View>
 
         <View style={styles.hero}>
-          <View style={styles.logoContainer}>
-            <Ionicons
-              name="search"
-              size={38}
-              color={Colors.white}
+          <View>
+            <Image
+              source={require("../../assets/images/campusfound-logo.png")}
+              style={{
+                width: 100,
+                height: 100,
+              }}
             />
           </View>
 

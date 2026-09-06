@@ -86,20 +86,65 @@ const CreateClaimScreen = ({
     const trimmedReason =
         reason.trim();
 
+    const wordCount =
+        trimmedReason
+            .split(/\s+/)
+            .filter(Boolean)
+            .length;
+
     const canSubmit =
-        trimmedReason.length > 0 &&
+        trimmedReason.length >= 15 &&
+        trimmedReason.length <= 500 &&
+        wordCount >= 3 &&
         !loading;
 
-    const handleSubmit = async () => {
+    const validateReason = () => {
+        const trimmedReason = reason.trim();
+        const words = trimmedReason
+            .split(/\s+/)
+            .filter(Boolean);
+
         if (!trimmedReason) {
             showWarning(
-                "Ownership Details Required",
-                "Tell us something that can help the Lost & Found team verify that this item belongs to you."
+                "Claim Details Required",
+                "Please explain how you can identify this item."
             );
-
-            return;
+            return false;
         }
 
+        if (trimmedReason.length < 15) {
+            showWarning(
+                "More Details Needed",
+                "Please provide at least 15 characters about the item."
+            );
+            return false;
+        }
+
+        if (words.length < 3) {
+            showWarning(
+                "More Details Needed",
+                "Please provide a more meaningful ownership description."
+            );
+            return false;
+        }
+
+        if (trimmedReason.length > 500) {
+            showWarning(
+                "Claim Too Long",
+                "Claim details cannot exceed 500 characters."
+            );
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleSubmit = async () => {
+
+        if (!validateReason()) {
+            return;
+        }
+        
         try {
             setLoading(true);
 
@@ -125,7 +170,7 @@ const CreateClaimScreen = ({
             console.log(
                 "Create Claim Error:",
                 error.response?.data ||
-                    error.message
+                error.message
             );
 
             showError(
@@ -303,6 +348,7 @@ const CreateClaimScreen = ({
                                 Colors.gray400
                             }
                             multiline
+                            maxLength={500}
                             textAlignVertical="top"
                             editable={!loading}
                         />
@@ -335,7 +381,7 @@ const CreateClaimScreen = ({
                                     styles.characterCount
                                 }
                             >
-                                {reason.length} characters
+                                {trimmedReason.length}/500 characters
                             </Text>
                         </View>
                     </View>
@@ -381,8 +427,8 @@ const CreateClaimScreen = ({
 
                             <TimelineStep
                                 icon="notifications-outline"
-                                title="You'll receive an update"
-                                description="CampusFound will notify you once your claim has been reviewed."
+                                title="Review decision"
+                                description="CampusFound will show whether your claim has been approved or rejected after admin review."
                             />
 
                             <TimelineStep
@@ -430,7 +476,7 @@ const CreateClaimScreen = ({
                         style={[
                             styles.submitButton,
                             !canSubmit &&
-                                styles.submitButtonDisabled,
+                            styles.submitButtonDisabled,
                         ]}
                         activeOpacity={0.82}
                         disabled={!canSubmit}
@@ -491,7 +537,7 @@ const CreateClaimScreen = ({
 
 interface ExampleRowProps {
     icon:
-        keyof typeof Ionicons.glyphMap;
+    keyof typeof Ionicons.glyphMap;
     text: string;
     last?: boolean;
 }
@@ -506,7 +552,7 @@ const ExampleRow = ({
             style={[
                 styles.exampleRow,
                 last &&
-                    styles.exampleRowLast,
+                styles.exampleRowLast,
             ]}
         >
             <View style={styles.exampleIcon}>
@@ -526,7 +572,7 @@ const ExampleRow = ({
 
 interface TimelineStepProps {
     icon:
-        keyof typeof Ionicons.glyphMap;
+    keyof typeof Ionicons.glyphMap;
     title: string;
     description: string;
     first?: boolean;

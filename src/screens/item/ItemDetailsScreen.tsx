@@ -1,4 +1,7 @@
-import React from "react";
+import React, {
+    useCallback,
+    useState,
+} from "react";
 
 import {
     ScrollView,
@@ -15,6 +18,10 @@ import {
 import {
     NativeStackScreenProps,
 } from "@react-navigation/native-stack";
+
+import {
+    useFocusEffect,
+} from "@react-navigation/native";
 
 import {
     MainStackParamList,
@@ -35,6 +42,9 @@ import {
     useClaims,
 } from "../../context/ClaimContext";
 
+import itemService
+    from "../../services/itemService";
+
 import {
     Colors,
     Fonts,
@@ -53,10 +63,14 @@ const ItemDetailsScreen = ({
     route,
     navigation,
 }: Props) => {
-    const { item } = route.params;
+    const { item: initialItem } = route.params;
+
+    const [item, setItem] =
+        useState(initialItem);
 
     const {
         getClaimForItem,
+        refreshClaims,
     } = useClaims();
 
     const claim =
@@ -64,6 +78,40 @@ const ItemDetailsScreen = ({
 
     const isActive =
         item.status === "ACTIVE";
+
+    useFocusEffect(
+        useCallback(() => {
+            let active = true;
+
+            const refreshScreen = async () => {
+                try {
+                    const [latestItem] =
+                        await Promise.all([
+                            itemService.getItemById(
+                                initialItem.id
+                            ),
+                            refreshClaims(),
+                        ]);
+
+                    if (active) {
+                        setItem(latestItem);
+                    }
+                } catch (error: any) {
+                    console.log(
+                        "Item Details Refresh Error:",
+                        error.response?.data ||
+                        error.message
+                    );
+                }
+            };
+
+            refreshScreen();
+
+            return () => {
+                active = false;
+            };
+        }, [initialItem.id])
+    );
 
     const formatDate = (
         value: string
@@ -147,7 +195,7 @@ const ItemDetailsScreen = ({
                                 </Text>
 
                                 <Text style={styles.stateDescription}>
-                                    This item has already been closed by the Lost & Found team.
+                                    An ownership claim for this item has already been approved. This item is no longer accepting new claims.
                                 </Text>
                             </View>
                         </View>

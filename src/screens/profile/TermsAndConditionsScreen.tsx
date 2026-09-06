@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,8 +18,15 @@ import {
   Spacing,
 } from "../../theme";
 
+const TERMS_URL =
+  "https://github.com/alexpandiyan1914/campusfound/blob/master/TERMS.md";
+
 const TermsAndConditionsScreen = () => {
   const navigation = useNavigation();
+
+  const openTerms = async () => {
+    await Linking.openURL(TERMS_URL);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,147 +47,79 @@ const TermsAndConditionsScreen = () => {
             />
           </TouchableOpacity>
 
-          <View style={styles.headerText}>
-            <Text style={styles.title}>
-              Terms & Conditions
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Effective September 5, 2026
-            </Text>
-          </View>
+          <Text style={styles.headerTitle}>
+            Terms & Conditions
+          </Text>
         </View>
 
-        <View style={styles.introCard}>
+        <View style={styles.iconContainer}>
           <Ionicons
             name="document-text-outline"
-            size={23}
+            size={30}
+            color={Colors.primary}
+          />
+        </View>
+
+        <Text style={styles.title}>
+          Using CampusFound
+        </Text>
+
+        <Text style={styles.description}>
+          CampusFound is intended to help students identify
+          and claim lost belongings through the campus Lost &
+          Found system.
+        </Text>
+
+        <Text style={styles.description}>
+          Only submit a claim when you genuinely believe an
+          item belongs to you. False or misleading claims are
+          not permitted.
+        </Text>
+
+        <View style={styles.notice}>
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={20}
             color={Colors.primary}
           />
 
-          <Text style={styles.introText}>
-            These terms explain the rules and responsibilities for using CampusFound and its Lost & Found services.
+          <Text style={styles.noticeText}>
+            Submitting a claim does not confirm ownership.
+            Claims are reviewed by an authorized administrator.
+            Approved claims still require physical verification
+            before item collection.
           </Text>
         </View>
 
-        <PolicySection
-          number="1"
-          title="Purpose"
+        <Text style={styles.description}>
+          CampusFound is currently in beta. Features and
+          functionality may change as the application is
+          tested and improved.
+        </Text>
+
+        <TouchableOpacity
+          style={styles.primaryButton}
+          activeOpacity={0.8}
+          onPress={openTerms}
         >
-          CampusFound helps students discover and claim belongings reported through the campus Lost & Found system. Items are managed by authorized administrators, while students can browse available items and submit ownership claims.
-        </PolicySection>
-
-        <PolicySection
-          number="2"
-          title="User Accounts"
-        >
-          Users should provide accurate account information and use their account responsibly. Accounts must not be used to impersonate another person, provide intentionally false information, or misuse CampusFound.
-        </PolicySection>
-
-        <PolicySection
-          number="3"
-          title="Item Information"
-        >
-          Item information is managed by authorized Lost & Found administrators. CampusFound does not guarantee that every lost item will appear in the application or that all displayed information will always be complete or error-free.
-        </PolicySection>
-
-        <PolicySection
-          number="4"
-          title="Ownership Claims"
-        >
-          Submit a claim only when you genuinely believe the item belongs to you. Provide useful identifying details that can help the Lost & Found team verify ownership. False, misleading, or fraudulent claims are not permitted.
-        </PolicySection>
-
-        <PolicySection
-          number="5"
-          title="Claim Review"
-        >
-          Submitting a claim does not confirm ownership. An authorized administrator may review the claim and mark it as Pending, Approved, or Rejected.
-        </PolicySection>
-
-        <PolicySection
-          number="6"
-          title="Physical Verification"
-        >
-          An approved claim does not automatically mean the item can be collected. You may be required to visit the official Lost & Found office, provide identification, and complete physical verification before the item is handed over.
-        </PolicySection>
-
-        <PolicySection
-          number="7"
-          title="Responsible Use"
-        >
-          Do not submit false claims, attempt to claim another person's belongings, provide misleading ownership information, interfere with the application, or use CampusFound for abusive, fraudulent, or unauthorized purposes.
-        </PolicySection>
-
-        <PolicySection
-          number="8"
-          title="Service Availability"
-        >
-          CampusFound may occasionally be unavailable because of maintenance, technical problems, network issues, service limitations, or application updates.
-        </PolicySection>
-
-        <View style={styles.betaCard}>
-          <View style={styles.betaHeader}>
-            <Ionicons
-              name="flask-outline"
-              size={20}
-              color={Colors.primary}
-            />
-
-            <Text style={styles.betaTitle}>
-              Beta Release
-            </Text>
-          </View>
-
-          <Text style={styles.betaText}>
-            CampusFound 0.9.0-beta is currently being tested. Features may change, bugs may occur, and functionality may be added, modified, or removed before the stable release.
+          <Text style={styles.primaryButtonText}>
+            Read Full Terms & Conditions
           </Text>
-        </View>
 
-        <PolicySection
-          number="9"
-          title="Changes to These Terms"
-        >
-          These terms may be updated as CampusFound develops. The effective date or version will be updated when significant changes are made.
-        </PolicySection>
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color={Colors.white}
+          />
+        </TouchableOpacity>
 
-        <Text style={styles.version}>
-          CampusFound Terms & Conditions · v0.9.0-beta
+        <Text style={styles.footer}>
+          Last updated: September 5, 2026
         </Text>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-interface PolicySectionProps {
-  number: string;
-  title: string;
-  children: React.ReactNode;
-}
-
-const PolicySection = ({
-  number,
-  title,
-  children,
-}: PolicySectionProps) => (
-  <View style={styles.section}>
-    <View style={styles.sectionHeader}>
-      <View style={styles.number}>
-        <Text style={styles.numberText}>
-          {number}
-        </Text>
-      </View>
-
-      <Text style={styles.sectionTitle}>
-        {title}
-      </Text>
-    </View>
-
-    <Text style={styles.sectionText}>
-      {children}
-    </Text>
-  </View>
-);
 
 export default TermsAndConditionsScreen;
 
@@ -190,7 +130,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.lg,
-    paddingBottom: 80,
+    paddingBottom: 60,
   },
   header: {
     flexDirection: "row",
@@ -208,29 +148,42 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.white,
   },
-  headerText: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: 22,
     fontFamily: Fonts.bold,
     color: Colors.text,
   },
-  subtitle: {
-    marginTop: 3,
-    fontSize: 12,
+  iconContainer: {
+    width: 58,
+    height: 58,
+    borderRadius: Radius.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.primarySoft,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: Fonts.bold,
+    color: Colors.text,
+    marginBottom: Spacing.md,
+  },
+  description: {
+    fontSize: 13,
+    lineHeight: 21,
     fontFamily: Fonts.regular,
     color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
-  introCard: {
+  notice: {
     flexDirection: "row",
     alignItems: "flex-start",
     padding: Spacing.md,
-    marginBottom: Spacing.xl,
-    borderRadius: Radius.lg,
+    marginBottom: Spacing.md,
+    borderRadius: Radius.md,
     backgroundColor: Colors.primarySoft,
   },
-  introText: {
+  noticeText: {
     flex: 1,
     marginLeft: Spacing.sm,
     fontSize: 12,
@@ -238,66 +191,23 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     color: Colors.gray700,
   },
-  section: {
-    marginBottom: Spacing.xl,
-  },
-  sectionHeader: {
+  primaryButton: {
+    minHeight: 50,
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.sm,
-  },
-  number: {
-    width: 27,
-    height: 27,
-    borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: Spacing.sm,
-    backgroundColor: Colors.primarySoft,
-  },
-  numberText: {
-    fontSize: 11,
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-  },
-  sectionTitle: {
-    flex: 1,
-    fontSize: 15,
-    fontFamily: Fonts.semiBold,
-    color: Colors.text,
-  },
-  sectionText: {
-    fontSize: 13,
-    lineHeight: 21,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
-  },
-  betaCard: {
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.white,
-  },
-  betaHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  betaTitle: {
-    marginLeft: Spacing.sm,
-    fontSize: 14,
-    fontFamily: Fonts.semiBold,
-    color: Colors.text,
-  },
-  betaText: {
     marginTop: Spacing.sm,
-    fontSize: 12,
-    lineHeight: 19,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.primary,
   },
-  version: {
+  primaryButtonText: {
+    marginRight: Spacing.sm,
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    color: Colors.white,
+  },
+  footer: {
+    marginTop: Spacing.lg,
     textAlign: "center",
     fontSize: 10,
     fontFamily: Fonts.regular,
