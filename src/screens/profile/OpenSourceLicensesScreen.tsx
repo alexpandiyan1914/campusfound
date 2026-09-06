@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,8 +18,15 @@ import {
   Spacing,
 } from "../../theme";
 
+const LICENSE_URL =
+  "https://github.com/alexpandiyan1914/campusfound/blob/master/LICENSE";
+
 const OpenSourceLicensesScreen = () => {
   const navigation = useNavigation();
+
+  const openLicense = async () => {
+    await Linking.openURL(LICENSE_URL);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -30,9 +38,7 @@ const OpenSourceLicensesScreen = () => {
           <TouchableOpacity
             style={styles.backButton}
             activeOpacity={0.7}
-            onPress={() =>
-              navigation.goBack()
-            }
+            onPress={() => navigation.goBack()}
           >
             <Ionicons
               name="arrow-back"
@@ -41,97 +47,53 @@ const OpenSourceLicensesScreen = () => {
             />
           </TouchableOpacity>
 
-          <View style={styles.headerText}>
-            <Text style={styles.title}>
-              Open Source Licenses
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Licensing information
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.heroCard}>
-          <View style={styles.heroIcon}>
-            <Ionicons
-              name="code-slash-outline"
-              size={26}
-              color={Colors.primary}
-            />
-          </View>
-
-          <View style={styles.heroContent}>
-            <Text style={styles.heroTitle}>
-              Open Source Software
-            </Text>
-
-            <Text style={styles.heroText}>
-              CampusFound is built using open-source technologies and libraries that help make the application possible.
-            </Text>
-          </View>
-        </View>
-
-        <Text style={styles.sectionLabel}>
-          CAMPUSFOUND LICENSE
-        </Text>
-
-        <View style={styles.licenseCard}>
-          <View style={styles.licenseHeader}>
-            <View style={styles.licenseIcon}>
-              <Ionicons
-                name="document-text-outline"
-                size={21}
-                color={Colors.primary}
-              />
-            </View>
-
-            <View style={styles.licenseHeaderText}>
-              <Text style={styles.licenseTitle}>
-                MIT License
-              </Text>
-
-              <Text style={styles.licenseSubtitle}>
-                CampusFound
-              </Text>
-            </View>
-          </View>
-
-          <Text style={styles.licenseText}>
-            CampusFound is distributed under the MIT License.
-            The MIT License is a permissive open-source license
-            that allows software to be used, copied, modified,
-            merged, published, distributed and sublicensed,
-            subject to the conditions included in the license.
+          <Text style={styles.headerTitle}>
+            Open Source Licenses
           </Text>
         </View>
 
-        <Text style={styles.sectionLabel}>
-          THIRD-PARTY SOFTWARE
-        </Text>
-
-        <View style={styles.infoCard}>
+        <View style={styles.iconContainer}>
           <Ionicons
-            name="information-circle-outline"
-            size={21}
+            name="code-slash-outline"
+            size={30}
             color={Colors.primary}
           />
-
-          <Text style={styles.infoText}>
-            CampusFound uses third-party open-source packages.
-            These packages remain subject to the licenses and
-            copyright notices provided by their respective
-            authors and projects.
-          </Text>
         </View>
 
-        <Text style={styles.note}>
-          The complete CampusFound license is available in the
-          LICENSE file included with the source code repository.
+        <Text style={styles.title}>
+          MIT License
         </Text>
 
-        <Text style={styles.version}>
-          CampusFound · 0.9.0-beta
+        <Text style={styles.description}>
+          CampusFound is an open-source project distributed
+          under the MIT License.
+        </Text>
+
+        <Text style={styles.description}>
+          CampusFound also uses open-source libraries and
+          technologies. Third-party packages remain subject
+          to the licenses and copyright notices provided by
+          their respective authors.
+        </Text>
+
+        <TouchableOpacity
+          style={styles.primaryButton}
+          activeOpacity={0.8}
+          onPress={openLicense}
+        >
+          <Text style={styles.primaryButtonText}>
+            View MIT License
+          </Text>
+
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color={Colors.white}
+          />
+        </TouchableOpacity>
+
+        <Text style={styles.footer}>
+          CampusFound · v0.9.0-beta
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -145,18 +107,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-
   content: {
     padding: Spacing.lg,
-    paddingBottom: 80,
+    paddingBottom: 60,
   },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: Spacing.xl,
   },
-
   backButton: {
     width: 42,
     height: 42,
@@ -168,149 +127,54 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.white,
   },
-
-  headerText: {
+  headerTitle: {
     flex: 1,
-  },
-
-  title: {
-    fontSize: 23,
+    fontSize: 22,
     fontFamily: Fonts.bold,
     color: Colors.text,
   },
-
-  subtitle: {
-    marginTop: 3,
-    fontSize: 12,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
-  },
-
-  heroCard: {
-    flexDirection: "row",
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
+  iconContainer: {
+    width: 58,
+    height: 58,
     borderRadius: Radius.lg,
-    backgroundColor: Colors.primarySoft,
-  },
-
-  heroIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: Radius.md,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.white,
-  },
-
-  heroContent: {
-    flex: 1,
-    marginLeft: Spacing.md,
-  },
-
-  heroTitle: {
-    fontSize: 14,
-    fontFamily: Fonts.semiBold,
-    color: Colors.text,
-  },
-
-  heroText: {
-    marginTop: 4,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: Fonts.regular,
-    color: Colors.gray700,
-  },
-
-  sectionLabel: {
-    marginBottom: Spacing.sm,
-    fontSize: 11,
-    letterSpacing: 0.8,
-    fontFamily: Fonts.semiBold,
-    color: Colors.gray500,
-  },
-
-  licenseCard: {
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.white,
-  },
-
-  licenseHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  licenseIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: Radius.md,
-    alignItems: "center",
-    justifyContent: "center",
+    marginBottom: Spacing.md,
     backgroundColor: Colors.primarySoft,
   },
-
-  licenseHeaderText: {
-    marginLeft: Spacing.md,
-  },
-
-  licenseTitle: {
-    fontSize: 15,
-    fontFamily: Fonts.semiBold,
+  title: {
+    fontSize: 20,
+    fontFamily: Fonts.bold,
     color: Colors.text,
+    marginBottom: Spacing.md,
   },
-
-  licenseSubtitle: {
-    marginTop: 2,
-    fontSize: 11,
+  description: {
+    fontSize: 13,
+    lineHeight: 21,
     fontFamily: Fonts.regular,
     color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
-
-  licenseText: {
-    marginTop: Spacing.md,
-    fontSize: 12,
-    lineHeight: 20,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
-  },
-
-  infoCard: {
+  primaryButton: {
+    minHeight: 50,
     flexDirection: "row",
-    alignItems: "flex-start",
-    padding: Spacing.md,
-    marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.sm,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.primary,
   },
-
-  infoText: {
-    flex: 1,
-    marginLeft: Spacing.sm,
-    fontSize: 12,
-    lineHeight: 19,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
+  primaryButtonText: {
+    marginRight: Spacing.sm,
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    color: Colors.white,
   },
-
-  note: {
-    textAlign: "center",
-    fontSize: 11,
-    lineHeight: 18,
-    fontFamily: Fonts.regular,
-    color: Colors.gray500,
-  },
-
-  version: {
-    marginTop: Spacing.xl,
+  footer: {
+    marginTop: Spacing.lg,
     textAlign: "center",
     fontSize: 10,
     fontFamily: Fonts.regular,
-    color: Colors.gray400,
+    color: Colors.gray500,
   },
 });

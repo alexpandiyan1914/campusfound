@@ -1,5 +1,9 @@
-import React from "react";
+import React, {
+  useCallback,
+  useState,
+} from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +15,9 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
+import {
+  useFocusEffect,
+} from "@react-navigation/native";
 
 import { useClaims } from "../../context/ClaimContext";
 import { ClaimStatus } from "../../types/claim";
@@ -33,10 +40,40 @@ const ClaimDetailsScreen = ({
   navigation,
 }: Props) => {
   const { claimId } = route.params;
-  const { claims } = useClaims();
+  const {
+    claims,
+    refreshClaimById,
+  } = useClaims();
 
   const claim = claims.find(
     item => item.id === claimId
+  );
+
+  const [syncing, setSyncing] =
+    useState(!claim);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+
+      const refreshClaim = async () => {
+        if (!claim) {
+          setSyncing(true);
+        }
+
+        await refreshClaimById(claimId);
+
+        if (active) {
+          setSyncing(false);
+        }
+      };
+
+      refreshClaim();
+
+      return () => {
+        active = false;
+      };
+    }, [claimId])
   );
 
   const formatDateTime = (date: string) => {
@@ -66,7 +103,7 @@ const ClaimDetailsScreen = ({
         return {
           title: "Claim Rejected",
           description:
-            "Your claim was not approved for this item.",
+            "Your claim could not be verified for this item.",
           icon: "close-circle" as const,
           color: "#DC2626",
           background: "#FEE2E2",
@@ -75,13 +112,29 @@ const ClaimDetailsScreen = ({
         return {
           title: "Under Review",
           description:
-            "Your claim is waiting for admin review. You can check this page later for updates.",
+            "Your claim is waiting for admin review. This page refreshes when you return to it.",
           icon: "time" as const,
           color: "#D97706",
           background: "#FEF3C7",
         };
     }
   };
+
+  if (!claim && syncing) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={Colors.primary}
+          />
+          <Text style={styles.loadingText}>
+            Refreshing claim details...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!claim) {
     return (
@@ -426,6 +479,17 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.sm,
     fontSize: 12,
     lineHeight: 18,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: Spacing.sm,
+    fontSize: 13,
     fontFamily: Fonts.regular,
     color: Colors.textSecondary,
   },

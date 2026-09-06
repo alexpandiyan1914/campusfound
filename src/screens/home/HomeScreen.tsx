@@ -1,6 +1,5 @@
 import React, {
   useCallback,
-  useEffect,
   useRef,
   useState,
 } from "react";
@@ -19,6 +18,7 @@ import {
 } from "react-native-safe-area-context";
 
 import {
+  useFocusEffect,
   useNavigation,
 } from "@react-navigation/native";
 
@@ -110,6 +110,9 @@ const HomeScreen = () => {
   const loadingMoreRef =
     useRef(false);
 
+  const selectedCategoryRef =
+    useRef("All");
+
   const loadItems = async (
     pageNumber = 0,
     refresh = false
@@ -178,9 +181,48 @@ const HomeScreen = () => {
     }
   };
 
-  useEffect(() => {
-    loadItems(0, true);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const refreshOnFocus = async () => {
+        if (
+          selectedCategoryRef.current ===
+          "All"
+        ) {
+          setPage(0);
+          setHasMore(true);
+
+          await loadItems(
+            0,
+            true
+          );
+
+          return;
+        }
+
+        try {
+          const response =
+            await itemService
+              .getItemsByCategory(
+                selectedCategoryRef.current
+              );
+
+          setItems(response);
+          setHasMore(false);
+        } catch (error: any) {
+          console.log(
+            "Home Focus Refresh Error:",
+            error.response?.data ||
+            error.message
+          );
+        } finally {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      };
+
+      refreshOnFocus();
+    }, [])
+  );
 
   const filterCategory =
     async (
@@ -190,6 +232,9 @@ const HomeScreen = () => {
         setSelectedCategory(
           category
         );
+
+        selectedCategoryRef.current =
+          category;
 
         if (
           category === "All"

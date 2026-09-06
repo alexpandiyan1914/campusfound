@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,8 +18,15 @@ import {
   Spacing,
 } from "../../theme";
 
+const PRIVACY_URL =
+  "https://github.com/alexpandiyan1914/campusfound/blob/master/PRIVACY.md";
+
 const PrivacyPolicyScreen = () => {
   const navigation = useNavigation();
+
+  const openPrivacyPolicy = async () => {
+    await Linking.openURL(PRIVACY_URL);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,164 +47,77 @@ const PrivacyPolicyScreen = () => {
             />
           </TouchableOpacity>
 
-          <View style={styles.headerText}>
-            <Text style={styles.title}>
-              Privacy Policy
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Effective September 5, 2026
-            </Text>
-          </View>
+          <Text style={styles.headerTitle}>
+            Privacy Policy
+          </Text>
         </View>
 
-        <View style={styles.privacyCard}>
-          <View style={styles.privacyIcon}>
-            <Ionicons
-              name="shield-checkmark-outline"
-              size={25}
-              color={Colors.primary}
-            />
-          </View>
-
-          <View style={styles.privacyContent}>
-            <Text style={styles.privacyTitle}>
-              Your information matters
-            </Text>
-
-            <Text style={styles.privacyText}>
-              This policy explains what information CampusFound uses and why it is needed to operate the Lost & Found service.
-            </Text>
-          </View>
-        </View>
-
-        <PolicySection
-          icon="person-outline"
-          title="Information We Use"
-        >
-          CampusFound may process your name, college email address, phone number, department, year of study, account role, claim information, and details you provide when submitting an ownership claim.
-        </PolicySection>
-
-        <PolicySection
-          icon="options-outline"
-          title="How Information Is Used"
-        >
-          This information is used to manage accounts, authenticate users, display profile information, submit and review claims, maintain claim history, and support the Lost & Found verification process.
-        </PolicySection>
-
-        <PolicySection
-          icon="document-text-outline"
-          title="Claim Information"
-        >
-          Ownership details submitted with a claim help authorized administrators evaluate whether an item may belong to you. Provide only information that is necessary for verification.
-        </PolicySection>
-
-        <View style={styles.warningCard}>
+        <View style={styles.iconContainer}>
           <Ionicons
-            name="warning-outline"
-            size={21}
+            name="shield-checkmark-outline"
+            size={30}
+            color={Colors.primary}
+          />
+        </View>
+
+        <Text style={styles.title}>
+          Your Privacy
+        </Text>
+
+        <Text style={styles.description}>
+          CampusFound uses basic account information such as
+          your name, college email, phone number, department
+          and year to provide the Lost & Found service.
+        </Text>
+
+        <Text style={styles.description}>
+          Claim details you submit are used by authorized
+          administrators to help verify ownership of an item.
+        </Text>
+
+        <View style={styles.notice}>
+          <Ionicons
+            name="information-circle-outline"
+            size={20}
             color={Colors.warning}
           />
 
-          <View style={styles.warningContent}>
-            <Text style={styles.warningTitle}>
-              Don't include sensitive information
-            </Text>
-
-            <Text style={styles.warningText}>
-              Never include passwords, OTPs, banking information, PINs, or other unnecessary confidential information in a claim.
-            </Text>
-          </View>
+          <Text style={styles.noticeText}>
+            Do not include passwords, OTPs, banking
+            information, PINs or other sensitive information
+            in your claims.
+          </Text>
         </View>
 
-        <PolicySection
-          icon="cube-outline"
-          title="Item Information"
-        >
-          CampusFound displays information about found items so students can identify belongings they may have lost. This can include an item title, description, category, location, date, image, and status.
-        </PolicySection>
+        <Text style={styles.description}>
+          CampusFound also uses third-party services for
+          database hosting, image storage and email delivery.
+          Read the complete policy for more information.
+        </Text>
 
-        <PolicySection
-          icon="people-outline"
-          title="Access to Information"
+        <TouchableOpacity
+          style={styles.primaryButton}
+          activeOpacity={0.8}
+          onPress={openPrivacyPolicy}
         >
-          Access depends on the user's role. Students use student functionality, while authorized administrators can access the administrative functionality required to manage items and review ownership claims.
-        </PolicySection>
+          <Text style={styles.primaryButtonText}>
+            Read Full Privacy Policy
+          </Text>
 
-        <PolicySection
-          icon="lock-closed-outline"
-          title="Authentication & Security"
-        >
-          CampusFound uses authenticated accounts and access controls for protected functionality. Users should keep their account credentials private. No internet-connected system can guarantee absolute security.
-        </PolicySection>
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color={Colors.white}
+          />
+        </TouchableOpacity>
 
-        <PolicySection
-          icon="server-outline"
-          title="Data Retention"
-        >
-          Account, item, and claim information may be retained as necessary to operate CampusFound and support the Lost & Found process. Retention practices may be refined as the system develops.
-        </PolicySection>
-
-        <PolicySection
-          icon="cloud-outline"
-          title="Third-Party Services"
-        >
-          CampusFound may use third-party infrastructure for services such as database hosting, image storage, email delivery, application hosting, and future notification delivery. These services may process technical information required to provide their functionality.
-        </PolicySection>
-
-        <PolicySection
-          icon="flask-outline"
-          title="Beta Testing"
-        >
-          CampusFound 0.9.0-beta is currently being tested. Features and data-handling processes may be refined as the application is developed and evaluated.
-        </PolicySection>
-
-        <PolicySection
-          icon="refresh-outline"
-          title="Policy Updates"
-        >
-          This Privacy Policy may be updated when CampusFound features or data-handling practices change. The effective date or version will be updated when significant changes are made.
-        </PolicySection>
-
-        <Text style={styles.version}>
-          CampusFound Privacy Policy · v0.9.0-beta
+        <Text style={styles.footer}>
+          Last updated: September 5, 2026
         </Text>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-interface PolicySectionProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  title: string;
-  children: React.ReactNode;
-}
-
-const PolicySection = ({
-  icon,
-  title,
-  children,
-}: PolicySectionProps) => (
-  <View style={styles.section}>
-    <View style={styles.sectionHeader}>
-      <View style={styles.sectionIcon}>
-        <Ionicons
-          name={icon}
-          size={18}
-          color={Colors.primary}
-        />
-      </View>
-
-      <Text style={styles.sectionTitle}>
-        {title}
-      </Text>
-    </View>
-
-    <Text style={styles.sectionText}>
-      {children}
-    </Text>
-  </View>
-);
 
 export default PrivacyPolicyScreen;
 
@@ -207,7 +128,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.lg,
-    paddingBottom: 80,
+    paddingBottom: 60,
   },
   header: {
     flexDirection: "row",
@@ -225,107 +146,66 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.white,
   },
-  headerText: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 25,
+  headerTitle: {
+    fontSize: 22,
     fontFamily: Fonts.bold,
     color: Colors.text,
   },
-  subtitle: {
-    marginTop: 3,
-    fontSize: 12,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
-  },
-  privacyCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
+  iconContainer: {
+    width: 58,
+    height: 58,
     borderRadius: Radius.lg,
-    backgroundColor: Colors.primarySoft,
-  },
-  privacyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.md,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.white,
-  },
-  privacyContent: {
-    flex: 1,
-    marginLeft: Spacing.md,
-  },
-  privacyTitle: {
-    fontSize: 14,
-    fontFamily: Fonts.semiBold,
-    color: Colors.text,
-  },
-  privacyText: {
-    marginTop: 4,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: Fonts.regular,
-    color: Colors.gray700,
-  },
-  section: {
-    marginBottom: Spacing.xl,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.sm,
-  },
-  sectionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.sm,
+    marginBottom: Spacing.md,
     backgroundColor: Colors.primarySoft,
   },
-  sectionTitle: {
-    flex: 1,
-    fontSize: 15,
-    fontFamily: Fonts.semiBold,
+  title: {
+    fontSize: 20,
+    fontFamily: Fonts.bold,
     color: Colors.text,
+    marginBottom: Spacing.md,
   },
-  sectionText: {
+  description: {
     fontSize: 13,
     lineHeight: 21,
     fontFamily: Fonts.regular,
     color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
-  warningCard: {
+  notice: {
     flexDirection: "row",
     alignItems: "flex-start",
     padding: Spacing.md,
-    marginTop: -Spacing.sm,
-    marginBottom: Spacing.xl,
-    borderRadius: Radius.lg,
+    marginBottom: Spacing.md,
+    borderRadius: Radius.md,
     backgroundColor: Colors.warningSoft,
   },
-  warningContent: {
+  noticeText: {
     flex: 1,
     marginLeft: Spacing.sm,
-  },
-  warningTitle: {
-    fontSize: 13,
-    fontFamily: Fonts.semiBold,
-    color: Colors.text,
-  },
-  warningText: {
-    marginTop: 4,
-    fontSize: 11,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 19,
     fontFamily: Fonts.regular,
     color: Colors.gray700,
   },
-  version: {
+  primaryButton: {
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.sm,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.primary,
+  },
+  primaryButtonText: {
+    marginRight: Spacing.sm,
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    color: Colors.white,
+  },
+  footer: {
+    marginTop: Spacing.lg,
     textAlign: "center",
     fontSize: 10,
     fontFamily: Fonts.regular,
