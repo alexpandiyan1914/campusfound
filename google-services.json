@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "327771406195",
+    "project_id": "campusfound-7fedb",
+    "storage_bucket": "campusfound-7fedb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327771406195:android:f8fe3a4ba29a2d0f358f06",
+        "android_client_info": {
+          "package_name": "com.alexpandiyan.campusfound"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-g3UUNk-ls89wboxKPWSlGATfPWjsydc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
