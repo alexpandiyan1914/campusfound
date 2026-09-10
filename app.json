@@ -1,37 +1,45 @@
 {
   "expo": {
-    "name": "campusfound-frontend",
+    "name": "CampusFound",
     "slug": "campusfound-frontend",
-    "version": "1.0.0",
+    "version": "0.9.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/campusfound-icon.png",
     "userInterfaceStyle": "light",
-
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
+      "package": "com.alexpandiyan.campusfound",
+      "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "resize",
-
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/campusfound-icon.png"
       },
-
       "predictiveBackGestureEnabled": false
     },
-
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/campusfound-icon.png"
     },
-
     "plugins": [
       "expo-font",
       "expo-splash-screen",
-      "@react-native-community/datetimepicker"
-    ]
+      "@react-native-community/datetimepicker",
+      [
+        "expo-notifications",
+        {
+          "color": "#0B5CC4",
+          "defaultChannel": "campusfound"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "09a2eba9-3a8d-4a0d-aa91-f644f9a67112"
+      }
+    },
+    "owner": "alexpandiyan1914"
   }
 }

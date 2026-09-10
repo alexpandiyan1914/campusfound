@@ -40,3 +40,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase service account
+campusfound-7fedb-firebase-adminsdk*.json

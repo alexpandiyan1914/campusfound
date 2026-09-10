@@ -36,6 +36,13 @@ import {
   FeedbackProvider,
 } from "./src/context/FeedbackContext";
 
+import {
+  navigationRef,
+} from "./src/navigation/navigationRef";
+
+import NotificationHandler
+  from "./src/components/NotificationHandler";
+
 SplashScreen
   .preventAutoHideAsync()
   .catch(() => {});
@@ -76,7 +83,10 @@ export default function App() {
       <AuthProvider>
         <ProfileProvider>
           <ClaimProvider>
-            <NavigationContainer>
+            <NavigationContainer
+              ref={navigationRef}
+            >
+              <NotificationHandler />
               <AppNavigator />
             </NavigationContainer>
           </ClaimProvider>
