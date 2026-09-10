@@ -40,21 +40,14 @@ import {
   navigationRef,
 } from "./src/navigation/navigationRef";
 
-import pushNotificationService
-  from "./src/services/pushNotificationService";
+import NotificationHandler
+  from "./src/components/NotificationHandler";
 
 SplashScreen
   .preventAutoHideAsync()
-  .catch(() => { });
+  .catch(() => {});
 
 export default function App() {
-  useEffect(() => {
-
-    pushNotificationService
-      .registerForPushNotifications();
-
-  }, []);
-  
   const [
     fontsLoaded,
     fontError,
@@ -90,7 +83,10 @@ export default function App() {
       <AuthProvider>
         <ProfileProvider>
           <ClaimProvider>
-            <NavigationContainer ref={navigationRef}>
+            <NavigationContainer
+              ref={navigationRef}
+            >
+              <NotificationHandler />
               <AppNavigator />
             </NavigationContainer>
           </ClaimProvider>

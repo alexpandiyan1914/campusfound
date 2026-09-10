@@ -1,36 +1,45 @@
 import React, {
     createContext,
+    ReactNode,
     useEffect,
     useState,
-    ReactNode,
 } from "react";
 
 import storage from "../utils/storage";
-import { registerLogout } from "../utils/authManager";
-import { getUserRoleFromToken } from "../utils/jwt";
 
-type UserRole = "STUDENT" | "ADMIN";
+import {
+    registerLogout,
+} from "../utils/authManager";
+
+import {
+    getUserRoleFromToken,
+} from "../utils/jwt";
+
+import pushNotificationService
+    from "../services/pushNotificationService";
+
+import notificationService
+    from "../services/notificationService";
+
+type UserRole =
+    | "STUDENT"
+    | "ADMIN";
 
 interface AuthContextType {
-
     token: string | null;
-
     role: UserRole | null;
-
     isAuthenticated: boolean;
-
     loading: boolean;
-
-    login: (token: string) => Promise<void>;
-
+    login: (
+        token: string
+    ) => Promise<void>;
     logout: () => Promise<void>;
-
 }
 
 const AuthContext =
-    createContext<AuthContextType | undefined>(
-        undefined
-    );
+    createContext<
+        AuthContextType | undefined
+    >(undefined);
 
 interface Props {
     children: ReactNode;
@@ -39,142 +48,215 @@ interface Props {
 export const AuthProvider = ({
     children,
 }: Props) => {
+    const [
+        token,
+        setToken,
+    ] =
+        useState<string | null>(
+            null
+        );
 
-    const [token, setToken] =
-        useState<string | null>(null);
+    const [
+        role,
+        setRole,
+    ] =
+        useState<UserRole | null>(
+            null
+        );
 
-    const [role, setRole] =
-        useState<UserRole | null>(null);
-
-    const [loading, setLoading] =
+    const [
+        loading,
+        setLoading,
+    ] =
         useState(true);
 
+    const clearLocalSession =
+        async () => {
+            await storage.removeToken();
+            await storage.removePushToken();
 
-    // --------------------------------
-    // LOAD TOKEN
-    // --------------------------------
+            setToken(null);
+            setRole(null);
+        };
 
-    useEffect(() => {
+    const registerCurrentDeviceForNotifications =
+        async () => {
+            try {
+                const pushToken =
+                    await pushNotificationService
+                        .getExpoPushToken();
 
-        loadToken();
+                if (!pushToken) {
+                    return;
+                }
 
-    }, []);
+                const platform =
+                    pushNotificationService
+                        .getPlatform();
 
+                const deviceName =
+                    pushNotificationService
+                        .getDeviceName();
 
-    const loadToken = async () => {
+                await notificationService
+                    .registerDevice({
+                        pushToken,
+                        platform,
+                        deviceName,
+                    });
 
-        try {
+                await storage
+                    .savePushToken(
+                        pushToken
+                    );
 
-            const savedToken =
-                await storage.getToken();
+                console.log(
+                    "Push device registered successfully."
+                );
+            } catch (error) {
+                console.log(
+                    "Push device registration failed:",
+                    error
+                );
+            }
+        };
 
-            if (savedToken) {
+    const loadToken =
+        async () => {
+            try {
+                const savedToken =
+                    await storage
+                        .getToken();
 
-                setToken(savedToken);
+                if (!savedToken) {
+                    return;
+                }
+
+                setToken(
+                    savedToken
+                );
 
                 const userRole =
                     getUserRoleFromToken(
                         savedToken
                     );
 
-                setRole(userRole);
+                setRole(
+                    userRole
+                );
 
+                void registerCurrentDeviceForNotifications();
+            } catch (error) {
+                console.log(
+                    "Auth loading error:",
+                    error
+                );
+            } finally {
+                setLoading(
+                    false
+                );
             }
+        };
 
-        } catch (error) {
+    const login =
+        async (
+            jwt: string
+        ) => {
+            await storage
+                .saveToken(jwt);
 
-            console.log(
-                "Auth loading error:",
-                error
+            setToken(jwt);
+
+            const userRole =
+                getUserRoleFromToken(
+                    jwt
+                );
+
+            setRole(
+                userRole
             );
 
-        } finally {
+            console.log(
+                "Logged in role:",
+                userRole
+            );
 
-            setLoading(false);
+            void registerCurrentDeviceForNotifications();
+        };
 
-        }
+    const logout =
+        async () => {
+            try {
+                const pushToken =
+                    await storage
+                        .getPushToken();
 
-    };
+                if (pushToken) {
+                    await notificationService
+                        .unregisterDevice(
+                            pushToken
+                        );
 
+                    console.log(
+                        "Push device unregistered successfully."
+                    );
+                }
+            } catch (error) {
+                console.log(
+                    "Push device unregister failed:",
+                    error
+                );
+            } finally {
+                await clearLocalSession();
 
-    // --------------------------------
-    // LOGIN
-    // --------------------------------
+                console.log(
+                    "User logged out successfully."
+                );
+            }
+        };
 
-    const login = async (
-        jwt: string
-    ) => {
+    const forceLocalLogout =
+        async () => {
+            try {
+                await clearLocalSession();
 
-        await storage.saveToken(jwt);
-
-        setToken(jwt);
-
-        const userRole =
-            getUserRoleFromToken(jwt);
-
-        setRole(userRole);
-
-        console.log(
-            "Logged in role:",
-            userRole
-        );
-
-    };
-
-
-    // --------------------------------
-    // LOGOUT
-    // --------------------------------
-
-    const logout = async () => {
-
-        await storage.removeToken();
-
-        setToken(null);
-
-        setRole(null);
-
-    };
-
-
-    // --------------------------------
-    // REGISTER GLOBAL LOGOUT
-    // --------------------------------
+                console.log(
+                    "Session cleared after authentication failure."
+                );
+            } catch (error) {
+                console.log(
+                    "Forced logout cleanup failed:",
+                    error
+                );
+            }
+        };
 
     useEffect(() => {
+        loadToken();
+    }, []);
 
-        registerLogout(logout);
-
+    useEffect(() => {
+        registerLogout(
+            forceLocalLogout
+        );
     }, []);
 
 
     return (
-
         <AuthContext.Provider
             value={{
-
                 token,
-
                 role,
-
                 loading,
-
                 isAuthenticated:
                     !!token,
-
                 login,
-
                 logout,
-
             }}
         >
-
             {children}
-
         </AuthContext.Provider>
-
     );
-
 };
 
 export default AuthContext;

@@ -11,6 +11,10 @@ import * as Notifications
 import Constants
   from "expo-constants";
 
+import {
+  DevicePlatform,
+} from "./notificationService";
+
 const CHANNEL_ID =
   "campusfound";
 
@@ -25,12 +29,68 @@ Notifications.setNotificationHandler({
 });
 
 class PushNotificationService {
+  private async configureAndroidChannel() {
+    if (Platform.OS !== "android") {
+      return;
+    }
 
-  async registerForPushNotifications():
+    await Notifications
+      .setNotificationChannelAsync(
+        CHANNEL_ID,
+        {
+          name:
+            "CampusFound Notifications",
+
+          importance:
+            Notifications
+              .AndroidImportance
+              .HIGH,
+
+          vibrationPattern:
+            [0, 250, 250, 250],
+        }
+      );
+  }
+
+  private getProjectId():
+    string | null {
+    return (
+      Constants
+        .expoConfig
+        ?.extra
+        ?.eas
+        ?.projectId
+      ??
+      Constants
+        .easConfig
+        ?.projectId
+      ??
+      null
+    );
+  }
+
+  getPlatform():
+    DevicePlatform {
+    return Platform.OS === "ios"
+      ? "IOS"
+      : "ANDROID";
+  }
+
+  getDeviceName():
+    string {
+    return (
+      Device.deviceName
+      ??
+      Device.modelName
+      ??
+      "Unknown Device"
+    );
+  }
+
+
+  async getExpoPushToken():
     Promise<string | null> {
-
     try {
-
       if (!Device.isDevice) {
         console.log(
           "Push notifications require a physical device."
@@ -39,50 +99,26 @@ class PushNotificationService {
         return null;
       }
 
-      if (
-        Platform.OS ===
-        "android"
-      ) {
-        await Notifications
-          .setNotificationChannelAsync(
-            CHANNEL_ID,
-            {
-              name:
-                "CampusFound Notifications",
+      await this
+        .configureAndroidChannel();
 
-              importance:
-                Notifications
-                  .AndroidImportance
-                  .HIGH,
-
-              vibrationPattern:
-                [0, 250, 250, 250],
-            }
-          );
-      }
-
-      const {
-        status:
-          existingStatus,
-      } =
+      const permission =
         await Notifications
           .getPermissionsAsync();
 
       let finalStatus =
-        existingStatus;
+        permission.status;
 
       if (
-        existingStatus !==
-        "granted"
+        finalStatus ===
+        "undetermined"
       ) {
-        const {
-          status,
-        } =
+        const requestedPermission =
           await Notifications
             .requestPermissionsAsync();
 
         finalStatus =
-          status;
+          requestedPermission.status;
       }
 
       if (
@@ -90,22 +126,14 @@ class PushNotificationService {
         "granted"
       ) {
         console.log(
-          "Notification permission was not granted."
+          "Notification permission is not granted."
         );
 
         return null;
       }
 
       const projectId =
-        Constants
-          .expoConfig
-          ?.extra
-          ?.eas
-          ?.projectId
-        ??
-        Constants
-          .easConfig
-          ?.projectId;
+        this.getProjectId();
 
       if (!projectId) {
         console.log(
@@ -121,17 +149,10 @@ class PushNotificationService {
             projectId,
           });
 
-      console.log(
-        "Expo Push Token:",
-        token.data
-      );
-
       return token.data;
-
     } catch (error) {
-
       console.log(
-        "Push registration error:",
+        "Push token error:",
         error
       );
 
@@ -140,4 +161,5 @@ class PushNotificationService {
   }
 }
 
-export default new PushNotificationService();
+export default
+  new PushNotificationService();
