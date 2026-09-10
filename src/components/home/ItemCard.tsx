@@ -25,6 +25,10 @@ import {
   Spacing,
 } from "../../theme";
 
+import {
+  formatRelativeTime,
+} from "../../utils/date";
+
 interface Props {
   item: Item;
   onPress: () => void;
@@ -34,11 +38,6 @@ const ItemCard = ({
   item,
   onPress,
 }: Props) => {
-  const formattedDate =
-    formatDate(
-      item.lostFoundDate
-    );
-
   const isActive =
     item.status === "ACTIVE";
 
@@ -140,7 +139,9 @@ const ItemCard = ({
           </View>
 
           <Text style={styles.date}>
-            {formattedDate}
+            {formatRelativeTime(
+              item.createdAt
+            )}
           </Text>
         </View>
 
@@ -195,33 +196,6 @@ const ItemCard = ({
         </View>
       </View>
     </TouchableOpacity>
-  );
-};
-
-const formatDate = (
-  dateValue: string
-) => {
-  if (!dateValue) {
-    return "";
-  }
-
-  const date =
-    new Date(dateValue);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return dateValue;
-  }
-
-  return date.toLocaleDateString(
-    "en-IN",
-    {
-      day: "2-digit",
-      month: "short",
-    }
   );
 };
 

@@ -35,7 +35,7 @@ import {
 } from "../../constants/images";
 
 import {
-    formatRelativeTime,
+    formatDate,
 } from "../../utils/date";
 
 import {
@@ -113,33 +113,6 @@ const ItemDetailsScreen = ({
         }, [initialItem.id])
     );
 
-    const formatDate = (
-        value: string
-    ) => {
-        if (!value) {
-            return "Not specified";
-        }
-
-        const date =
-            new Date(value);
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-            return value;
-        }
-
-        return date.toLocaleDateString(
-            "en-IN",
-            {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-            }
-        );
-    };
 
     const handleClaimPress = () => {
         if (!isActive || claim) {
@@ -620,7 +593,9 @@ const ItemDetailsScreen = ({
                     </View>
 
                     <Text style={styles.time}>
-                        {formatRelativeTime(item.createdAt)}
+                        {formatDate(
+                            item.createdAt
+                        )}
                     </Text>
                 </View>
 
@@ -692,7 +667,7 @@ const ItemDetailsScreen = ({
 
 interface InfoRowProps {
     icon:
-        keyof typeof Ionicons.glyphMap;
+    keyof typeof Ionicons.glyphMap;
     label: string;
     value: string;
 }
@@ -767,7 +742,7 @@ const ProcessStep = ({
 
 interface MiniStepProps {
     icon:
-        keyof typeof Ionicons.glyphMap;
+    keyof typeof Ionicons.glyphMap;
     title: string;
     completed?: boolean;
     active?: boolean;
@@ -788,7 +763,7 @@ const MiniStep = ({
                 style={[
                     styles.miniStepIcon,
                     highlighted &&
-                        styles.miniStepIconHighlighted,
+                    styles.miniStepIconHighlighted,
                 ]}
             >
                 <Ionicons
@@ -806,7 +781,7 @@ const MiniStep = ({
                 style={[
                     styles.miniStepText,
                     highlighted &&
-                        styles.miniStepTextHighlighted,
+                    styles.miniStepTextHighlighted,
                 ]}
             >
                 {title}

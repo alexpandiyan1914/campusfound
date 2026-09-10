@@ -21,7 +21,7 @@ class ItemService {
 
     const response =
       await api.get<ItemPageResponse>(
-        `/items?page=${page}&size=${size}`
+        `/items?page=${page}&size=${size}&sort=createdAt,desc`
       );
 
     return response.data;
