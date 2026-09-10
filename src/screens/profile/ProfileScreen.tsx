@@ -26,6 +26,9 @@ import {
   Shadows,
   Spacing,
 } from "../../theme";
+import {
+  BETA_VERSION_LABEL,
+} from "../../constants/AppInfo";
 
 type NavigationProp =
   NativeStackNavigationProp<MainStackParamList>;
@@ -247,7 +250,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
 
         <Text style={styles.version}>
-          CampusFound v0.9.0-beta
+          {BETA_VERSION_LABEL}
         </Text>
       </ScrollView>
     </SafeAreaView>
@@ -256,7 +259,7 @@ const ProfileScreen = () => {
 
 interface MenuRowProps {
   icon:
-    keyof typeof Ionicons.glyphMap;
+  keyof typeof Ionicons.glyphMap;
   title: string;
   description: string;
   onPress: () => void;

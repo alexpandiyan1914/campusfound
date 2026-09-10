@@ -26,6 +26,10 @@ import useFeedback
   from "../../hooks/useFeedback";
 
 import {
+  APP_VERSION,
+} from "../../constants/AppInfo";
+
+import {
   Colors,
   Fonts,
   Radius,
@@ -144,7 +148,7 @@ const AboutScreen = () => {
                 styles.betaText
               }
             >
-              BETA v0.9.0
+              {`BETA v${APP_VERSION}`}
             </Text>
           </View>
 
@@ -460,12 +464,8 @@ const AboutScreen = () => {
             </Text>
           </View>
 
-          <Text
-            style={
-              styles.versionValue
-            }
-          >
-            v0.9.0
+          <Text style={styles.versionValue}>
+            v{APP_VERSION}
           </Text>
         </View>
 

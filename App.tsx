@@ -43,9 +43,12 @@ import {
 import NotificationHandler
   from "./src/components/NotificationHandler";
 
+import AppUpdateChecker
+  from "./src/components/update/AppUpdateChecker";
+
 SplashScreen
   .preventAutoHideAsync()
-  .catch(() => {});
+  .catch(() => { });
 
 export default function App() {
   const [
@@ -79,19 +82,21 @@ export default function App() {
   }
 
   return (
-    <FeedbackProvider>
-      <AuthProvider>
-        <ProfileProvider>
-          <ClaimProvider>
-            <NavigationContainer
-              ref={navigationRef}
-            >
-              <NotificationHandler />
-              <AppNavigator />
-            </NavigationContainer>
-          </ClaimProvider>
-        </ProfileProvider>
-      </AuthProvider>
-    </FeedbackProvider>
+    <AppUpdateChecker>
+      <FeedbackProvider>
+        <AuthProvider>
+          <ProfileProvider>
+            <ClaimProvider>
+              <NavigationContainer
+                ref={navigationRef}
+              >
+                <NotificationHandler />
+                <AppNavigator />
+              </NavigationContainer>
+            </ClaimProvider>
+          </ProfileProvider>
+        </AuthProvider>
+      </FeedbackProvider>
+    </AppUpdateChecker>
   );
 }
