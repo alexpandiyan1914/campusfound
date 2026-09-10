@@ -1,15 +1,29 @@
 import React from "react";
+
 import {
+  Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+
+import {
+  SafeAreaView,
+} from "react-native-safe-area-context";
+
+import {
+  Ionicons,
+} from "@expo/vector-icons";
+
+import {
+  useNavigation,
+} from "@react-navigation/native";
+
+import useFeedback
+  from "../../hooks/useFeedback";
 
 import {
   Colors,
@@ -19,20 +33,54 @@ import {
   Spacing,
 } from "../../theme";
 
+const ISSUE_URL =
+  "https://github.com/alexpandiyan1914/campusfound/issues";
+
 const AboutScreen = () => {
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation();
+
+  const {
+    showError,
+  } = useFeedback();
+
+  const handleReportIssue =
+    async () => {
+      try {
+        await Linking.openURL(
+          ISSUE_URL
+        );
+      } catch {
+        showError(
+          "Unable to Open GitHub",
+          "Please try again later."
+        );
+      }
+    };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+    >
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={
+          false
+        }
+        contentContainerStyle={
+          styles.content
+        }
       >
-        <View style={styles.header}>
+        <View
+          style={styles.header}
+        >
           <TouchableOpacity
-            style={styles.backButton}
+            style={
+              styles.backButton
+            }
             activeOpacity={0.7}
-            onPress={() => navigation.goBack()}
+            onPress={() =>
+              navigation.goBack()
+            }
           >
             <Ionicons
               name="arrow-back"
@@ -41,195 +89,402 @@ const AboutScreen = () => {
             />
           </TouchableOpacity>
 
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
+          <View
+            style={
+              styles.headerText
+            }
+          >
+            <Text
+              style={
+                styles.headerTitle
+              }
+            >
               CampusFound Beta
             </Text>
 
-            <Text style={styles.headerSubtitle}>
-              About this release
+            <Text
+              style={
+                styles.headerSubtitle
+              }
+            >
+              Beta tester guide
             </Text>
           </View>
         </View>
 
-        <View style={styles.hero}>
-          <View>
-            <Image
-              source={require("../../assets/images/campusfound-logo.png")}
-              style={{
-                width: 100,
-                height: 100,
-              }}
-            />
-          </View>
+        <View
+          style={styles.hero}
+        >
+          <Image
+            source={require(
+              "../../assets/images/campusfound-logo.png"
+            )}
+            style={styles.logo}
+          />
 
-          <Text style={styles.appName}>
+          <Text
+            style={styles.appName}
+          >
             CampusFound
           </Text>
 
-          <View style={styles.betaBadge}>
-            <View style={styles.betaDot} />
+          <View
+            style={
+              styles.betaBadge
+            }
+          >
+            <View
+              style={
+                styles.betaDot
+              }
+            />
 
-            <Text style={styles.betaText}>
-              BETA
+            <Text
+              style={
+                styles.betaText
+              }
+            >
+              BETA v0.9.0
             </Text>
           </View>
 
-          <Text style={styles.tagline}>
-            A simple campus Lost & Found system designed to help students discover and safely claim found belongings.
+          <Text
+            style={
+              styles.tagline
+            }
+          >
+            Thank you for helping test CampusFound before its official release.
           </Text>
         </View>
 
-        <View style={styles.betaNotice}>
-          <View style={styles.noticeIcon}>
+        <View
+          style={
+            styles.testDataNotice
+          }
+        >
+          <View
+            style={
+              styles.noticeIcon
+            }
+          >
             <Ionicons
               name="flask-outline"
               size={22}
-              color={Colors.primary}
+              color={
+                Colors.warning
+              }
             />
           </View>
 
-          <View style={styles.noticeContent}>
-            <Text style={styles.noticeTitle}>
-              You're using a beta version
+          <View
+            style={
+              styles.noticeContent
+            }
+          >
+            <Text
+              style={
+                styles.noticeTitle
+              }
+            >
+              Test environment
             </Text>
 
-            <Text style={styles.noticeText}>
-              CampusFound is currently being tested and improved before a wider release. Some features may change as we collect feedback and continue development.
+            <Text
+              style={
+                styles.noticeText
+              }
+            >
+              All items currently shown in CampusFound are test data. You may freely claim and interact with them while testing the application.
             </Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>
-          WHAT CAMPUSFOUND DOES
+        <Text
+          style={
+            styles.sectionTitle
+          }
+        >
+          WHAT YOU CAN TEST
         </Text>
 
-        <View style={styles.card}>
-          <FeatureRow
-            icon="cube-outline"
-            title="Browse found items"
-            description="View items posted by authorized Lost & Found administrators."
+        <View
+          style={styles.card}
+        >
+          <TestRow
+            icon="albums-outline"
+            title="Browse items"
+            description="Scroll through the latest items available on CampusFound."
           />
 
           <Divider />
 
-          <FeatureRow
+          <TestRow
             icon="search-outline"
-            title="Find your belongings"
-            description="Search and filter available items to find something you may have lost."
+            title="Search and filter"
+            description="Search for items and browse different item categories."
           />
 
           <Divider />
 
-          <FeatureRow
-            icon="shield-checkmark-outline"
-            title="Submit ownership claims"
-            description="Provide identifying details so the Lost & Found team can verify your claim."
+          <TestRow
+            icon="document-text-outline"
+            title="Claim any test item"
+            description="Open an available item and submit a sample ownership claim."
           />
 
           <Divider />
 
-          <FeatureRow
+          <TestRow
             icon="time-outline"
-            title="Track claim status"
-            description="Follow your claim as it moves through pending, approved or rejected states."
+            title="Track your claims"
+            description="View your submitted claims and their current status."
+          />
+
+          <Divider />
+
+          <TestRow
+            icon="notifications-outline"
+            title="Test notifications"
+            description="Check new-item alerts and claim approval or rejection notifications."
+          />
+
+          <Divider />
+
+          <TestRow
+            icon="person-outline"
+            title="Test your account"
+            description="Edit your profile, logout and login again to verify the account flow."
           />
         </View>
 
-        <Text style={styles.sectionTitle}>
+        <Text
+          style={
+            styles.sectionTitle
+          }
+        >
+          WHILE TESTING
+        </Text>
+
+        <View
+          style={styles.infoCard}
+        >
+          <InstructionRow
+            text="Explore different screens and actions normally."
+          />
+
+          <InstructionRow
+            text="Feel free to claim any item because all current items are test data."
+          />
+
+          <InstructionRow
+            text="Try actions more than once and check whether the app behaves consistently."
+          />
+
+          <InstructionRow
+            text="If something looks wrong, crashes, becomes stuck or shows incorrect information, please report it."
+            isLast
+          />
+        </View>
+
+        <Text
+          style={
+            styles.sectionTitle
+          }
+        >
           CLAIM VERIFICATION
         </Text>
 
-        <View style={styles.verificationCard}>
+        <View
+          style={
+            styles.verificationCard
+          }
+        >
           <Ionicons
-            name="information-circle-outline"
+            name="shield-checkmark-outline"
             size={22}
             color={Colors.primary}
           />
 
-          <View style={styles.verificationContent}>
-            <Text style={styles.verificationTitle}>
-              Approval is not final collection
+          <View
+            style={
+              styles.verificationContent
+            }
+          >
+            <Text
+              style={
+                styles.verificationTitle
+              }
+            >
+              App approval is not final collection
             </Text>
 
-            <Text style={styles.verificationText}>
-              If your claim is approved, you must visit the official Lost & Found office for physical verification. The item will be handed over only after the administrator confirms your identity and ownership.
+            <Text
+              style={
+                styles.verificationText
+              }
+            >
+              In the official CampusFound workflow, an approved claimant must still visit the Lost & Found office for physical verification before an item is returned.
             </Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>
-          BETA STATUS
+        <Text
+          style={
+            styles.sectionTitle
+          }
+        >
+          FOUND AN ISSUE?
         </Text>
 
-        <View style={styles.card}>
-          <StatusRow
-            icon="checkmark-circle-outline"
-            label="Core Lost & Found flow"
-            value="Available"
-          />
-
-          <Divider />
-
-          <StatusRow
-            icon="checkmark-circle-outline"
-            label="Claims & verification"
-            value="Available"
-          />
-
-          <Divider />
-
-          <StatusRow
-            icon="construct-outline"
-            label="Push notifications"
-            value="In development"
-          />
-
-          <Divider />
-
-          <StatusRow
-            icon="sparkles-outline"
-            label="UI improvements"
-            value="Ongoing"
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>
-          VERSION
-        </Text>
-
-        <View style={styles.versionCard}>
-          <View style={styles.versionLeft}>
-            <View style={styles.versionIcon}>
+        <View
+          style={
+            styles.issueCard
+          }
+        >
+          <View
+            style={
+              styles.issueHeader
+            }
+          >
+            <View
+              style={
+                styles.issueIcon
+              }
+            >
               <Ionicons
-                name="information-outline"
-                size={20}
-                color={Colors.primary}
+                name="bug-outline"
+                size={21}
+                color={
+                  Colors.primary
+                }
               />
             </View>
 
-            <View>
-              <Text style={styles.versionTitle}>
-                CampusFound
+            <View
+              style={
+                styles.issueHeaderText
+              }
+            >
+              <Text
+                style={
+                  styles.issueTitle
+                }
+              >
+                Report it on GitHub
               </Text>
 
-              <Text style={styles.versionSubtitle}>
-                Beta release
+              <Text
+                style={
+                  styles.issueDescription
+                }
+              >
+                Your report helps us improve CampusFound before the official release.
               </Text>
             </View>
           </View>
 
-          <Text style={styles.versionValue}>
-            0.9.0-beta
+          <View
+            style={
+              styles.reportGuide
+            }
+          >
+            <InstructionRow
+              text="What you were trying to do"
+            />
+
+            <InstructionRow
+              text="What went wrong"
+            />
+
+            <InstructionRow
+              text="Steps to reproduce the problem"
+            />
+
+            <InstructionRow
+              text="Screenshot and device model, if possible"
+              isLast
+            />
+          </View>
+
+          <TouchableOpacity
+            style={
+              styles.reportButton
+            }
+            activeOpacity={0.8}
+            onPress={
+              handleReportIssue
+            }
+          >
+            <Ionicons
+              name="logo-github"
+              size={20}
+              color={Colors.white}
+            />
+
+            <Text
+              style={
+                styles.reportButtonText
+              }
+            >
+              Report an Issue
+            </Text>
+
+            <Ionicons
+              name="open-outline"
+              size={18}
+              color={Colors.white}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View
+          style={
+            styles.versionCard
+          }
+        >
+          <View>
+            <Text
+              style={
+                styles.versionLabel
+              }
+            >
+              CURRENT VERSION
+            </Text>
+
+            <Text
+              style={
+                styles.versionName
+              }
+            >
+              CampusFound Beta
+            </Text>
+          </View>
+
+          <Text
+            style={
+              styles.versionValue
+            }
+          >
+            v0.9.0
           </Text>
         </View>
 
-        <View style={styles.developerSection}>
-          <Text style={styles.developedBy}>
+        <View
+          style={
+            styles.developerSection
+          }
+        >
+          <Text
+            style={
+              styles.developedBy
+            }
+          >
             Developed for Thiagarajar College of Engineering
           </Text>
 
-          <Text style={styles.footer}>
+          <Text
+            style={styles.footer}
+          >
             © 2026 CampusFound
           </Text>
         </View>
@@ -238,20 +493,27 @@ const AboutScreen = () => {
   );
 };
 
-interface FeatureRowProps {
-  icon: keyof typeof Ionicons.glyphMap;
+interface TestRowProps {
+  icon:
+  keyof typeof Ionicons.glyphMap;
   title: string;
   description: string;
 }
 
-const FeatureRow = ({
+const TestRow = ({
   icon,
   title,
   description,
-}: FeatureRowProps) => {
+}: TestRowProps) => {
   return (
-    <View style={styles.featureRow}>
-      <View style={styles.featureIcon}>
+    <View
+      style={styles.testRow}
+    >
+      <View
+        style={
+          styles.featureIcon
+        }
+      >
         <Ionicons
           name={icon}
           size={20}
@@ -259,12 +521,24 @@ const FeatureRow = ({
         />
       </View>
 
-      <View style={styles.featureContent}>
-        <Text style={styles.featureTitle}>
+      <View
+        style={
+          styles.featureContent
+        }
+      >
+        <Text
+          style={
+            styles.featureTitle
+          }
+        >
           {title}
         </Text>
 
-        <Text style={styles.featureDescription}>
+        <Text
+          style={
+            styles.featureDescription
+          }
+        >
           {description}
         </Text>
       </View>
@@ -272,46 +546,53 @@ const FeatureRow = ({
   );
 };
 
-interface StatusRowProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  value: string;
+interface InstructionRowProps {
+  text: string;
+  isLast?: boolean;
 }
 
-const StatusRow = ({
-  icon,
-  label,
-  value,
-}: StatusRowProps) => {
+const InstructionRow = ({
+  text,
+  isLast = false,
+}: InstructionRowProps) => {
   return (
-    <View style={styles.statusRow}>
+    <View
+      style={[
+        styles.instructionRow,
+        isLast &&
+        styles.instructionRowLast,
+      ]}
+    >
       <Ionicons
-        name={icon}
-        size={19}
-        color={Colors.primary}
+        name="checkmark-circle-outline"
+        size={18}
+        color={Colors.success}
       />
 
-      <Text style={styles.statusLabel}>
-        {label}
-      </Text>
-
-      <Text style={styles.statusValue}>
-        {value}
+      <Text
+        style={
+          styles.instructionText
+        }
+      >
+        {text}
       </Text>
     </View>
   );
 };
 
-const Divider = () => {
-  return <View style={styles.divider} />;
-};
+const Divider = () => (
+  <View
+    style={styles.divider}
+  />
+);
 
 export default AboutScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor:
+      Colors.background,
   },
 
   content: {
@@ -322,7 +603,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
 
   backButton: {
@@ -334,7 +615,8 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    backgroundColor: Colors.white,
+    backgroundColor:
+      Colors.white,
   },
 
   headerText: {
@@ -351,27 +633,25 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontSize: 13,
     fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
+    color:
+      Colors.textSecondary,
   },
 
   hero: {
     alignItems: "center",
-    paddingVertical: Spacing.lg,
-    marginBottom: Spacing.lg,
+    paddingVertical:
+      Spacing.md,
+    marginBottom:
+      Spacing.lg,
   },
 
-  logoContainer: {
-    width: 76,
-    height: 76,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.primary,
-    ...Shadows.sm,
+  logo: {
+    width: 100,
+    height: 100,
   },
 
   appName: {
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
     fontSize: 26,
     fontFamily: Fonts.bold,
     color: Colors.text,
@@ -383,8 +663,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primarySoft,
+    borderRadius:
+      Radius.pill,
+    backgroundColor:
+      Colors.primarySoft,
   },
 
   betaDot: {
@@ -392,52 +674,63 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     marginRight: 6,
-    backgroundColor: Colors.primary,
+    backgroundColor:
+      Colors.primary,
   },
 
   betaText: {
     fontSize: 10,
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     fontFamily: Fonts.bold,
     color: Colors.primary,
   },
 
   tagline: {
-    maxWidth: 330,
+    maxWidth: 320,
     marginTop: Spacing.md,
     textAlign: "center",
     fontSize: 13,
     lineHeight: 20,
     fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
+    color:
+      Colors.textSecondary,
   },
 
-  betaNotice: {
+  testDataNotice: {
     flexDirection: "row",
     alignItems: "flex-start",
     padding: Spacing.md,
-    marginBottom: Spacing.xl,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.primarySoft,
+    marginBottom:
+      Spacing.xl,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+    borderRadius:
+      Radius.lg,
+    backgroundColor:
+      Colors.warningSoft,
   },
 
   noticeIcon: {
     width: 40,
     height: 40,
-    borderRadius: Radius.md,
+    borderRadius:
+      Radius.md,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.white,
+    backgroundColor:
+      Colors.white,
   },
 
   noticeContent: {
     flex: 1,
-    marginLeft: Spacing.md,
+    marginLeft:
+      Spacing.md,
   },
 
   noticeTitle: {
     fontSize: 14,
-    fontFamily: Fonts.semiBold,
+    fontFamily:
+      Fonts.semiBold,
     color: Colors.text,
   },
 
@@ -445,29 +738,36 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
     lineHeight: 18,
-    fontFamily: Fonts.regular,
+    fontFamily:
+      Fonts.regular,
     color: Colors.gray700,
   },
 
   sectionTitle: {
-    marginBottom: Spacing.sm,
+    marginBottom:
+      Spacing.sm,
     fontSize: 11,
     letterSpacing: 0.8,
-    fontFamily: Fonts.semiBold,
+    fontFamily:
+      Fonts.semiBold,
     color: Colors.gray500,
   },
 
   card: {
-    marginBottom: Spacing.xl,
+    marginBottom:
+      Spacing.xl,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.white,
+    borderColor:
+      Colors.border,
+    borderRadius:
+      Radius.lg,
+    backgroundColor:
+      Colors.white,
     ...Shadows.sm,
   },
 
-  featureRow: {
+  testRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     padding: Spacing.md,
@@ -476,20 +776,24 @@ const styles = StyleSheet.create({
   featureIcon: {
     width: 40,
     height: 40,
-    borderRadius: Radius.md,
+    borderRadius:
+      Radius.md,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.primarySoft,
+    backgroundColor:
+      Colors.primarySoft,
   },
 
   featureContent: {
     flex: 1,
-    marginLeft: Spacing.md,
+    marginLeft:
+      Spacing.md,
   },
 
   featureTitle: {
     fontSize: 14,
-    fontFamily: Fonts.semiBold,
+    fontFamily:
+      Fonts.semiBold,
     color: Colors.text,
   },
 
@@ -497,33 +801,79 @@ const styles = StyleSheet.create({
     marginTop: 3,
     fontSize: 11,
     lineHeight: 17,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
+    fontFamily:
+      Fonts.regular,
+    color:
+      Colors.textSecondary,
   },
 
   divider: {
     height: 1,
     marginLeft: 72,
-    backgroundColor: Colors.gray100,
+    backgroundColor:
+      Colors.gray100,
+  },
+
+  infoCard: {
+    marginBottom:
+      Spacing.xl,
+    paddingHorizontal:
+      Spacing.md,
+    borderWidth: 1,
+    borderColor:
+      Colors.border,
+    borderRadius:
+      Radius.lg,
+    backgroundColor:
+      Colors.white,
+    ...Shadows.sm,
+  },
+
+  instructionRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingVertical:
+      Spacing.sm,
+  },
+
+  instructionRowLast: {
+    paddingBottom:
+      Spacing.md,
+  },
+
+  instructionText: {
+    flex: 1,
+    marginLeft:
+      Spacing.sm,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily:
+      Fonts.regular,
+    color: Colors.gray700,
   },
 
   verificationCard: {
     flexDirection: "row",
     alignItems: "flex-start",
     padding: Spacing.md,
-    marginBottom: Spacing.xl,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.primarySoft,
+    marginBottom:
+      Spacing.xl,
+    borderRadius:
+      Radius.lg,
+    backgroundColor:
+      Colors.primarySoft,
   },
 
   verificationContent: {
     flex: 1,
-    marginLeft: Spacing.sm,
+    marginLeft:
+      Spacing.sm,
   },
 
   verificationTitle: {
     fontSize: 13,
-    fontFamily: Fonts.semiBold,
+    fontFamily:
+      Fonts.semiBold,
     color: Colors.text,
   },
 
@@ -531,81 +881,137 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 11,
     lineHeight: 18,
-    fontFamily: Fonts.regular,
+    fontFamily:
+      Fonts.regular,
     color: Colors.gray700,
   },
 
-  statusRow: {
-    minHeight: 58,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.md,
+  issueCard: {
+    padding: Spacing.md,
+    marginBottom:
+      Spacing.xl,
+    borderWidth: 1,
+    borderColor:
+      Colors.border,
+    borderRadius:
+      Radius.lg,
+    backgroundColor:
+      Colors.white,
+    ...Shadows.sm,
   },
 
-  statusLabel: {
+  issueHeader: {
+    flexDirection: "row",
+    alignItems:
+      "flex-start",
+  },
+
+  issueIcon: {
+    width: 42,
+    height: 42,
+    borderRadius:
+      Radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor:
+      Colors.primarySoft,
+  },
+
+  issueHeaderText: {
     flex: 1,
-    marginLeft: Spacing.sm,
-    fontSize: 13,
-    fontFamily: Fonts.medium,
+    marginLeft:
+      Spacing.md,
+  },
+
+  issueTitle: {
+    fontSize: 14,
+    fontFamily:
+      Fonts.semiBold,
     color: Colors.text,
   },
 
-  statusValue: {
+  issueDescription: {
+    marginTop: 3,
     fontSize: 11,
-    fontFamily: Fonts.medium,
-    color: Colors.textSecondary,
+    lineHeight: 17,
+    fontFamily:
+      Fonts.regular,
+    color:
+      Colors.textSecondary,
+  },
+
+  reportGuide: {
+    marginTop:
+      Spacing.md,
+  },
+
+  reportButton: {
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent:
+      "center",
+    marginTop:
+      Spacing.md,
+    paddingHorizontal:
+      Spacing.md,
+    borderRadius:
+      Radius.md,
+    backgroundColor:
+      Colors.primary,
+  },
+
+  reportButtonText: {
+    marginHorizontal:
+      Spacing.sm,
+    fontSize: 13,
+    fontFamily:
+      Fonts.semiBold,
+    color: Colors.white,
   },
 
   versionCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     padding: Spacing.md,
-    marginBottom: Spacing.xl,
+    marginBottom:
+      Spacing.xl,
     borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.white,
-    ...Shadows.sm,
+    borderColor:
+      Colors.border,
+    borderRadius:
+      Radius.lg,
+    backgroundColor:
+      Colors.white,
   },
 
-  versionLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+  versionLabel: {
+    fontSize: 9,
+    letterSpacing: 0.8,
+    fontFamily:
+      Fonts.semiBold,
+    color: Colors.gray500,
   },
 
-  versionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: Radius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.md,
-    backgroundColor: Colors.primarySoft,
-  },
-
-  versionTitle: {
+  versionName: {
+    marginTop: 4,
     fontSize: 14,
-    fontFamily: Fonts.semiBold,
+    fontFamily:
+      Fonts.semiBold,
     color: Colors.text,
   },
 
-  versionSubtitle: {
-    marginTop: 3,
-    fontSize: 11,
-    fontFamily: Fonts.regular,
-    color: Colors.textSecondary,
-  },
-
   versionValue: {
-    fontSize: 12,
-    fontFamily: Fonts.semiBold,
+    fontSize: 13,
+    fontFamily:
+      Fonts.bold,
     color: Colors.primary,
   },
 
   developerSection: {
     alignItems: "center",
-    paddingTop: Spacing.sm,
   },
 
   developedBy: {
@@ -613,14 +1019,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     lineHeight: 17,
-    fontFamily: Fonts.regular,
+    fontFamily:
+      Fonts.regular,
     color: Colors.gray500,
   },
 
   footer: {
-    marginTop: Spacing.sm,
+    marginTop:
+      Spacing.sm,
     fontSize: 10,
-    fontFamily: Fonts.regular,
+    fontFamily:
+      Fonts.regular,
     color: Colors.gray400,
   },
 });

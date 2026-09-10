@@ -119,19 +119,6 @@ const SettingsScreen = () => {
               )
             }
           />
-
-          <RowDivider />
-
-          <SettingsRow
-            icon="notifications-outline"
-            title="Notifications"
-            description="Manage claim and item alerts"
-            onPress={() =>
-              navigation.navigate(
-                "NotificationSettings"
-              )
-            }
-          />
         </SettingsSection>
 
         <SettingsSection
