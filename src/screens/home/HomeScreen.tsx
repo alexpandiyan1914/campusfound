@@ -399,6 +399,24 @@ const HomeScreen = () => {
           <>
             <WelcomeHeader />
 
+            <View style={styles.betaNotice}>
+              <View style={styles.betaNoticeIcon}>
+                <Text style={styles.betaNoticeIconText}>
+                  !
+                </Text>
+              </View>
+
+              <View style={styles.betaNoticeContent}>
+                <Text style={styles.betaNoticeTitle}>
+                  Beta Notice
+                </Text>
+
+                <Text style={styles.betaNoticeText}>
+                  This beta version contains test data only.
+                </Text>
+              </View>
+            </View>
+
             <SearchShortcut />
 
             <View
@@ -464,13 +482,13 @@ const HomeScreen = () => {
             <SectionHeader
               title={
                 selectedCategory ===
-                "All"
+                  "All"
                   ? "Recently Found"
                   : selectedCategory
               }
               subtitle={
                 selectedCategory ===
-                "All"
+                  "All"
                   ? "Latest items reported on campus"
                   : `Recently found ${selectedCategory.toLowerCase()} items`
               }
@@ -581,5 +599,51 @@ const styles = StyleSheet.create({
 
   footerSpace: {
     height: 110,
+  },
+
+  betaNotice: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: 12,
+    backgroundColor: Colors.warningSoft,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+  },
+
+  betaNoticeIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.sm,
+    backgroundColor: Colors.white,
+  },
+
+  betaNoticeIconText: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
+    color: Colors.warning,
+  },
+
+  betaNoticeContent: {
+    flex: 1,
+  },
+
+  betaNoticeTitle: {
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    color: Colors.text,
+  },
+
+  betaNoticeText: {
+    marginTop: 2,
+    fontSize: 12,
+    lineHeight: 17,
+    fontFamily: Fonts.regular,
+    color: Colors.textSecondary,
   },
 });

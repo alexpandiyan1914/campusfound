@@ -23,6 +23,9 @@ import {
   Shadows,
   Spacing,
 } from "../../theme";
+import {
+  APP_VERSION,
+} from "../../constants/AppInfo";
 
 type NavigationProp =
   NativeStackNavigationProp<MainStackParamList>;
@@ -119,19 +122,6 @@ const SettingsScreen = () => {
               )
             }
           />
-
-          <RowDivider />
-
-          <SettingsRow
-            icon="notifications-outline"
-            title="Notifications"
-            description="Manage claim and item alerts"
-            onPress={() =>
-              navigation.navigate(
-                "NotificationSettings"
-              )
-            }
-          />
         </SettingsSection>
 
         <SettingsSection
@@ -209,7 +199,7 @@ const SettingsScreen = () => {
           <SettingsRow
             icon="information-circle-outline"
             title="Version"
-            trailingText="0.9.0-beta"
+            trailingText={`v${APP_VERSION}`}
           />
         </SettingsSection>
 

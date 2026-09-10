@@ -25,6 +25,10 @@ import {
   Spacing,
 } from "../../theme";
 
+import {
+  formatRelativeTime,
+} from "../../utils/date";
+
 interface Props {
   item: Item;
   onPress: () => void;
@@ -34,11 +38,6 @@ const ItemCard = ({
   item,
   onPress,
 }: Props) => {
-  const formattedDate =
-    formatDate(
-      item.lostFoundDate
-    );
-
   const isActive =
     item.status === "ACTIVE";
 
@@ -127,20 +126,46 @@ const ItemCard = ({
         >
           <View
             style={
-              styles.categoryBadge
+              styles.categoryLeft
             }
           >
-            <Text
+            <View
               style={
-                styles.categoryText
+                styles.categoryBadge
               }
             >
-              {item.category}
-            </Text>
+              <Text
+                style={
+                  styles.categoryText
+                }
+              >
+                {item.category}
+              </Text>
+            </View>
+
+            <View
+              style={
+                styles.testDataBadge
+              }
+            >
+              <Text
+                style={
+                  styles.testDataText
+                }
+              >
+                TEST DATA
+              </Text>
+            </View>
           </View>
 
-          <Text style={styles.date}>
-            {formattedDate}
+          <Text
+            style={
+              styles.date
+            }
+          >
+            {formatRelativeTime(
+              item.createdAt
+            )}
           </Text>
         </View>
 
@@ -195,33 +220,6 @@ const ItemCard = ({
         </View>
       </View>
     </TouchableOpacity>
-  );
-};
-
-const formatDate = (
-  dateValue: string
-) => {
-  if (!dateValue) {
-    return "";
-  }
-
-  const date =
-    new Date(dateValue);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return dateValue;
-  }
-
-  return date.toLocaleDateString(
-    "en-IN",
-    {
-      day: "2-digit",
-      month: "short",
-    }
   );
 };
 
@@ -386,5 +384,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor:
       Colors.primarySoft,
+  },
+
+  categoryLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  testDataBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.warningSoft,
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+  },
+
+  testDataText: {
+    fontSize: 10,
+    fontFamily: Fonts.semiBold,
+    color: Colors.warning,
   },
 });

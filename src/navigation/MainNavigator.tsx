@@ -11,7 +11,6 @@ import AdminDashboardScreen from "../screens/admin/AdminDashboardScreen";
 import ClaimHistoryScreen from "../screens/profile/ClaimHistoryScreen";
 import ClaimDetailsScreen from "../screens/profile/ClaimDetailsScreen";
 import SettingsScreen from "../screens/profile/SettingsScreen";
-import NotificationSettingsScreen from "../screens/profile/NotificationSettingsScreen";
 import ChangePasswordScreen from "../screens/profile/ChangePasswordScreen";
 import TermsAndConditionsScreen from "../screens/profile/TermsAndConditionsScreen";
 import PrivacyPolicyScreen from "../screens/profile/PrivacyPolicyScreen";
@@ -56,7 +55,6 @@ export type MainStackParamList = {
   Settings: undefined;
   ChangePassword: undefined;
 
-  NotificationSettings: undefined;
 
   TermsAndConditions: undefined;
   PrivacyPolicy: undefined;
@@ -164,14 +162,6 @@ const MainNavigator = () => {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
-
-      <Stack.Screen
-        name="NotificationSettings"
-        component={NotificationSettingsScreen}
         options={{
           headerShown: false,
         }}
