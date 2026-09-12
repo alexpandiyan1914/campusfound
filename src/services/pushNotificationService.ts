@@ -30,7 +30,10 @@ Notifications.setNotificationHandler({
 
 class PushNotificationService {
   private async configureAndroidChannel() {
-    if (Platform.OS !== "android") {
+    if (
+      Platform.OS !==
+      "android"
+    ) {
       return;
     }
 
@@ -87,7 +90,6 @@ class PushNotificationService {
     );
   }
 
-
   async getExpoPushToken():
     Promise<string | null> {
     try {
@@ -99,30 +101,50 @@ class PushNotificationService {
         return null;
       }
 
+      /*
+       * Android 13+ requires a notification
+       * channel to exist before requesting
+       * notification permission.
+       */
       await this
         .configureAndroidChannel();
 
-      const permission =
+      let permission =
         await Notifications
           .getPermissionsAsync();
 
-      let finalStatus =
-        permission.status;
+      console.log(
+        "Notification permission before request:",
+        {
+          status:
+            permission.status,
+          canAskAgain:
+            permission.canAskAgain,
+        }
+      );
 
       if (
-        finalStatus ===
-        "undetermined"
+        permission.status !==
+          "granted" &&
+        permission.canAskAgain
       ) {
-        const requestedPermission =
+        permission =
           await Notifications
             .requestPermissionsAsync();
 
-        finalStatus =
-          requestedPermission.status;
+        console.log(
+          "Notification permission after request:",
+          {
+            status:
+              permission.status,
+            canAskAgain:
+              permission.canAskAgain,
+          }
+        );
       }
 
       if (
-        finalStatus !==
+        permission.status !==
         "granted"
       ) {
         console.log(
@@ -149,7 +171,12 @@ class PushNotificationService {
             projectId,
           });
 
+      console.log(
+        "Expo push token obtained successfully."
+      );
+
       return token.data;
+
     } catch (error) {
       console.log(
         "Push token error:",
