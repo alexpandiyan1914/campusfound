@@ -1,120 +1,201 @@
 import React, { useState } from "react";
 import {
+    Image,
     StyleSheet,
     Text,
-    View,
     TouchableOpacity,
-    Image,
+    View,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Alert } from "react-native";
-import ScreenContainer from "../../components/common/ScreenContainer";
+
+import AuthLayout from "../../components/common/AuthLayout";
 import CustomInput from "../../components/inputs/CustomInput";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
-import AuthHeader from "../../components/common/AuthHeader";
-import AuthLayout from "../../components/common/AuthLayout";
 import authService from "../../services/authService";
 import useAuth from "../../hooks/useAuth";
-import { AuthStackParamList } from "../../types/navigation";
 import useFeedback from "../../hooks/useFeedback";
+import { AuthStackParamList } from "../../types/navigation";
 
 import {
     Colors,
     Fonts,
-    Radius,
-    Shadows,
     Spacing,
 } from "../../theme";
 
-
-type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
+type Props = NativeStackScreenProps<
+    AuthStackParamList,
+    "Login"
+>;
 
 const LoginScreen = ({ navigation }: Props) => {
-    const {
-        showSuccess,
-        showError,
-        showWarning,
-        showInfo,
-        showConfirm,
-    } = useFeedback();
-    
+    const { showError, showWarning } =
+        useFeedback();
+
     const { login } = useAuth();
 
-    const [email, setEmail] = useState("");
+    const [email, setEmail] =
+        useState("");
 
-    const [password, setPassword] = useState("");
+    const [password, setPassword] =
+        useState("");
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const handleLogin = async () => {
+    const isValidEmail = (
+        value: string
+    ) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            value.trim()
+        );
+    };
 
-        if (!email || !password) {
+    const getErrorMessage = (
+        error: any
+    ) => {
+        const data =
+            error.response?.data;
 
-            showWarning(
-                "Validation",
-                "Please fill in all fields."
-            );
-
-            return;
-
+        if (
+            typeof data ===
+            "string"
+        ) {
+            return data;
         }
 
-        try {
+        if (data?.message) {
+            return data.message;
+        }
 
-            setLoading(true);
+        return (
+            error.message ||
+            "Unable to login. Please try again."
+        );
+    };
 
-            const response = await authService.login({
-                email,
-                password,
-            });
+    const handleLogin =
+        async () => {
+            const normalizedEmail =
+                email
+                    .trim()
+                    .toLowerCase();
 
-            if (!response.token) {
-                showError(
-                    "Login Failed",
-                    "Authentication token was not received."
+            if (
+                !normalizedEmail ||
+                !password
+            ) {
+                showWarning(
+                    "Missing Information",
+                    "Please enter your email and password."
                 );
+
                 return;
             }
 
-            await login(response.token);
-        } catch (error: any) {
-            console.log("===== LOGIN ERROR =====");
-            console.log(error);
-            console.log("Message:", error.message);
-            console.log("Response:", error.response);
-            console.log("Data:", error.response?.data);
+            if (
+                !isValidEmail(
+                    normalizedEmail
+                )
+            ) {
+                showWarning(
+                    "Invalid Email",
+                    "Please enter a valid email address."
+                );
 
-            showError(
-                "Login Failed",
-                error.message || "Unable to login."
-            );
-        } finally {
-            setLoading(false);
-        }
+                return;
+            }
 
-    };
+            try {
+                setLoading(true);
+
+                const response =
+                    await authService.login({
+                        email:
+                            normalizedEmail,
+                        password,
+                    });
+
+                if (
+                    !response.token
+                ) {
+                    showError(
+                        "Login Failed",
+                        "Authentication token was not received."
+                    );
+
+                    return;
+                }
+
+                await login(
+                    response.token
+                );
+            } catch (
+            error: any
+            ) {
+                console.log(
+                    "Login Error:",
+                    error.response?.data ||
+                    error.message
+                );
+
+                showError(
+                    "Login Failed",
+                    getErrorMessage(
+                        error
+                    )
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
 
     return (
         <AuthLayout>
+            <View
+                style={
+                    styles.container
+                }
+            >
+                <View
+                    style={
+                        styles.logoContainer
+                    }
+                >
+                    <Image
+                        source={require(
+                            "../../assets/images/campusfound-logo.png"
+                        )}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+                </View>
 
-            <View style={styles.container}>
-                {/* Heading */}
-                <AuthHeader
-                    title="Welcome Back"
-                    subtitle="Sign in to continue to CampusFound"
-                />
+                <Text
+                    style={styles.title}
+                >
+                    Welcome back
+                </Text>
 
-                {/* Inputs */}
+                <Text
+                    style={
+                        styles.subtitle
+                    }
+                >
+                    Sign in to continue to CampusFound
+                </Text>
 
-                <View style={styles.form}>
-
+                <View
+                    style={styles.form}
+                >
                     <CustomInput
                         label="Email Address"
                         placeholder="Enter your email"
                         keyboardType="email-address"
                         autoCapitalize="none"
                         value={email}
-                        onChangeText={setEmail}
+                        onChangeText={
+                            setEmail
+                        }
                     />
 
                     <CustomInput
@@ -122,17 +203,24 @@ const LoginScreen = ({ navigation }: Props) => {
                         placeholder="Enter your password"
                         secureTextEntry
                         value={password}
-                        onChangeText={setPassword}
+                        onChangeText={
+                            setPassword
+                        }
                     />
 
                     <TouchableOpacity
+                        activeOpacity={0.7}
                         onPress={() =>
                             navigation.navigate(
                                 "ForgotPassword"
                             )
                         }
                     >
-                        <Text style={styles.forgot}>
+                        <Text
+                            style={
+                                styles.forgot
+                            }
+                        >
                             Forgot Password?
                         </Text>
                     </TouchableOpacity>
@@ -140,96 +228,131 @@ const LoginScreen = ({ navigation }: Props) => {
                     <PrimaryButton
                         title="Login"
                         loading={loading}
-                        onPress={handleLogin}
+                        disabled={loading}
+                        onPress={
+                            handleLogin
+                        }
                     />
-
                 </View>
 
-                {/* Bottom */}
-
-                <View style={styles.bottomContainer}>
-
-                    <Text style={styles.bottomText}>
+                <View
+                    style={
+                        styles.bottomContainer
+                    }
+                >
+                    <Text
+                        style={
+                            styles.bottomText
+                        }
+                    >
                         Don't have an account?
                     </Text>
 
                     <TouchableOpacity
-                        onPress={() => navigation.navigate("Register")}
+                        activeOpacity={0.7}
+                        onPress={() =>
+                            navigation.navigate(
+                                "Register"
+                            )
+                        }
                     >
-                        <Text style={styles.register}>
+                        <Text
+                            style={
+                                styles.register
+                            }
+                        >
                             Create Account
                         </Text>
                     </TouchableOpacity>
-
                 </View>
-
             </View>
-
         </AuthLayout>
     );
 };
 
 export default LoginScreen;
 
-const styles = StyleSheet.create({
+const styles =
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            justifyContent:
+                "center",
+        },
 
-    container: {
-        flex: 1,
-        justifyContent: "center",
-    },
+        logoContainer: {
+            alignItems:
+                "center",
+            marginBottom:
+                Spacing.lg,
+        },
 
-    logoContainer: {
-        alignItems: "center",
-        marginBottom: Spacing.xl,
-    },
+        logo: {
+            width: 110,
+            height: 110,
+        },
 
-    logo: {
-        width: 120,
-        height: 120,
-    },
+        title: {
+            fontSize: 28,
+            fontFamily:
+                Fonts.bold,
+            color: Colors.text,
+            textAlign:
+                "center",
+        },
 
-    title: {
-        fontSize: 30,
-        fontFamily: Fonts.bold,
-        color: Colors.text,
-        textAlign: "center",
-    },
+        subtitle: {
+            marginTop: 6,
+            marginBottom:
+                Spacing.xl,
+            textAlign:
+                "center",
+            fontSize: 14,
+            fontFamily:
+                Fonts.regular,
+            color:
+                Colors.textSecondary,
+        },
 
-    subtitle: {
-        textAlign: "center",
-        color: Colors.textSecondary,
-        marginTop: 8,
-        marginBottom: Spacing.xxl,
-        fontFamily: Fonts.regular,
-        fontSize: 15,
-    },
+        form: {
+            gap: Spacing.md,
+        },
 
-    form: {
-        gap: Spacing.md,
-    },
+        forgot: {
+            alignSelf:
+                "flex-end",
+            marginBottom:
+                Spacing.sm,
+            fontSize: 13,
+            fontFamily:
+                Fonts.semiBold,
+            color:
+                Colors.primary,
+        },
 
-    forgot: {
-        alignSelf: "flex-end",
-        color: Colors.primary,
-        marginBottom: Spacing.md,
-        fontFamily: Fonts.medium,
-    },
+        bottomContainer: {
+            flexDirection:
+                "row",
+            justifyContent:
+                "center",
+            marginTop:
+                Spacing.xl,
+        },
 
-    bottomContainer: {
-        flexDirection: "row",
-        justifyContent: "center",
-        marginTop: Spacing.xxl,
-    },
+        bottomText: {
+            fontSize: 13,
+            fontFamily:
+                Fonts.regular,
+            color:
+                Colors.textSecondary,
+        },
 
-    bottomText: {
-        color: Colors.textSecondary,
-        fontFamily: Fonts.regular,
-    },
-
-    register: {
-        color: Colors.primary,
-        marginLeft: 6,
-        fontFamily: Fonts.semiBold,
-    },
-
-});
+        register: {
+            marginLeft: 6,
+            fontSize: 13,
+            fontFamily:
+                Fonts.semiBold,
+            color:
+                Colors.primary,
+        },
+    });
