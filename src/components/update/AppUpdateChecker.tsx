@@ -1,6 +1,7 @@
 import React, {
   ReactNode,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -39,17 +40,34 @@ import {
   Spacing,
 } from "../../theme";
 
+
 interface Props {
   children: ReactNode;
 }
 
+
+const MAX_RETRIES = 6;
+const RETRY_DELAY_MS = 5000;
+
+
 const AppUpdateChecker = ({
   children,
 }: Props) => {
+
   const [
     checking,
     setChecking,
   ] = useState(true);
+
+  const [
+    retryCount,
+    setRetryCount,
+  ] = useState(0);
+
+  const [
+    serverUnavailable,
+    setServerUnavailable,
+  ] = useState(false);
 
   const [
     update,
@@ -59,11 +77,25 @@ const AppUpdateChecker = ({
       null
     );
 
-  useEffect(() => {
-    checkVersion();
-  }, []);
+  const mountedRef =
+    useRef(true);
+
 
   useEffect(() => {
+
+    mountedRef.current = true;
+
+    checkVersion();
+
+    return () => {
+      mountedRef.current = false;
+    };
+
+  }, []);
+
+
+  useEffect(() => {
+
     if (!update) {
       return;
     }
@@ -80,79 +112,261 @@ const AppUpdateChecker = ({
     return () => {
       subscription.remove();
     };
+
   }, [update]);
+
+
+  const sleep = (
+    milliseconds: number
+  ) =>
+    new Promise(resolve =>
+      setTimeout(
+        resolve,
+        milliseconds
+      )
+    );
+
 
   const checkVersion =
     async () => {
-      try {
-        const response =
-          await appVersionService
-            .getLatestVersion();
 
-        if (
-          response.latestVersion !==
-          APP_VERSION
-        ) {
-          setUpdate(response);
+      if (!mountedRef.current) {
+        return;
+      }
+
+      setChecking(true);
+      setServerUnavailable(false);
+
+      for (
+        let attempt = 1;
+        attempt <= MAX_RETRIES;
+        attempt++
+      ) {
+
+        if (!mountedRef.current) {
+          return;
         }
-      } catch (error) {
-        console.log(
-          "App version check failed:",
-          error
+
+        setRetryCount(
+          attempt - 1
         );
-      } finally {
+
+        try {
+
+          const response =
+            await appVersionService
+              .getLatestVersion();
+
+          if (!mountedRef.current) {
+            return;
+          }
+
+          /*
+           * Backend responded successfully.
+           */
+          if (
+            response.latestVersion !==
+            APP_VERSION
+          ) {
+
+            setUpdate(response);
+
+          }
+
+          setChecking(false);
+
+          return;
+
+        } catch (error) {
+
+          console.log(
+            `CampusFound startup check failed. Attempt ${attempt}/${MAX_RETRIES}`,
+            error
+          );
+
+          /*
+           * Render free instances may be
+           * waking from sleep.
+           * backend is still starting.
+           */
+          if (
+            attempt < MAX_RETRIES
+          ) {
+
+            await sleep(
+              RETRY_DELAY_MS
+            );
+
+          }
+
+        }
+      }
+
+      if (
+        mountedRef.current
+      ) {
+
         setChecking(false);
+        setServerUnavailable(true);
+
       }
     };
 
+
+  const handleRetry =
+    () => {
+
+      setRetryCount(0);
+
+      checkVersion();
+    };
+
+
   const handleUpdate =
     async () => {
+
       if (!update?.releaseUrl) {
         return;
       }
 
       try {
+
         await Linking.openURL(
           update.releaseUrl
         );
+
       } catch (error) {
+
         console.log(
           "Unable to open update URL:",
           error
         );
+
       }
     };
 
+
   const handleExit =
     () => {
+
       if (
         Platform.OS ===
         "android"
       ) {
+
         BackHandler.exitApp();
+
       }
     };
 
+
   if (checking) {
+
     return (
       <View
         style={
           styles.loadingContainer
         }
       >
+
         <ActivityIndicator
           size="large"
           color={Colors.primary}
         />
 
         <Text
-          style={styles.loadingText}
+          style={
+            styles.loadingTitle
+          }
         >
-          Checking CampusFound...
+          Starting CampusFound...
         </Text>
+
+        <Text
+          style={
+            styles.loadingText
+          }
+        >
+          {retryCount === 0
+            ? "Connecting to the CampusFound server."
+            : "The beta server is waking up. This may take a few moments."}
+        </Text>
+
       </View>
     );
   }
+
+
+  if (serverUnavailable) {
+
+    return (
+      <View
+        style={
+          styles.loadingContainer
+        }
+      >
+
+        <View
+          style={
+            styles.serverIconContainer
+          }
+        >
+
+          <Ionicons
+            name="cloud-offline-outline"
+            size={32}
+            color={Colors.primary}
+          />
+
+        </View>
+
+        <Text
+          style={
+            styles.loadingTitle
+          }
+        >
+          Unable to connect
+        </Text>
+
+        <Text
+          style={
+            styles.loadingText
+          }
+        >
+          CampusFound could not connect to the server.
+          Please check your internet connection and try again.
+        </Text>
+
+        <TouchableOpacity
+          style={
+            styles.retryButton
+          }
+          activeOpacity={0.82}
+          onPress={
+            handleRetry
+          }
+        >
+
+          <Ionicons
+            name="refresh-outline"
+            size={20}
+            color={Colors.white}
+          />
+
+          <Text
+            style={
+              styles.retryButtonText
+            }
+          >
+            Try Again
+          </Text>
+
+        </TouchableOpacity>
+
+      </View>
+    );
+  }
+
 
   return (
     <>
@@ -167,27 +381,33 @@ const AppUpdateChecker = ({
           handleExit
         }
       >
+
         <View
           style={
             styles.overlay
           }
         >
+
           <View
             style={
               styles.modalCard
             }
           >
+
             <View
               style={
                 styles.iconContainer
               }
             >
+
               <Ionicons
                 name="cloud-download-outline"
                 size={30}
                 color={Colors.primary}
               />
+
             </View>
+
 
             <Text
               style={
@@ -197,6 +417,7 @@ const AppUpdateChecker = ({
               Update Required
             </Text>
 
+
             <Text
               style={
                 styles.message
@@ -205,12 +426,15 @@ const AppUpdateChecker = ({
               {update?.message}
             </Text>
 
+
             <View
               style={
                 styles.versionBox
               }
             >
+
               <View>
+
                 <Text
                   style={
                     styles.versionLabel
@@ -226,7 +450,9 @@ const AppUpdateChecker = ({
                 >
                   v{APP_VERSION}
                 </Text>
+
               </View>
+
 
               <Ionicons
                 name="arrow-forward"
@@ -236,11 +462,13 @@ const AppUpdateChecker = ({
                 }
               />
 
+
               <View
                 style={
                   styles.versionRight
                 }
               >
+
                 <Text
                   style={
                     styles.versionLabel
@@ -256,8 +484,11 @@ const AppUpdateChecker = ({
                 >
                   v{update?.latestVersion}
                 </Text>
+
               </View>
+
             </View>
+
 
             <Text
               style={
@@ -266,6 +497,7 @@ const AppUpdateChecker = ({
             >
               All beta testers must use the latest CampusFound version so issues can be tested consistently.
             </Text>
+
 
             <TouchableOpacity
               style={
@@ -276,6 +508,7 @@ const AppUpdateChecker = ({
                 handleUpdate
               }
             >
+
               <Ionicons
                 name="download-outline"
                 size={20}
@@ -289,7 +522,9 @@ const AppUpdateChecker = ({
               >
                 Update CampusFound
               </Text>
+
             </TouchableOpacity>
+
 
             <TouchableOpacity
               style={
@@ -300,6 +535,7 @@ const AppUpdateChecker = ({
                 handleExit
               }
             >
+
               <Text
                 style={
                   styles.exitButtonText
@@ -307,34 +543,92 @@ const AppUpdateChecker = ({
               >
                 Exit App
               </Text>
+
             </TouchableOpacity>
+
           </View>
+
         </View>
+
       </Modal>
     </>
   );
 };
 
+
 export default AppUpdateChecker;
+
 
 const styles =
   StyleSheet.create({
+
     loadingContainer: {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
+      paddingHorizontal:
+        Spacing.xl,
       backgroundColor:
         Colors.background,
     },
 
+    loadingTitle: {
+      marginTop:
+        Spacing.md,
+      textAlign: "center",
+      fontSize: 18,
+      fontFamily:
+        Fonts.semiBold,
+      color:
+        Colors.text,
+    },
+
     loadingText: {
+      maxWidth: 320,
       marginTop:
         Spacing.sm,
+      textAlign: "center",
       fontSize: 13,
+      lineHeight: 20,
       fontFamily:
         Fonts.regular,
       color:
         Colors.textSecondary,
+    },
+
+    serverIconContainer: {
+      width: 62,
+      height: 62,
+      borderRadius: 31,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor:
+        Colors.primarySoft,
+    },
+
+    retryButton: {
+      minHeight: 50,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop:
+        Spacing.lg,
+      paddingHorizontal:
+        Spacing.xl,
+      borderRadius:
+        Radius.md,
+      backgroundColor:
+        Colors.primary,
+    },
+
+    retryButtonText: {
+      marginLeft:
+        Spacing.sm,
+      fontSize: 14,
+      fontFamily:
+        Fonts.semiBold,
+      color:
+        Colors.white,
     },
 
     overlay: {
@@ -416,7 +710,8 @@ const styles =
       letterSpacing: 0.7,
       fontFamily:
         Fonts.semiBold,
-      color: Colors.gray500,
+      color:
+        Colors.gray500,
     },
 
     currentVersion: {
@@ -424,7 +719,8 @@ const styles =
       fontSize: 14,
       fontFamily:
         Fonts.semiBold,
-      color: Colors.gray600,
+      color:
+        Colors.gray600,
     },
 
     latestVersion: {
@@ -432,7 +728,8 @@ const styles =
       fontSize: 14,
       fontFamily:
         Fonts.bold,
-      color: Colors.primary,
+      color:
+        Colors.primary,
     },
 
     helperText: {
@@ -443,7 +740,8 @@ const styles =
       lineHeight: 17,
       fontFamily:
         Fonts.regular,
-      color: Colors.gray500,
+      color:
+        Colors.gray500,
     },
 
     updateButton: {
@@ -465,7 +763,8 @@ const styles =
       fontSize: 14,
       fontFamily:
         Fonts.semiBold,
-      color: Colors.white,
+      color:
+        Colors.white,
     },
 
     exitButton: {
@@ -480,6 +779,8 @@ const styles =
       fontSize: 13,
       fontFamily:
         Fonts.medium,
-      color: Colors.gray500,
+      color:
+        Colors.gray500,
     },
+
   });
