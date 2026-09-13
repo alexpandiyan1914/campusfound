@@ -41,7 +41,7 @@ const SettingsScreen = () => {
 
   const handleReportIssue = async () => {
     const url =
-      "https://github.com/alexpandiyan1914/campusfound/issues";
+      "https://github.com/alexpandiyan1914/campusfound/issues/new";
 
     try {
       await Linking.openURL(url);
@@ -53,11 +53,18 @@ const SettingsScreen = () => {
     }
   };
 
-  const handleFeedback = () => {
-    showInfo(
-      "Send Feedback",
-      "Beta feedback will be connected before the CampusFound release."
-    );
+  const handleFeedback = async () => {
+    const url =
+      "https://forms.gle/ZYtcy7FZyekYrCn99";
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      showError(
+        "Unable to Open Feedback Form",
+        "Please try again later."
+      );
+    }
   };
 
   return (
