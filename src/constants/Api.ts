@@ -1,5 +1,5 @@
 export const API = {
-  BASE_URL: process.env.EXPO_PUBLIC_API_URL!,
+  BASE_URL: "https://campusfound-backend-jlj8.onrender.com/api",
 };
 
 export default API;
